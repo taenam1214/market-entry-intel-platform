@@ -6,7 +6,7 @@ const App = () => (
     <Layout>
       <AppRoutes />
     </Layout>
-  </div>
+      </div>
 );
 
 export default App;

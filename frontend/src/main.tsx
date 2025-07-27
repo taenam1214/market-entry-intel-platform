@@ -13,7 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ChakraProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <App />
+    <App />
         </BrowserRouter>
       </QueryClientProvider>
     </ChakraProvider>

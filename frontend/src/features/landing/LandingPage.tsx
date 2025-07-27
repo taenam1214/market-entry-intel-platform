@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -21,7 +21,56 @@ import {
   Icon,
   Flex,
 } from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
 import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight } from 'react-icons/fi';
+
+// Animation keyframes
+const float = keyframes`
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+`;
+
+const gradientShift = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const fadeIn = keyframes`
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+`;
+
+const scaleIn = keyframes`
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+`;
+
+const FloatingParticle = ({ delay, size, color, left, top }: {
+  delay: number;
+  size: number;
+  color: string;
+  left: string;
+  top: string;
+}) => (
+  <Box
+    position="absolute"
+    left={left}
+    top={top}
+    w={`${size}px`}
+    h={`${size}px`}
+    bg={color}
+    borderRadius="full"
+    opacity="0.3"
+    animation={`${float} 6s ease-in-out infinite`}
+    style={{ animationDelay: `${delay}s` }}
+  />
+);
 
 const LandingPage = () => {
   const [formData, setFormData] = useState({
@@ -63,8 +112,13 @@ const LandingPage = () => {
         position="relative"
         overflow="hidden"
         w="100%"
+        sx={{
+          background: 'linear-gradient(-45deg, #667eea, #764ba2, #4facfe, #00f2fe)',
+          backgroundSize: '400% 400%',
+          animation: `${gradientShift} 15s ease infinite`,
+        }}
       >
-        {/* Background Pattern */}
+        {/* Animated Background Pattern */}
         <Box
           position="absolute"
           top="0"
@@ -74,17 +128,87 @@ const LandingPage = () => {
           opacity="0.1"
           backgroundImage="radial-gradient(circle at 25% 25%, white 2px, transparent 2px), radial-gradient(circle at 75% 75%, white 2px, transparent 2px)"
           backgroundSize="50px 50px"
+          animation={`${pulse} 4s ease-in-out infinite`}
+        />
+
+        {/* Floating Particles */}
+        <FloatingParticle delay={0} size={8} color="rgba(255,255,255,0.4)" left="10%" top="20%" />
+        <FloatingParticle delay={1} size={12} color="rgba(255,255,255,0.3)" left="85%" top="15%" />
+        <FloatingParticle delay={2} size={6} color="rgba(255,255,255,0.5)" left="20%" top="80%" />
+        <FloatingParticle delay={3} size={10} color="rgba(255,255,255,0.2)" left="75%" top="70%" />
+        <FloatingParticle delay={4} size={14} color="rgba(255,255,255,0.3)" left="50%" top="10%" />
+        <FloatingParticle delay={5} size={8} color="rgba(255,255,255,0.4)" left="15%" top="60%" />
+
+        {/* Animated Geometric Shapes */}
+        <Box
+          position="absolute"
+          top="5%"
+          right="10%"
+          w="100px"
+          h="100px"
+          border="2px solid rgba(255,255,255,0.1)"
+          borderRadius="50%"
+          animation={`${float} 8s ease-in-out infinite`}
+          style={{ animationDelay: '2s' }}
+        />
+        <Box
+          position="absolute"
+          bottom="15%"
+          left="5%"
+          w="80px"
+          h="80px"
+          border="2px solid rgba(255,255,255,0.1)"
+          transform="rotate(45deg)"
+          animation={`${float} 10s ease-in-out infinite`}
+          style={{ animationDelay: '1s' }}
+        />
+
+        {/* Animated Lines */}
+        <Box
+          position="absolute"
+          top="30%"
+          left="0"
+          w="100px"
+          h="2px"
+          bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)"
+          animation={`${pulse} 4s ease-in-out infinite`}
+          style={{ animationDelay: '0.5s' }}
+        />
+        <Box
+          position="absolute"
+          bottom="40%"
+          right="0"
+          w="150px"
+          h="2px"
+          bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)"
+          animation={`${pulse} 4s ease-in-out infinite`}
+          style={{ animationDelay: '2.5s' }}
         />
 
         <Container maxW="100%" px={8} position="relative" zIndex={1}>
           <VStack spacing={8} textAlign="center">
             <VStack spacing={4}>
-              <Heading size="xl" fontWeight="bold" lineHeight="1.2">
-                Market Entry Intelligence
+              <Heading 
+                size="xl" 
+                fontWeight="bold" 
+                lineHeight="1.2"
+              >
+                KairosAI
               </Heading>
-              <Text fontSize="lg" maxW="2xl" opacity="0.9">
-                Unlock your competitive advantage with AI-powered market analysis.
-                Discover opportunities, analyze competitors, and position your brand for success.
+              <Text 
+                fontSize="md" 
+                opacity="0.8"
+              >
+                Seizing the Perfect Moment for Market Success
+              </Text>
+              <Text 
+                fontSize="lg" 
+                maxW="2xl" 
+                opacity="0.9"
+              >
+                Agentic AI that autonomously analyzes market entry opportunities, 
+                competitive landscapes, and strategic positioning to help you identify 
+                and seize the perfect moment for market expansion.
               </Text>
             </VStack>
 
@@ -96,15 +220,20 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.1)"
+                  bg="rgba(255,255,255,0.5)"
                   borderRadius="full"
                   backdropFilter="blur(10px)"
+                  _hover={{
+                    transform: 'scale(1.1)',
+                    transition: 'transform 0.3s ease',
+                    bg: 'rgba(255,255,255,0.1)',
+                  }}
                 >
-                  <Icon as={FiTarget} boxSize={6} />
+                  <Icon as={FiTarget} boxSize={6} opacity="0.8" />
                 </Box>
                 <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Competitive Analysis</Text>
-                  <Text fontSize="sm" opacity="0.8">Identify key competitors</Text>
+                  <Text fontWeight="bold" fontSize="md">Autonomous Intelligence</Text>
+                  <Text fontSize="sm" opacity="0.8">AI-driven market research</Text>
                 </VStack>
               </VStack>
 
@@ -115,15 +244,20 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.1)"
+                  bg="rgba(255,255,255,0.5)"
                   borderRadius="full"
                   backdropFilter="blur(10px)"
+                  _hover={{
+                    transform: 'scale(1.1)',
+                    transition: 'transform 0.3s ease',
+                    bg: 'rgba(255,255,255,0.1)',
+                  }}
                 >
-                  <Icon as={FiTrendingUp} boxSize={6} />
+                  <Icon as={FiTrendingUp} boxSize={6} opacity="0.8" />
                 </Box>
                 <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Market Opportunities</Text>
-                  <Text fontSize="sm" opacity="0.8">Find growth potential</Text>
+                  <Text fontWeight="bold" fontSize="md">Perfect Timing</Text>
+                  <Text fontSize="sm" opacity="0.8">Seize market opportunities</Text>
                 </VStack>
               </VStack>
 
@@ -134,15 +268,20 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.1)"
+                  bg="rgba(255,255,255,0.5)"
                   borderRadius="full"
                   backdropFilter="blur(10px)"
+                  _hover={{
+                    transform: 'scale(1.1)',
+                    transition: 'transform 0.3s ease',
+                    bg: 'rgba(255,255,255,0.1)',
+                  }}
                 >
-                  <Icon as={FiBarChart} boxSize={6} />
+                  <Icon as={FiBarChart} boxSize={6} opacity="0.8" />
                 </Box>
                 <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Strategic Insights</Text>
-                  <Text fontSize="sm" opacity="0.8">Data-driven decisions</Text>
+                  <Text fontWeight="bold" fontSize="md">Strategic Positioning</Text>
+                  <Text fontSize="sm" opacity="0.8">Data-driven market entry</Text>
                 </VStack>
               </VStack>
             </HStack>
@@ -151,7 +290,12 @@ const LandingPage = () => {
               size="md"
               bg="white"
               color="purple.600"
-              _hover={{ bg: 'gray.100' }}
+              _hover={{ 
+                bg: 'gray.100',
+                transform: 'translateY(-2px)',
+                boxShadow: 'lg',
+                transition: 'all 0.3s ease',
+              }}
               px={6}
               py={4}
               fontSize="md"
@@ -176,10 +320,10 @@ const LandingPage = () => {
             <Box bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" p={4} color="white">
               <VStack spacing={2} textAlign="center">
                 <Heading size="lg">
-                  Get Your Market Entry Analysis
+                  Start Your Autonomous Market Analysis
                 </Heading>
                 <Text fontSize="md" opacity="0.9">
-                  Tell us about your business and target market to receive personalized insights
+                  Let KairosAI autonomously research and analyze your market entry opportunities
                 </Text>
               </VStack>
             </Box>
@@ -324,7 +468,7 @@ const LandingPage = () => {
                     borderRadius="lg"
                     rightIcon={<FiArrowRight />}
                   >
-                    Start Market Analysis
+                    Launch KairosAI Analysis
                   </Button>
                 </VStack>
               </form>
@@ -332,17 +476,17 @@ const LandingPage = () => {
               {/* Features Preview */}
               <Box mt={4} p={3} bg="gray.50" borderRadius="lg">
                 <Text fontSize="sm" color="gray.600" textAlign="center" mb={2}>
-                  You'll receive:
+                  KairosAI will autonomously deliver:
                 </Text>
                 <Flex justify="center" wrap="wrap" gap={2}>
                   <Badge colorScheme="green" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Competitive Landscape Analysis
+                    Autonomous Competitive Intelligence
                   </Badge>
                   <Badge colorScheme="blue" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Segment Arbitrage Opportunities
+                    Market Opportunity Detection
                   </Badge>
                   <Badge colorScheme="purple" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Executive Summary Dashboard
+                    Strategic Positioning Insights
                   </Badge>
                 </Flex>
               </Box>
