@@ -1,4 +1,5 @@
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { Box, Flex, VStack, Link, Heading, Icon, Text, Button, IconButton } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
 import { FiHome, FiBarChart, FiTarget, FiTrendingUp, FiMenu, FiX } from 'react-icons/fi';
@@ -111,14 +112,24 @@ const Layout = ({ children }: { children: ReactNode }) => {
       </Box>
       
       {/* Main Content */}
-      <Box flex={1} bg="gray.50" overflow="auto" position="relative" w="100%" m={0} p={0}>
+      <Box 
+        flex={1} 
+        bg="gray.50" 
+        overflow="auto" 
+        position="relative" 
+        w="100%" 
+        m={0} 
+        p={0}
+        ml={isSidebarOpen ? "280px" : "0"}
+        transition="margin-left 0.3s ease"
+      >
         {/* Toggle Button */}
         <IconButton
           aria-label="Toggle sidebar"
           icon={<FiMenu />}
           position="fixed"
           top={4}
-          left={4}
+          left={isSidebarOpen ? "300px" : "4"}
           zIndex={40}
           bg="white"
           color="gray.800"
@@ -127,6 +138,9 @@ const Layout = ({ children }: { children: ReactNode }) => {
           size="sm"
           onClick={toggleSidebar}
           _hover={{ bg: 'gray.100' }}
+          transition="left 0.3s ease"
+          opacity={isSidebarOpen ? 0 : 1}
+          pointerEvents={isSidebarOpen ? "none" : "auto"}
         />
         
         {children}
