@@ -179,15 +179,32 @@ Provide maximum detail with specific data points, company examples, and quantita
         return report
     
     async def generate_competitor_report(self, company: str, industry: str, target_country: str, company_info: Dict[str, Any] = None, output_file: Optional[str] = None) -> str:
-        """Generate a comprehensive competitor analysis report optimized for scoring."""
-        report = await self.research_market(company, industry, target_country, company_info)
-        
-        if output_file:
+        """Generate a structured competitor analysis report as a JSON list of competitors with name, description, and approx market share."""
+        prompt = f"""
+You are an expert market analyst. List the top 5-10 direct competitors for {company} in the {industry} industry in {target_country}.
+For each competitor, provide:
+- name
+- a 1-2 sentence description (what they do, their positioning, any notable facts)
+- approximate market share as a percentage (if unknown, estimate or say 'unknown')
+
+Output ONLY a JSON array, e.g.:
+[
+  {{"name": "Competitor A", "description": "...", "market_share": "25%"}},
+  ...
+]
+"""
+        result = await self.iterative_researcher.run(prompt, output_length="short")
+        # Try to parse as JSON
+        import json
+        try:
+            competitors = json.loads(result)
+        except Exception:
+            competitors = result  # fallback to raw string if not JSON
+        if output_file and isinstance(competitors, str):
             with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(report)
+                f.write(competitors)
             print(f"Competitor expansion report saved to: {output_file}")
-        
-        return report
+        return competitors
     
     async def generate_deep_competitor_analysis(self, company: str, industry: str, target_country: str, company_info: Dict[str, Any] = None, output_file: Optional[str] = None) -> str:
         """Generate a deep competitor analysis using enhanced prompts for comprehensive scoring data."""

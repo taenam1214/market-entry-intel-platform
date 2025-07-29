@@ -444,3 +444,87 @@ def quick_market_analysis(request):
             {'error': str(e)}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+class KeyInsightsAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = MarketAnalysisRequestSerializer()
+        errors = serializer.validate_data(request.data)
+        if errors:
+            return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
+        company_info = {
+            'company_name': request.data.get('company_name'),
+            'industry': request.data.get('industry'),
+            'target_market': request.data.get('target_market'),
+            'website': request.data.get('website', ''),
+            'current_positioning': request.data.get('current_positioning', ''),
+            'brand_description': request.data.get('brand_description', ''),
+            'email': request.data.get('email', '')
+        }
+        from apps.ai_agents.research_agent import CompetitorResearchAgent
+        from apps.ai_agents.scoring_agent import MarketScoringAgent
+        import asyncio
+        try:
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            research_agent = CompetitorResearchAgent()
+            research_report = loop.run_until_complete(
+                research_agent.research_market(
+                    company=company_info['company_name'],
+                    industry=company_info['industry'],
+                    target_country=company_info['target_market'],
+                    company_info=company_info
+                )
+            )
+            scoring_agent = MarketScoringAgent()
+            scores = scoring_agent.score_research_report(research_report, company_info)
+            insights = self._extract_key_insights(scores)
+            return Response({'key_insights': insights}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CompetitorAnalysisAPIView(APIView):
+    """
+    Returns a JSON array of competitors (name, description, market_share) if available, or a string fallback.
+    Note: You can run this and other API calls in parallel from the frontend using Promise.all or similar.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = MarketAnalysisRequestSerializer()
+        errors = serializer.validate_data(request.data)
+        if errors:
+            return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
+        company_info = {
+            'company_name': request.data.get('company_name'),
+            'industry': request.data.get('industry'),
+            'target_market': request.data.get('target_market'),
+            'website': request.data.get('website', ''),
+            'current_positioning': request.data.get('current_positioning', ''),
+            'brand_description': request.data.get('brand_description', ''),
+            'email': request.data.get('email', '')
+        }
+        from apps.ai_agents.research_agent import CompetitorResearchAgent
+        import asyncio
+        try:
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            research_agent = CompetitorResearchAgent()
+            competitor_report = loop.run_until_complete(
+                research_agent.generate_competitor_report(
+                    company=company_info['company_name'],
+                    industry=company_info['industry'],
+                    target_country=company_info['target_market'],
+                    company_info=company_info
+                )
+            )
+            return Response({'competitor_analysis': competitor_report}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
