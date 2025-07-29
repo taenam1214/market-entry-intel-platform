@@ -20,9 +20,12 @@ import {
   Badge,
   Icon,
   Flex,
+  Spinner,
+  Center,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 // Animation keyframes
 const float = keyframes`
@@ -82,26 +85,115 @@ const LandingPage = () => {
     website: '',
     email: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(300); // 5 minutes in seconds
+  const [timerExpired, setTimerExpired] = useState(false);
+  const navigate = useNavigate();
   const toast = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (loading && timer === 0) {
+      setTimerExpired(true);
+    }
+    return () => clearInterval(interval);
+  }, [loading, timer]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     toast({
       title: 'Analysis Started!',
-      description: 'We\'re analyzing your market entry opportunities. You\'ll be redirected to your dashboard shortly.',
+      description: "We're analyzing your market entry opportunities. You'll be redirected to your dashboard shortly.",
       status: 'success',
       duration: 5000,
       isClosable: true,
     });
-    // Here you would typically send data to backend and redirect
+    setLoading(true);
+    setTimer(300);
+    setTimerExpired(false);
+    try {
+      const payload = {
+        company_name: formData.companyName,
+        industry: formData.industry,
+        target_market: formData.targetMarket,
+        website: formData.website,
+        current_positioning: formData.currentPositioning,
+        brand_description: formData.brandDescription,
+        email: formData.email,
+      };
+      const [marketRes, competitorRes] = await Promise.all([
+        fetch('http://localhost:8000/api/v1/market-analysis/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }),
+        fetch('http://localhost:8000/api/v1/competitor-analysis/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+      ]);
+      if (!marketRes.ok) {
+        const errorData = await marketRes.json();
+        throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
+      }
+      const data = await marketRes.json();
+      localStorage.setItem('dashboardData', JSON.stringify(data));
+      if (competitorRes.ok) {
+        const competitorData = await competitorRes.json();
+        localStorage.setItem('competitorSummary', JSON.stringify(competitorData.competitor_analysis));
+      } else {
+        localStorage.setItem('competitorSummary', 'No competitor summary available.');
+      }
+      setLoading(false);
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast({
+        title: 'Analysis Failed',
+        description: error.message || 'An error occurred while analyzing the market.',
+        status: 'error',
+        duration: 6000,
+        isClosable: true,
+      });
+      setLoading(false);
+    }
   };
 
   return (
     <Box minH="100vh" bg="gray.50" w="100%">
+      {loading && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100vw"
+          height="100vh"
+          bg="rgba(255,255,255,0.8)"
+          zIndex={9999}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <VStack spacing={4}>
+            <Spinner size="xl" color="purple.500" thickness="4px" speed="0.7s" />
+            <Text fontSize="lg" color="purple.700" fontWeight="bold">Running Market Analysis...</Text>
+            <Text fontSize="md" color="gray.700">
+              Estimated time remaining: {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+            </Text>
+            {timerExpired && (
+              <Text color="red.500" fontWeight="bold">This is taking longer than expected. Please wait or try again later.</Text>
+            )}
+          </VStack>
+        </Box>
+      )}
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"

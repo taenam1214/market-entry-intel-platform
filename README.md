@@ -103,6 +103,78 @@ Unlike traditional AI that simply responds to prompts, **Agentic AI** takes auto
 4. **Access KairosAI**
    Navigate to `http://localhost:5173`
 
+## 🔧 Backend Setup
+
+### Backend Prerequisites
+- Python 3.8+
+- pip
+- Virtual environment (recommended)
+
+### Backend Installation
+
+1. **Set up virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. **Install backend dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Environment Variables**
+   
+   Create a `.env` file in the `backend/kairosai/` directory:
+   ```env
+   SECRET_KEY=your-secret-key-here
+   DEBUG=True
+   ALLOWED_HOSTS=localhost,127.0.0.1
+   
+   # API Keys (required)
+   OPENAI_API_KEY=your-openai-api-key
+   SERPER_API_KEY=your-serper-api-key
+   
+   # Optional
+   ANTHROPIC_API_KEY=your-anthropic-api-key
+   ```
+
+4. **Database Setup**
+   ```bash
+   cd backend/kairosai
+   python manage.py migrate
+   ```
+
+5. **Run the Backend Server**
+   ```bash
+   python manage.py runserver
+   ```
+   
+   The backend will be available at `http://localhost:8000`
+
+### API Endpoints
+
+- `POST /api/v1/market-analysis/` - Main market analysis
+- `POST /api/v1/competitor-analysis/` - Competitor analysis
+- `POST /api/v1/key-insights/` - Key insights extraction
+- `POST /api/v1/deep-analysis/` - Deep market analysis
+- `GET /api/v1/health/` - Health check
+
+### API Request Format
+
+All endpoints accept POST requests with the following JSON structure:
+```json
+{
+  "company_name": "Your Company",
+  "industry": "technology",
+  "target_market": "United States",
+  "website": "https://yourcompany.com",
+  "current_positioning": "Premium B2B SaaS",
+  "brand_description": "AI-powered analytics platform",
+  "email": "contact@yourcompany.com"
+}
+```
+
 ## 🏗 Project Structure
 
 ```
@@ -115,8 +187,13 @@ kairos-ai/
 │   │   ├── routes/       # Routing configuration
 │   │   └── App.tsx      # Main app component
 │   └── package.json     # Frontend dependencies
-├── backend/              # Future Agentic AI backend
-├── agents/               # Autonomous AI agent definitions
+├── backend/              # Django backend with AI agents
+│   ├── kairosai/        # Django project
+│   │   ├── apps/        # Django apps
+│   │   │   ├── analysis/    # API endpoints
+│   │   │   └── ai_agents/   # AI research and scoring agents
+│   │   └── manage.py    # Django management
+│   └── requirements.txt # Python dependencies
 ├── docs/                 # Project documentation
 └── README.md           # This file
 ```
