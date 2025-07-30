@@ -1,5 +1,5 @@
-import { Box, Container, Grid, GridItem, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatLabel, StatNumber, StatHelpText, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Collapse, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
-import { FiTrendingUp, FiTrendingDown, FiTarget, FiDollarSign, FiUsers, FiBarChart } from 'react-icons/fi';
+import { Box, Container, Grid, GridItem, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatLabel, StatNumber, StatHelpText, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Collapse, Table, Thead, Tbody, Tr, Th, Td, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from '@chakra-ui/react';
+import { FiTrendingUp, FiTrendingDown, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiX } from 'react-icons/fi';
 import SectionHeader from '../../components/SectionHeader';
 import DataTable from '../../components/DataTable';
 import { useEffect, useState } from 'react';
@@ -10,7 +10,8 @@ const ExecutiveDashboardPage = () => {
   const [loadingCompetitorSummary, setLoadingCompetitorSummary] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
   const [competitorError, setCompetitorError] = useState<string | null>(null);
-  const [expandedMetric, setExpandedMetric] = useState<number | null>(null);
+  const [selectedMetric, setSelectedMetric] = useState<any>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const data = localStorage.getItem('dashboardData');
@@ -42,6 +43,11 @@ const ExecutiveDashboardPage = () => {
       setCompetitorError('Failed to fetch competitor analysis.');
     }
     setLoadingCompetitorSummary(false);
+  };
+
+  const handleMetricClick = (metric: any) => {
+    setSelectedMetric(metric);
+    onOpen();
   };
 
   if (!dashboard) {
@@ -116,7 +122,7 @@ const ExecutiveDashboardPage = () => {
           {/* Metrics Cards */}
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
             {metrics.map((metric, idx) => (
-              <Card key={idx} shadow="xl" borderRadius="2xl" bg={`${metric.color}.50`} _hover={{ boxShadow: '2xl', transform: 'scale(1.03)' }} transition="all 0.2s" cursor="pointer" onClick={() => setExpandedMetric(expandedMetric === idx ? null : idx)}>
+              <Card key={idx} shadow="xl" borderRadius="2xl" bg={`${metric.color}.50`} _hover={{ boxShadow: '2xl', transform: 'translateY(-2px)' }} transition="all 0.2s">
                 <CardBody p={6}>
                   <VStack align="start" spacing={3}>
                     <HStack w="full" justify="space-between">
@@ -138,11 +144,18 @@ const ExecutiveDashboardPage = () => {
                         vs last month
                       </Text>
                     </HStack>
-                    <Collapse in={expandedMetric === idx} animateOpacity>
-                      <Box mt={2} p={2} bg="gray.100" borderRadius="md">
-                        <Text fontSize="sm" color="gray.700">{metric.explanation}</Text>
-                      </Box>
-                    </Collapse>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorScheme={metric.color}
+                      leftIcon={<FiInfo />}
+                      onClick={() => handleMetricClick(metric)}
+                      w="full"
+                      mt={2}
+                      _hover={{ bg: `${metric.color}.100` }}
+                    >
+                      View Details
+                    </Button>
                   </VStack>
                 </CardBody>
               </Card>
@@ -240,6 +253,48 @@ const ExecutiveDashboardPage = () => {
           </Card>
         </VStack>
       </Container>
+
+      {/* Metric Details Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader color={`${selectedMetric?.color}.700`}>
+            {selectedMetric?.label} - Detailed Analysis
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack align="start" spacing={4}>
+              <HStack w="full" justify="space-between" p={4} bg={`${selectedMetric?.color}.50`} borderRadius="lg">
+                <VStack align="start" spacing={1}>
+                  <Text fontSize="lg" fontWeight="bold" color={`${selectedMetric?.color}.900`}>
+                    {selectedMetric?.value}
+                  </Text>
+                  <Badge colorScheme={selectedMetric?.color} variant="solid">
+                    {selectedMetric?.change}
+                  </Badge>
+                </VStack>
+                <Icon as={selectedMetric?.icon} color={`${selectedMetric?.color}.500`} boxSize={8} />
+              </HStack>
+              
+              <Box w="full">
+                <Text fontSize="md" fontWeight="semibold" color="gray.700" mb={3}>
+                  Analysis & Rationale
+                </Text>
+                <Box p={4} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.200">
+                  <Text fontSize="sm" color="gray.700" lineHeight="1.6">
+                    {selectedMetric?.explanation || 'No detailed explanation available for this metric.'}
+                  </Text>
+                </Box>
+              </Box>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme={selectedMetric?.color} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
