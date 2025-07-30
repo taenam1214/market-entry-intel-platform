@@ -120,8 +120,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
         w="100%" 
         m={0} 
         p={0}
-        ml={isSidebarOpen ? "280px" : "0"}
-        transition="margin-left 0.3s ease"
       >
         {/* Toggle Button */}
         <IconButton
@@ -129,7 +127,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
           icon={<FiMenu />}
           position="fixed"
           top={4}
-          left={isSidebarOpen ? "300px" : "4"}
+          left="4"
           zIndex={40}
           bg="white"
           color="gray.800"
@@ -138,9 +136,9 @@ const Layout = ({ children }: { children: ReactNode }) => {
           size="sm"
           onClick={toggleSidebar}
           _hover={{ bg: 'gray.100' }}
-          transition="left 0.3s ease"
           opacity={isSidebarOpen ? 0 : 1}
           pointerEvents={isSidebarOpen ? "none" : "auto"}
+          transition="opacity 0.3s ease"
         />
         
         {children}
