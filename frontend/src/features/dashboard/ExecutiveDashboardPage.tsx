@@ -1,8 +1,9 @@
-import { Box, Container, Grid, GridItem, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatLabel, StatNumber, StatHelpText, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Collapse, Table, Thead, Tbody, Tr, Th, Td, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from '@chakra-ui/react';
-import { FiTrendingUp, FiTrendingDown, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiX } from 'react-icons/fi';
+import { Box, Container, Grid, GridItem, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatLabel, StatNumber, StatHelpText, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Collapse, Table, Thead, Tbody, Tr, Th, Td, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton } from '@chakra-ui/react';
+import { FiTrendingUp, FiTrendingDown, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiX, FiDownload } from 'react-icons/fi';
 import SectionHeader from '../../components/SectionHeader';
 import DataTable from '../../components/DataTable';
 import { useEffect, useState } from 'react';
+import React from 'react';
 
 const ExecutiveDashboardPage = () => {
   const [dashboard, setDashboard] = useState<any>(null);
@@ -48,6 +49,110 @@ const ExecutiveDashboardPage = () => {
   const handleMetricClick = (metric: any) => {
     setSelectedMetric(metric);
     onOpen();
+  };
+
+  // Function to download report as text file
+  const downloadReport = () => {
+    if (!researchReport) return;
+    
+    const blob = new Blob([researchReport], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'competitor-analysis-report.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Function to parse and format markdown-like content
+  const formatReportContent = (content: string) => {
+    if (!content) return null;
+
+    const lines = content.split('\n');
+    const formattedElements: React.JSX.Element[] = [];
+
+    lines.forEach((line, index) => {
+      const trimmedLine = line.trim();
+      
+      if (trimmedLine.startsWith('# ')) {
+        // Main title
+        formattedElements.push(
+          <Heading key={index} size="lg" color="purple.800" mb={3} mt={5}>
+            {trimmedLine.replace('# ', '')}
+          </Heading>
+        );
+      } else if (trimmedLine.startsWith('## ')) {
+        // Section header
+        formattedElements.push(
+          <Heading key={index} size="md" color="blue.700" mb={2} mt={4}>
+            {trimmedLine.replace('## ', '')}
+          </Heading>
+        );
+      } else if (trimmedLine.startsWith('### ')) {
+        // Subsection header
+        formattedElements.push(
+          <Heading key={index} size="sm" color="teal.700" mb={2} mt={3}>
+            {trimmedLine.replace('### ', '')}
+          </Heading>
+        );
+      } else if (trimmedLine.startsWith('#### ')) {
+        // Sub-subsection header
+        formattedElements.push(
+          <Text key={index} fontSize="sm" color="gray.700" mb={2} mt={3} fontWeight="semibold">
+            {trimmedLine.replace('#### ', '')}
+          </Text>
+        );
+      } else if (trimmedLine.startsWith('- **')) {
+        // Bold bullet points
+        const text = trimmedLine.replace('- **', '').replace('**:', '');
+        const description = trimmedLine.split('**:').slice(1).join('**:');
+        formattedElements.push(
+          <Box key={index} mb={2} pl={4}>
+            <Text fontSize="sm" fontWeight="bold" color="gray.800" display="inline">
+              {text}:
+            </Text>
+            <Text fontSize="sm" color="gray.700" display="inline" ml={2}>
+              {description}
+            </Text>
+          </Box>
+        );
+      } else if (trimmedLine.startsWith('- ')) {
+        // Regular bullet points
+        formattedElements.push(
+          <Box key={index} mb={1} pl={4}>
+            <Text fontSize="sm" color="gray.700">• {trimmedLine.replace('- ', '')}</Text>
+          </Box>
+        );
+      } else if (trimmedLine.includes('**') && trimmedLine.includes('**')) {
+        // Bold text within paragraph
+        const parts = trimmedLine.split('**');
+        const formattedParts = parts.map((part, partIndex) => {
+          if (partIndex % 2 === 1) {
+            return <Text key={partIndex} as="span" fontSize="sm" fontWeight="bold" color="gray.800">{part}</Text>;
+          }
+          return <Text key={partIndex} as="span" fontSize="sm" color="gray.700">{part}</Text>;
+        });
+        formattedElements.push(
+          <Text key={index} mb={3} fontSize="sm" lineHeight="1.6">
+            {formattedParts}
+          </Text>
+        );
+      } else if (trimmedLine.length > 0) {
+        // Regular paragraph
+        formattedElements.push(
+          <Text key={index} mb={3} fontSize="sm" color="gray.700" lineHeight="1.6">
+            {trimmedLine}
+          </Text>
+        );
+      } else {
+        // Empty line for spacing
+        formattedElements.push(<Box key={index} h={2} />);
+      }
+    });
+
+    return formattedElements;
   };
 
   if (!dashboard) {
@@ -197,13 +302,24 @@ const ExecutiveDashboardPage = () => {
           {researchReport && (
             <Card shadow="lg" borderRadius="xl">
               <CardBody p={6}>
-                <Heading size="md" mb={4} color="purple.700">Full Competitor Analysis Report</Heading>
+                <Flex justify="space-between" align="center" mb={4}>
+                  <Heading size="md" color="purple.700">Full Competitor Analysis Report</Heading>
+                  <IconButton
+                    aria-label="Download report as text file"
+                    icon={<FiDownload />}
+                    colorScheme="purple"
+                    variant="outline"
+                    size="sm"
+                    onClick={downloadReport}
+                    _hover={{ bg: 'purple.50' }}
+                  />
+                </Flex>
                 <Button mb={4} colorScheme="purple" variant="outline" onClick={() => setShowFullReport(v => !v)}>
                   {showFullReport ? 'Hide Full Report' : 'Show Full Report'}
                 </Button>
                 {showFullReport && (
-                  <Box mt={2} whiteSpace="pre-wrap" color="gray.800" fontFamily="mono" fontSize="sm" p={2} bg="gray.100" borderRadius="md">
-                    {researchReport}
+                  <Box mt={2} p={6} bg="white" borderRadius="lg" border="1px solid" borderColor="gray.200" maxH="600px" overflowY="auto">
+                    {formatReportContent(researchReport)}
                   </Box>
                 )}
               </CardBody>
