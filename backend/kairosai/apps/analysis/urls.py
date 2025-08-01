@@ -6,6 +6,7 @@ from .views import (
     quick_market_analysis,
     KeyInsightsAPIView,
     CompetitorAnalysisAPIView,
+    SegmentArbitrageAPIView,
 )
 from typing import Dict
 
@@ -18,4 +19,5 @@ urlpatterns = [
     path('quick-analysis/', quick_market_analysis, name='quick-analysis'),
     path('key-insights/', KeyInsightsAPIView.as_view(), name='key-insights'),
     path('competitor-analysis/', CompetitorAnalysisAPIView.as_view(), name='competitor-analysis'),
+    path('segment-arbitrage/', SegmentArbitrageAPIView.as_view(), name='segment-arbitrage'),
 ]

@@ -7,7 +7,7 @@ import React from 'react';
 
 const ExecutiveDashboardPage = () => {
   const [dashboard, setDashboard] = useState<any>(null);
-  const [competitorSummary, setCompetitorSummary] = useState<string>('');
+  const [competitorSummary, setCompetitorSummary] = useState<any>(null);
   const [loadingCompetitorSummary, setLoadingCompetitorSummary] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
   const [competitorError, setCompetitorError] = useState<string | null>(null);
@@ -20,8 +20,18 @@ const ExecutiveDashboardPage = () => {
       setDashboard(JSON.parse(data));
     }
     const competitor = localStorage.getItem('competitorSummary');
+    console.log('Raw competitor data from localStorage:', competitor);
     if (competitor) {
-      setCompetitorSummary(competitor);
+      try {
+        const parsedCompetitor = JSON.parse(competitor);
+        console.log('Parsed competitor data:', parsedCompetitor);
+        setCompetitorSummary(parsedCompetitor);
+      } catch (e) {
+        console.log('Failed to parse competitor data, using as string:', e);
+        setCompetitorSummary(competitor);
+      }
+    } else {
+      console.log('No competitor data found in localStorage');
     }
   }, []);
 
@@ -286,15 +296,49 @@ const ExecutiveDashboardPage = () => {
           <Card shadow="lg" borderRadius="xl">
             <CardBody p={6}>
               <Heading size="md" mb={4} color="purple.700">Competitor Analysis</Heading>
-              {loadingCompetitorSummary ? (
-                <VStack py={8}><Spinner size="xl" /></VStack>
-              ) : competitorError ? (
-                <Text color="red.500">{competitorError}</Text>
-              ) : (
-                <Box whiteSpace="pre-wrap" color="gray.800" fontFamily="mono" fontSize="sm" p={2} bg="gray.50" borderRadius="md">
-                  {competitorSummary}
-                </Box>
-              )}
+              {(() => {
+                console.log('Rendering competitor section with:', {
+                  loadingCompetitorSummary,
+                  competitorError,
+                  competitorSummary,
+                  competitorSummaryType: typeof competitorSummary,
+                  isArray: Array.isArray(competitorSummary)
+                });
+                
+                if (loadingCompetitorSummary) {
+                  return <VStack py={8}><Spinner size="xl" /></VStack>;
+                } else if (competitorError) {
+                  return <Text color="red.500">{competitorError}</Text>;
+                } else if (competitorSummary && typeof competitorSummary === 'string') {
+                  return (
+                    <Box whiteSpace="pre-wrap" color="gray.800" fontFamily="mono" fontSize="sm" p={2} bg="gray.50" borderRadius="md">
+                      {competitorSummary}
+                    </Box>
+                  );
+                } else if (competitorSummary && Array.isArray(competitorSummary)) {
+                  return (
+                    <VStack align="start" spacing={3}>
+                      {competitorSummary.map((competitor: any, index: number) => (
+                        <Box key={index} p={4} bg="white" borderRadius="md" border="1px solid" borderColor="gray.200" w="full">
+                          <HStack justify="space-between" mb={2}>
+                            <Text fontWeight="bold" color="purple.700" fontSize="md">
+                              {competitor.name}
+                            </Text>
+                            <Badge colorScheme={competitor.market_share === 'unknown' ? 'gray' : 'green'} variant="subtle">
+                              {competitor.market_share}
+                            </Badge>
+                          </HStack>
+                          <Text color="gray.700" fontSize="sm">
+                            {competitor.description}
+                          </Text>
+                        </Box>
+                      ))}
+                    </VStack>
+                  );
+                } else {
+                  return <Text color="gray.500">No competitor data available.</Text>;
+                }
+              })()}
             </CardBody>
           </Card>
 

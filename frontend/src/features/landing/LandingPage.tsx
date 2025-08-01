@@ -129,13 +129,18 @@ const LandingPage = () => {
         brand_description: formData.brandDescription,
         email: formData.email,
       };
-      const [marketRes, competitorRes] = await Promise.all([
+      const [marketRes, competitorRes, arbitrageRes] = await Promise.all([
         fetch('http://localhost:8000/api/v1/market-analysis/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         }),
         fetch('http://localhost:8000/api/v1/competitor-analysis/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }),
+        fetch('http://localhost:8000/api/v1/segment-arbitrage/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -149,9 +154,22 @@ const LandingPage = () => {
       localStorage.setItem('dashboardData', JSON.stringify(data));
       if (competitorRes.ok) {
         const competitorData = await competitorRes.json();
+        console.log('Competitor API response:', competitorData);
+        console.log('Competitor analysis data:', competitorData.competitor_analysis);
         localStorage.setItem('competitorSummary', JSON.stringify(competitorData.competitor_analysis));
       } else {
+        console.log('Competitor API failed:', competitorRes.status);
         localStorage.setItem('competitorSummary', 'No competitor summary available.');
+      }
+      
+      if (arbitrageRes.ok) {
+        const arbitrageData = await arbitrageRes.json();
+        console.log('Arbitrage API response:', arbitrageData);
+        console.log('Arbitrage analysis data:', arbitrageData.segment_arbitrage);
+        localStorage.setItem('segmentArbitrage', JSON.stringify(arbitrageData.segment_arbitrage));
+      } else {
+        console.log('Arbitrage API failed:', arbitrageRes.status);
+        localStorage.setItem('segmentArbitrage', 'No arbitrage analysis available.');
       }
       setLoading(false);
       navigate('/dashboard');
