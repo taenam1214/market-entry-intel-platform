@@ -1,39 +1,229 @@
-import { Box, Container, Grid, GridItem, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatLabel, StatNumber, StatHelpText, Badge, Progress, Icon, Flex, SimpleGrid } from '@chakra-ui/react';
-import { FiTrendingUp, FiTrendingDown, FiTarget, FiDollarSign, FiUsers, FiBarChart } from 'react-icons/fi';
+import { Box, Container, Grid, GridItem, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatLabel, StatNumber, StatHelpText, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Collapse, Table, Thead, Tbody, Tr, Th, Td, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton } from '@chakra-ui/react';
+import { FiTrendingUp, FiTrendingDown, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiX, FiDownload } from 'react-icons/fi';
 import SectionHeader from '../../components/SectionHeader';
 import DataTable from '../../components/DataTable';
+import { useEffect, useState } from 'react';
+import React from 'react';
 
 const ExecutiveDashboardPage = () => {
-  const marketMetrics = [
-    { label: 'Market Opportunity Score', value: '8.7/10', change: '+12%', trend: 'up', color: 'green' },
-    { label: 'Competitive Intensity', value: 'Medium', change: '-5%', trend: 'down', color: 'blue' },
-    { label: 'Entry Complexity', value: '6.2/10', change: '+3%', trend: 'up', color: 'orange' },
-    { label: 'Revenue Potential', value: '$2.4M', change: '+18%', trend: 'up', color: 'purple' },
-  ];
+  const [dashboard, setDashboard] = useState<any>(null);
+  const [competitorSummary, setCompetitorSummary] = useState<any>(null);
+  const [loadingCompetitorSummary, setLoadingCompetitorSummary] = useState(false);
+  const [showFullReport, setShowFullReport] = useState(false);
+  const [competitorError, setCompetitorError] = useState<string | null>(null);
+  const [selectedMetric, setSelectedMetric] = useState<any>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const recentInsights = [
-    { insight: 'Premium segment shows 40% less competition', priority: 'high', category: 'Opportunity' },
-    { insight: 'Brand positioning gap identified in mid-market', priority: 'medium', category: 'Strategy' },
-    { insight: 'Cultural alignment score: 85% positive', priority: 'low', category: 'Risk' },
-  ];
+  useEffect(() => {
+    const data = localStorage.getItem('dashboardData');
+    if (data) {
+      setDashboard(JSON.parse(data));
+    }
+    const competitor = localStorage.getItem('competitorSummary');
+    console.log('Raw competitor data from localStorage:', competitor);
+    if (competitor) {
+      try {
+        const parsedCompetitor = JSON.parse(competitor);
+        console.log('Parsed competitor data:', parsedCompetitor);
+        setCompetitorSummary(parsedCompetitor);
+      } catch (e) {
+        console.log('Failed to parse competitor data, using as string:', e);
+        setCompetitorSummary(competitor);
+      }
+    } else {
+      console.log('No competitor data found in localStorage');
+    }
+  }, []);
 
-  const topCompetitors = [
-    { name: 'Competitor A', marketShare: '32%', strength: 'High', threat: 'Medium' },
-    { name: 'Competitor B', marketShare: '28%', strength: 'Medium', threat: 'High' },
-    { name: 'Competitor C', marketShare: '15%', strength: 'Low', threat: 'Low' },
-  ];
+  const fetchCompetitorSummary = async (companyInfo: any) => {
+    setLoadingCompetitorSummary(true);
+    setCompetitorError(null);
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/competitor-analysis/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(companyInfo),
+      });
+      const data = await res.json();
+      if (data.competitor_analysis) {
+        setCompetitorSummary(data.competitor_analysis);
+      } else {
+        setCompetitorSummary('No competitor summary available.');
+      }
+    } catch (e) {
+      setCompetitorError('Failed to fetch competitor analysis.');
+    }
+    setLoadingCompetitorSummary(false);
+  };
 
-  const columns = [
-    { header: 'Competitor', accessor: 'name' },
-    { header: 'Market Share', accessor: 'marketShare' },
-    { header: 'Strength', accessor: 'strength' },
-    { header: 'Threat Level', accessor: 'threat' },
+  const handleMetricClick = (metric: any) => {
+    setSelectedMetric(metric);
+    onOpen();
+  };
+
+  // Function to download report as text file
+  const downloadReport = () => {
+    if (!researchReport) return;
+    
+    const blob = new Blob([researchReport], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'competitor-analysis-report.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Function to parse and format markdown-like content
+  const formatReportContent = (content: string) => {
+    if (!content) return null;
+
+    const lines = content.split('\n');
+    const formattedElements: React.JSX.Element[] = [];
+
+    lines.forEach((line, index) => {
+      const trimmedLine = line.trim();
+      
+      if (trimmedLine.startsWith('# ')) {
+        // Main title
+        formattedElements.push(
+          <Heading key={index} size="lg" color="purple.800" mb={3} mt={5}>
+            {trimmedLine.replace('# ', '')}
+          </Heading>
+        );
+      } else if (trimmedLine.startsWith('## ')) {
+        // Section header
+        formattedElements.push(
+          <Heading key={index} size="md" color="blue.700" mb={2} mt={4}>
+            {trimmedLine.replace('## ', '')}
+          </Heading>
+        );
+      } else if (trimmedLine.startsWith('### ')) {
+        // Subsection header
+        formattedElements.push(
+          <Heading key={index} size="sm" color="teal.700" mb={2} mt={3}>
+            {trimmedLine.replace('### ', '')}
+          </Heading>
+        );
+      } else if (trimmedLine.startsWith('#### ')) {
+        // Sub-subsection header
+        formattedElements.push(
+          <Text key={index} fontSize="sm" color="gray.700" mb={2} mt={3} fontWeight="semibold">
+            {trimmedLine.replace('#### ', '')}
+          </Text>
+        );
+      } else if (trimmedLine.startsWith('- **')) {
+        // Bold bullet points
+        const text = trimmedLine.replace('- **', '').replace('**:', '');
+        const description = trimmedLine.split('**:').slice(1).join('**:');
+        formattedElements.push(
+          <Box key={index} mb={2} pl={4}>
+            <Text fontSize="sm" fontWeight="bold" color="gray.800" display="inline">
+              {text}:
+            </Text>
+            <Text fontSize="sm" color="gray.700" display="inline" ml={2}>
+              {description}
+            </Text>
+          </Box>
+        );
+      } else if (trimmedLine.startsWith('- ')) {
+        // Regular bullet points
+        formattedElements.push(
+          <Box key={index} mb={1} pl={4}>
+            <Text fontSize="sm" color="gray.700">• {trimmedLine.replace('- ', '')}</Text>
+          </Box>
+        );
+      } else if (trimmedLine.includes('**') && trimmedLine.includes('**')) {
+        // Bold text within paragraph
+        const parts = trimmedLine.split('**');
+        const formattedParts = parts.map((part, partIndex) => {
+          if (partIndex % 2 === 1) {
+            return <Text key={partIndex} as="span" fontSize="sm" fontWeight="bold" color="gray.800">{part}</Text>;
+          }
+          return <Text key={partIndex} as="span" fontSize="sm" color="gray.700">{part}</Text>;
+        });
+        formattedElements.push(
+          <Text key={index} mb={3} fontSize="sm" lineHeight="1.6">
+            {formattedParts}
+          </Text>
+        );
+      } else if (trimmedLine.length > 0) {
+        // Regular paragraph
+        formattedElements.push(
+          <Text key={index} mb={3} fontSize="sm" color="gray.700" lineHeight="1.6">
+            {trimmedLine}
+          </Text>
+        );
+      } else {
+        // Empty line for spacing
+        formattedElements.push(<Box key={index} h={2} />);
+      }
+    });
+
+    return formattedElements;
+  };
+
+  if (!dashboard) {
+    return (
+      <Box p={6} bg="gray.50" minH="100vh" w="100%">
+        <Container maxW="100%" px={8}>
+          <Heading size="lg">No analysis data found</Heading>
+          <Text mt={2}>Please run a market analysis from the landing page.</Text>
+        </Container>
+      </Box>
+    );
+  }
+
+  // Extract data from API response
+  const metrics = [
+    {
+      label: 'Market Opportunity Score',
+      value: `${dashboard.dashboard.market_opportunity_score}/10`,
+      change: dashboard.dashboard.market_opportunity_change,
+      trend: dashboard.dashboard.market_opportunity_change.startsWith('+') ? 'up' : 'down',
+      color: 'green',
+      icon: FiTrendingUp,
+      explanation: dashboard.detailed_scores?.market_opportunity_rationale,
+    },
+    {
+      label: 'Competitive Intensity',
+      value: dashboard.dashboard.competitive_intensity,
+      change: dashboard.dashboard.competitive_intensity_change,
+      trend: dashboard.dashboard.competitive_intensity_change.startsWith('+') ? 'up' : 'down',
+      color: 'blue',
+      icon: FiBarChart,
+      explanation: dashboard.detailed_scores?.competitive_intensity_rationale,
+    },
+    {
+      label: 'Entry Complexity',
+      value: `${dashboard.dashboard.entry_complexity_score}/10`,
+      change: dashboard.dashboard.entry_complexity_change,
+      trend: dashboard.dashboard.entry_complexity_change.startsWith('+') ? 'up' : 'down',
+      color: 'orange',
+      icon: FiTarget,
+      explanation: dashboard.detailed_scores?.entry_complexity_rationale,
+    },
+    {
+      label: 'Revenue Potential',
+      value: dashboard.dashboard.revenue_potential,
+      change: dashboard.dashboard.revenue_potential_change,
+      trend: dashboard.dashboard.revenue_potential_change.startsWith('+') ? 'up' : 'down',
+      color: 'purple',
+      icon: FiDollarSign,
+      explanation: dashboard.detailed_scores?.revenue_rationale,
+    },
   ];
+  const insights = dashboard.key_insights || [];
+  const recommended = dashboard.recommended_actions || {};
+  const researchReport = dashboard.research_report || '';
+  const revenue = dashboard.revenue_projections || {};
 
   return (
     <Box p={6} bg="gray.50" minH="100vh" w="100%">
       <Container maxW="100%" px={8}>
-        <VStack spacing={6} align="stretch">
+        <VStack spacing={8} align="stretch">
           {/* Header */}
           <Box>
             <Heading size="xl" mb={2} color="gray.800">
@@ -44,169 +234,227 @@ const ExecutiveDashboardPage = () => {
             </Text>
           </Box>
 
-          {/* Key Metrics */}
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
-            {marketMetrics.map((metric, index) => (
-              <Card key={index} shadow="md" borderRadius="xl">
-                <CardBody p={4}>
-                  <VStack align="start" spacing={2}>
-                    <HStack justify="space-between" w="full">
-                      <Text fontSize="sm" color="gray.600" fontWeight="medium">
+          {/* Metrics Cards */}
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+            {metrics.map((metric, idx) => (
+              <Card key={idx} shadow="xl" borderRadius="2xl" bg={`${metric.color}.50`} _hover={{ boxShadow: '2xl', transform: 'translateY(-2px)' }} transition="all 0.2s">
+                <CardBody p={6}>
+                  <VStack align="start" spacing={3}>
+                    <HStack w="full" justify="space-between">
+                      <Text fontSize="md" color={`${metric.color}.700`} fontWeight="bold">
                         {metric.label}
                       </Text>
-                      <Icon
-                        as={metric.trend === 'up' ? FiTrendingUp : FiTrendingDown}
-                        color={metric.trend === 'up' ? 'green.500' : 'red.500'}
-                        boxSize={3}
-                      />
+                      <Icon as={metric.icon} color={`${metric.color}.500`} boxSize={6} />
                     </HStack>
                     <Stat>
-                      <StatNumber fontSize="xl" fontWeight="bold" color="gray.800">
+                      <StatNumber fontSize="2xl" fontWeight="extrabold" color={`${metric.color}.900`}>
                         {metric.value}
                       </StatNumber>
                     </Stat>
                     <HStack>
-                      <Badge colorScheme={metric.color} variant="subtle" px={2} py={0.5} fontSize="sm">
+                      <Badge colorScheme={metric.color} variant="solid" px={3} py={1} fontSize="md">
                         {metric.change}
                       </Badge>
                       <Text fontSize="sm" color="gray.500">
                         vs last month
                       </Text>
                     </HStack>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorScheme={metric.color}
+                      leftIcon={<FiInfo />}
+                      onClick={() => handleMetricClick(metric)}
+                      w="full"
+                      mt={2}
+                      _hover={{ bg: `${metric.color}.100` }}
+                    >
+                      View Details
+                    </Button>
                   </VStack>
                 </CardBody>
               </Card>
             ))}
           </SimpleGrid>
 
-          {/* Main Content Grid */}
-          <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={6}>
-            {/* Left Column */}
-            <VStack spacing={4} align="stretch">
-              {/* Market Opportunity Overview */}
-              <Card shadow="lg" borderRadius="xl">
-                <CardBody p={4}>
-                  <VStack align="start" spacing={3}>
-                    <HStack>
-                      <Icon as={FiTarget} color="blue.500" boxSize={5} />
-                      <Heading size="md">Market Opportunity Overview</Heading>
-                    </HStack>
-                    <Box w="full">
-                      <HStack justify="space-between" mb={1}>
-                        <Text fontSize="sm" fontWeight="medium">Market Entry Readiness</Text>
-                        <Text fontSize="sm" fontWeight="bold">87%</Text>
-                      </HStack>
-                      <Progress value={87} colorScheme="blue" size="md" borderRadius="full" />
+          {/* Key Insights Section */}
+          <Card shadow="lg" borderRadius="xl">
+            <CardBody p={6}>
+              <Heading size="md" mb={4} color="blue.700">Key Insights</Heading>
+              <VStack align="start" spacing={4}>
+                {insights.length === 0 ? <Text>No insights available.</Text> : insights.map((insight: any, i: number) => (
+                  <Box key={i} p={3} bg="gray.50" borderRadius="md" w="full" boxShadow="sm">
+                    <Text fontWeight="bold" color="blue.700">{insight.title}</Text>
+                    <Text color="gray.700">{insight.description}</Text>
+                  </Box>
+                ))}
+              </VStack>
+            </CardBody>
+          </Card>
+
+          {/* Competitor Analysis Section */}
+          <Card shadow="lg" borderRadius="xl">
+            <CardBody p={6}>
+              <Heading size="md" mb={4} color="purple.700">Competitor Analysis</Heading>
+              {(() => {
+                console.log('Rendering competitor section with:', {
+                  loadingCompetitorSummary,
+                  competitorError,
+                  competitorSummary,
+                  competitorSummaryType: typeof competitorSummary,
+                  isArray: Array.isArray(competitorSummary)
+                });
+                
+                if (loadingCompetitorSummary) {
+                  return <VStack py={8}><Spinner size="xl" /></VStack>;
+                } else if (competitorError) {
+                  return <Text color="red.500">{competitorError}</Text>;
+                } else if (competitorSummary && typeof competitorSummary === 'string') {
+                  return (
+                    <Box whiteSpace="pre-wrap" color="gray.800" fontFamily="mono" fontSize="sm" p={2} bg="gray.50" borderRadius="md">
+                      {competitorSummary}
                     </Box>
-                    <Text fontSize="sm" color="gray.600">
-                      Your market entry strategy shows strong potential with identified opportunities
-                      in the premium segment and clear competitive advantages.
-                    </Text>
-                  </VStack>
-                </CardBody>
-              </Card>
-
-              {/* Top Competitors */}
-              <Card shadow="lg" borderRadius="xl">
-                <CardBody p={4}>
-                  <VStack align="start" spacing={3}>
-                    <HStack>
-                      <Icon as={FiUsers} color="purple.500" boxSize={5} />
-                      <Heading size="md">Top Competitors Analysis</Heading>
-                    </HStack>
-                    <DataTable columns={columns} data={topCompetitors} />
-                  </VStack>
-                </CardBody>
-              </Card>
-            </VStack>
-
-            {/* Right Column */}
-            <VStack spacing={4} align="stretch">
-              {/* Key Insights */}
-              <Card shadow="lg" borderRadius="xl">
-                <CardBody p={4}>
-                  <VStack align="start" spacing={3}>
-                    <HStack>
-                      <Icon as={FiBarChart} color="green.500" boxSize={5} />
-                      <Heading size="md">Key Insights</Heading>
-                    </HStack>
-                    <VStack align="start" spacing={2}>
-                      {recentInsights.map((insight, index) => (
-                        <Box key={index} p={2} bg="gray.50" borderRadius="lg" w="full">
-                          <HStack justify="space-between" mb={1}>
-                            <Badge
-                              colorScheme={insight.priority === 'high' ? 'red' : insight.priority === 'medium' ? 'orange' : 'green'}
-                              size="sm"
-                              fontSize="sm"
-                            >
-                              {insight.priority}
-                            </Badge>
-                            <Badge colorScheme="blue" size="sm" fontSize="sm">
-                              {insight.category}
+                  );
+                } else if (competitorSummary && Array.isArray(competitorSummary)) {
+                  return (
+                    <VStack align="start" spacing={3}>
+                      {competitorSummary.map((competitor: any, index: number) => (
+                        <Box key={index} p={4} bg="white" borderRadius="md" border="1px solid" borderColor="gray.200" w="full">
+                          <HStack justify="space-between" mb={2}>
+                            <Text fontWeight="bold" color="purple.700" fontSize="md">
+                              {competitor.name}
+                            </Text>
+                            <Badge colorScheme={competitor.market_share === 'unknown' ? 'gray' : 'green'} variant="subtle">
+                              {competitor.market_share}
                             </Badge>
                           </HStack>
-                          <Text fontSize="sm" color="gray.700">
-                            {insight.insight}
+                          <Text color="gray.700" fontSize="sm">
+                            {competitor.description}
                           </Text>
                         </Box>
                       ))}
                     </VStack>
-                  </VStack>
-                </CardBody>
-              </Card>
+                  );
+                } else {
+                  return <Text color="gray.500">No competitor data available.</Text>;
+                }
+              })()}
+            </CardBody>
+          </Card>
 
-              {/* Revenue Projection */}
-              <Card shadow="lg" borderRadius="xl">
-                <CardBody p={4}>
-                  <VStack align="start" spacing={3}>
-                    <HStack>
-                      <Icon as={FiDollarSign} color="green.500" boxSize={5} />
-                      <Heading size="md">Revenue Projection</Heading>
-                    </HStack>
-                    <VStack align="start" spacing={2}>
-                      <Box>
-                        <Text fontSize="sm" color="gray.600">Year 1 Revenue</Text>
-                        <Text fontSize="xl" fontWeight="bold" color="green.600">$2.4M</Text>
-                      </Box>
-                      <Box>
-                        <Text fontSize="sm" color="gray.600">Year 3 Revenue</Text>
-                        <Text fontSize="xl" fontWeight="bold" color="blue.600">$8.7M</Text>
-                      </Box>
-                      <Box>
-                        <Text fontSize="sm" color="gray.600">Market Share Target</Text>
-                        <Text fontSize="xl" fontWeight="bold" color="purple.600">12%</Text>
-                      </Box>
-                    </VStack>
-                  </VStack>
-                </CardBody>
-              </Card>
-            </VStack>
-          </Grid>
+          {/* Full Competitor Analysis Report Section */}
+          {researchReport && (
+            <Card shadow="lg" borderRadius="xl">
+              <CardBody p={6}>
+                <Flex justify="space-between" align="center" mb={4}>
+                  <Heading size="md" color="purple.700">Full Competitor Analysis Report</Heading>
+                  <IconButton
+                    aria-label="Download report as text file"
+                    icon={<FiDownload />}
+                    colorScheme="purple"
+                    variant="outline"
+                    size="sm"
+                    onClick={downloadReport}
+                    _hover={{ bg: 'purple.50' }}
+                  />
+                </Flex>
+                <Button mb={4} colorScheme="purple" variant="outline" onClick={() => setShowFullReport(v => !v)}>
+                  {showFullReport ? 'Hide Full Report' : 'Show Full Report'}
+                </Button>
+                {showFullReport && (
+                  <Box mt={2} p={6} bg="white" borderRadius="lg" border="1px solid" borderColor="gray.200" maxH="600px" overflowY="auto">
+                    {formatReportContent(researchReport)}
+                  </Box>
+                )}
+              </CardBody>
+            </Card>
+          )}
 
-          {/* Action Items */}
+          {/* Revenue Projection Section */}
           <Card shadow="lg" borderRadius="xl">
-            <CardBody p={4}>
-              <VStack align="start" spacing={3}>
-                <Heading size="md">Recommended Actions</Heading>
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={3} w="full">
-                  <Box p={3} bg="blue.50" borderRadius="lg" border="1px solid" borderColor="blue.200">
-                    <Text fontWeight="bold" color="blue.800" mb={1} fontSize="md">Immediate (Next 30 days)</Text>
-                    <Text fontSize="sm" color="blue.700">Finalize premium segment positioning strategy</Text>
-                  </Box>
-                  <Box p={3} bg="orange.50" borderRadius="lg" border="1px solid" borderColor="orange.200">
-                    <Text fontWeight="bold" color="orange.800" mb={1} fontSize="md">Short-term (3 months)</Text>
-                    <Text fontSize="sm" color="orange.700">Launch pilot program in target market</Text>
-                  </Box>
-                  <Box p={3} bg="green.50" borderRadius="lg" border="1px solid" borderColor="green.200">
-                    <Text fontWeight="bold" color="green.800" mb={1} fontSize="md">Long-term (6-12 months)</Text>
-                    <Text fontSize="sm" color="green.700">Scale operations and capture 12% market share</Text>
-                  </Box>
-                </SimpleGrid>
+            <CardBody p={6}>
+              <Heading size="md" mb={4} color="green.700">Revenue Projection</Heading>
+              <VStack align="start" spacing={2}>
+                <Box>
+                  <Text fontSize="sm" color="gray.600">Year 1 Revenue</Text>
+                  <Text fontSize="xl" fontWeight="bold" color="green.600">{revenue.year_1}</Text>
+                </Box>
+                <Box>
+                  <Text fontSize="sm" color="gray.600">Year 3 Revenue</Text>
+                  <Text fontSize="xl" fontWeight="bold" color="blue.600">{revenue.year_3}</Text>
+                </Box>
+                <Box>
+                  <Text fontSize="sm" color="gray.600">Market Share Target (Y1/Y3)</Text>
+                  <Text fontSize="xl" fontWeight="bold" color="purple.600">{revenue.market_share_y1} / {revenue.market_share_y3}</Text>
+                </Box>
               </VStack>
+            </CardBody>
+          </Card>
+
+          {/* Recommended Actions Section */}
+          <Card shadow="lg" borderRadius="xl">
+            <CardBody p={6}>
+              <Heading size="md" mb={4} color="orange.700">Recommended Actions</Heading>
+              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} w="full">
+                <Box p={4} bg="blue.50" borderRadius="lg" border="1px solid" borderColor="blue.200">
+                  <Text fontWeight="bold" color="blue.800" mb={1} fontSize="md">Immediate</Text>
+                  <Text fontSize="sm" color="blue.700">{recommended.immediate}</Text>
+                </Box>
+                <Box p={4} bg="orange.50" borderRadius="lg" border="1px solid" borderColor="orange.200">
+                  <Text fontWeight="bold" color="orange.800" mb={1} fontSize="md">Short-term</Text>
+                  <Text fontSize="sm" color="orange.700">{recommended.short_term}</Text>
+                </Box>
+                <Box p={4} bg="green.50" borderRadius="lg" border="1px solid" borderColor="green.200">
+                  <Text fontWeight="bold" color="green.800" mb={1} fontSize="md">Long-term</Text>
+                  <Text fontSize="sm" color="green.700">{recommended.long_term}</Text>
+                </Box>
+              </SimpleGrid>
             </CardBody>
           </Card>
         </VStack>
       </Container>
+
+      {/* Metric Details Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader color={`${selectedMetric?.color}.700`}>
+            {selectedMetric?.label} - Detailed Analysis
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack align="start" spacing={4}>
+              <HStack w="full" justify="space-between" p={4} bg={`${selectedMetric?.color}.50`} borderRadius="lg">
+                <VStack align="start" spacing={1}>
+                  <Text fontSize="lg" fontWeight="bold" color={`${selectedMetric?.color}.900`}>
+                    {selectedMetric?.value}
+                  </Text>
+                  <Badge colorScheme={selectedMetric?.color} variant="solid">
+                    {selectedMetric?.change}
+                  </Badge>
+                </VStack>
+                <Icon as={selectedMetric?.icon} color={`${selectedMetric?.color}.500`} boxSize={8} />
+              </HStack>
+              
+              <Box w="full">
+                <Text fontSize="md" fontWeight="semibold" color="gray.700" mb={3}>
+                  Analysis & Rationale
+                </Text>
+                <Box p={4} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.200">
+                  <Text fontSize="sm" color="gray.700" lineHeight="1.6">
+                    {selectedMetric?.explanation || 'No detailed explanation available for this metric.'}
+                  </Text>
+                </Box>
+              </Box>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme={selectedMetric?.color} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
