@@ -29,7 +29,7 @@ class CompetitorResearchAgent:
         )
         
         self.iterative_researcher = IterativeResearcher(
-            max_iterations=3, 
+            max_iterations=4, 
             max_time_minutes=7,
             config=llm_config
         )
@@ -78,76 +78,108 @@ Research and provide specific data points for:
 - Consumer purchasing power and willingness to pay premium prices
 
 ## 2. COMPETITIVE LANDSCAPE ANALYSIS
+CRITICAL: Focus ONLY on competitors that are ALREADY OPERATING in {target_country}. Do NOT include competitors from {company}'s home market or other countries unless they have established operations in {target_country}.
+
 Provide detailed competitive intelligence:
 
-### Direct Competitors:
-- List 5-10 key direct competitors with:
-  * Company names and market share (%)
-  * Revenue figures where available
-  * Years in market and growth trajectory
-  * Competitive strengths and weaknesses
-  * Market positioning and pricing strategies
+### Direct Competitors in {target_country}:
+- List 5-10 key direct competitors that are CURRENTLY OPERATING in {target_country} with:
+  * Company names and verified market share (%) - ONLY include verified data from reliable sources
+  * Revenue figures where available from public sources
+  * Years operating in {target_country} and growth trajectory
+  * Competitive strengths and weaknesses specific to the {target_country} market
+  * Market positioning and pricing strategies in {target_country}
+  * Distribution channels and market presence in {target_country}
 
-### Market Structure:
-- Market concentration (HHI index if available)
-- Presence of dominant players vs. fragmented market
-- Barriers to entry (regulatory, capital, distribution, brand)
-- Switching costs for customers
-- Supplier power and distribution channel control
+### Market Structure in {target_country}:
+- Market concentration (HHI index if available) specifically in {target_country}
+- Presence of dominant players vs. fragmented market in {target_country}
+- Barriers to entry (regulatory, capital, distribution, brand) specific to {target_country}
+- Switching costs for customers in {target_country}
+- Supplier power and distribution channel control in {target_country}
 
 ### Competitive Intensity Indicators:
-- Frequency of price wars or promotional activities
-- Rate of new entrant success/failure
-- Market share volatility among top players
-- Innovation pace and product differentiation levels
+- Frequency of price wars or promotional activities in {target_country}
+- Rate of new entrant success/failure in {target_country}
+- Market share volatility among top players in {target_country}
+- Innovation pace and product differentiation levels in {target_country}
 
 ## 3. MARKET ENTRY COMPLEXITY ASSESSMENT
-Analyze entry barriers and complexity factors:
+Provide detailed analysis of entry barriers and complexity factors specific to {target_country}:
 
-### Regulatory & Legal:
-- Required licenses, permits, and registrations
-- Timeline for business establishment (weeks/months)
-- Foreign investment restrictions or requirements
-- Compliance costs and ongoing regulatory burden
-- Legal system reliability and IP protection
+### Regulatory & Legal Requirements:
+- Required licenses, permits, and registrations for foreign companies in {target_country}
+- Timeline for business establishment (weeks/months) with specific steps
+- Foreign investment restrictions or requirements for {target_country}
+- Compliance costs and ongoing regulatory burden with specific dollar amounts
+- Legal system reliability and IP protection in {target_country}
+- Tax implications and requirements for foreign companies
+- Employment law requirements and restrictions
+- Data protection and privacy regulations
 
 ### Operational Complexity:
-- Distribution channel requirements and costs
-- Local partnership necessities
-- Staffing and talent availability
-- Supply chain and logistics challenges
-- Technology infrastructure requirements
+- Distribution channel requirements and costs in {target_country}
+- Local partnership necessities and typical partnership structures
+- Staffing and talent availability with specific skill requirements
+- Supply chain and logistics challenges specific to {target_country}
+- Technology infrastructure requirements and costs
+- Real estate and facility requirements
+- Local banking and financial services requirements
+- Insurance and liability requirements
 
 ### Cultural & Market Adaptation:
-- Language barriers and localization needs
+- Language barriers and localization needs for {target_country}
 - Cultural adaptation requirements for products/services
-- Local business practice differences
-- Brand perception and trust-building timeline
+- Local business practice differences and relationship building requirements
+- Brand perception and trust-building timeline in {target_country}
 - Marketing and customer acquisition complexity
+- Local consumer behavior patterns and preferences
+- Seasonal and cultural considerations affecting business operations
+- Local media landscape and advertising regulations
+
+### Financial & Investment Requirements:
+- Minimum capital requirements for foreign companies
+- Currency exchange considerations and risks
+- Banking relationships and financial infrastructure needs
+- Insurance requirements and costs
+- Bonding and guarantee requirements
+
+### Technology & Infrastructure:
+- Digital infrastructure requirements and costs
+- Technology platform compatibility requirements
+- Data hosting and security requirements
+- Integration with local systems and platforms
 
 ## 4. FINANCIAL PROJECTIONS & REVENUE POTENTIAL
 Provide data for revenue modeling:
 
 ### Market Penetration Analysis:
-- Realistic market share targets for years 1, 3, and 5
-- Customer acquisition costs in the market
-- Average customer lifetime value
-- Pricing strategy recommendations vs. local competitors
+- Realistic market share targets for years 1, 3, and 5 in {target_country}
+- Customer acquisition costs in the {target_country} market
+- Average customer lifetime value in {target_country}
+- Pricing strategy recommendations vs. local competitors in {target_country}
 
 ### Investment & ROI Indicators:
-- Estimated market entry costs
-- Break-even timeline projections
+- Estimated market entry costs with detailed breakdown
+- Break-even timeline projections with specific milestones
 - Revenue potential scenarios (conservative/base/optimistic)
 - Key success metrics and milestones
 
 ## 5. STRATEGIC RECOMMENDATIONS
 Based on your analysis, provide:
-- Market entry strategy recommendations
-- Key success factors and critical risks
-- Timeline for market entry phases
+- Market entry strategy recommendations specific to {target_country}
+- Key success factors and critical risks for {target_country}
+- Timeline for market entry phases with specific milestones
 - Resource requirements and investment needs
 
-IMPORTANT: For each section, provide specific quantitative data points, percentages, dollar amounts, and timeframes wherever possible. Include data sources and confidence levels for major claims. Structure findings to enable clear scoring on a 1-10 scale for market opportunity, competitive intensity, and entry complexity."""
+IMPORTANT REQUIREMENTS:
+1. For each section, provide specific quantitative data points, percentages, dollar amounts, and timeframes wherever possible
+2. Include data sources and confidence levels for major claims
+3. Structure findings to enable clear scoring on a 1-10 scale for market opportunity, competitive intensity, and entry complexity
+4. ONLY include competitors that are verified to be operating in {target_country}
+5. Verify all market share and revenue data from reliable sources before including
+6. Focus on {target_country}-specific regulations, costs, and requirements
+7. Provide detailed, actionable information for each complexity factor"""
 
         return prompt
     
@@ -182,28 +214,68 @@ Return ONLY the JSON array, nothing else - no markdown, no explanations, no extr
         deep_query = f"""{query}
 
 ADDITIONAL DEEP RESEARCH REQUIREMENTS:
-- Analyze 3-5 case studies of similar companies that entered this market
-- Identify specific regulatory changes or market trends in past 12 months
-- Research local consumer behavior patterns and preferences
-- Analyze supply chain and distribution partnerships available
-- Investigate potential acquisition targets or joint venture opportunities
-- Assess technology adoption rates and digital transformation trends
-- Research government incentives or support programs for foreign investors
 
-Provide maximum detail with specific data points, company examples, and quantitative analysis to enable precise scoring and strategic decision-making."""
+COMPETITOR VALIDATION:
+- Verify that all competitors mentioned are actually operating in {target_country}
+- Cross-reference competitor information with multiple reliable sources
+- Only include market share data that is verified from credible sources
+- Distinguish between local {target_country} competitors and international brands with {target_country} operations
+
+ENHANCED ENTRY COMPLEXITY ANALYSIS:
+- Provide detailed cost breakdowns for each regulatory requirement
+- Include specific timelines for each step of the business establishment process
+- Research actual case studies of foreign companies entering {target_country} in the {industry} sector
+- Analyze failed market entry attempts and their root causes
+- Detail the complete supply chain setup process and costs
+- Research local partnership requirements and typical partnership structures
+- Analyze technology infrastructure requirements and integration challenges
+- Research local talent availability and recruitment challenges
+- Detail currency exchange risks and mitigation strategies
+- Analyze local banking relationships and financial infrastructure needs
+
+MARKET ENTRY CASE STUDIES:
+- Analyze 3-5 case studies of similar companies that entered {target_country} in the {industry} sector
+- Identify specific regulatory changes or market trends in {target_country} in past 12 months
+- Research local consumer behavior patterns and preferences specific to {target_country}
+- Analyze supply chain and distribution partnerships available in {target_country}
+- Investigate potential acquisition targets or joint venture opportunities in {target_country}
+- Assess technology adoption rates and digital transformation trends in {target_country}
+- Research government incentives or support programs for foreign investors in {target_country}
+
+CULTURAL AND OPERATIONAL INSIGHTS:
+- Research local business practices and relationship-building requirements
+- Analyze seasonal and cultural considerations affecting business operations in {target_country}
+- Detail local media landscape and advertising regulations
+- Research local consumer preferences and purchasing behaviors
+- Analyze local competition dynamics and market positioning strategies
+
+Provide maximum detail with specific data points, company examples, and quantitative analysis to enable precise scoring and strategic decision-making. Ensure all competitor information is verified and all complexity factors are specific to {target_country}."""
         
         report = await self.deep_researcher.run(deep_query)
         return report
     
     async def generate_competitor_report(self, company: str, industry: str, target_country: str, company_info: Dict[str, Any] = None, output_file: Optional[str] = None) -> str:
         """Generate a structured competitor analysis report as a JSON list of competitors with name, description, and approx market share."""
-        task_description = f"You are an expert market analyst. List the top 5-10 direct competitors for {company} in the {industry} industry in {target_country}. For each competitor, provide exactly these fields: 'name' (Company name), 'description' (1-2 sentence description of what they do, their positioning, any notable facts), 'market_share' (Approximate market share as a percentage, if unknown use 'unknown')."
+        task_description = f"""You are an expert market analyst specializing in {target_country}. 
+
+CRITICAL REQUIREMENTS:
+1. ONLY list competitors that are CURRENTLY OPERATING in {target_country}
+2. Do NOT include competitors from {company}'s home market or other countries unless they have established operations in {target_country}
+3. ONLY include verified market share data from reliable sources - if uncertain, use "unknown"
+4. Focus on competitors that directly compete with {company} in the {industry} industry in {target_country}
+
+List the top 5-10 direct competitors for {company} in the {industry} industry in {target_country}. For each competitor, provide exactly these fields: 
+- 'name' (Company name that is verified to operate in {target_country})
+- 'description' (1-2 sentence description of what they do in {target_country}, their positioning, any notable facts about their {target_country} operations)
+- 'market_share' (Approximate market share as a percentage ONLY if verified from reliable sources, otherwise use 'unknown')
+- 'years_in_market' (Number of years operating in {target_country}, use 'unknown' if not certain)
+- 'headquarters' (Where the company is headquartered - this helps verify if they're actually operating in {target_country})"""
         
         example_format = """Example format:
 [
-  {"name": "Competitor A", "description": "Leading provider of X services with strong brand recognition", "market_share": "25%"},
-  {"name": "Competitor B", "description": "New entrant focusing on digital-first approach", "market_share": "5%"},
-  {"name": "Competitor C", "description": "Established player with extensive distribution network", "market_share": "unknown"}
+  {"name": "Local Competitor A", "description": "Leading provider of X services in {target_country} with strong brand recognition and 50+ locations", "market_share": "25%", "years_in_market": "15", "headquarters": "{target_country}"},
+  {"name": "International Brand B", "description": "Global company with established operations in {target_country}, focusing on premium segment", "market_share": "15%", "years_in_market": "8", "headquarters": "International"},
+  {"name": "Local Competitor C", "description": "Established player with extensive distribution network in {target_country}", "market_share": "unknown", "years_in_market": "12", "headquarters": "{target_country}"}
 ]"""
         
         prompt = self._build_json_focused_prompt(task_description, example_format)
@@ -219,14 +291,18 @@ Provide maximum detail with specific data points, company examples, and quantita
             print("Parsing failed, providing fallback competitor data")
             competitors = [
                 {
-                    "name": "Sample Competitor 1",
-                    "description": "A major player in the industry with established market presence",
-                    "market_share": "unknown"
+                    "name": "Sample Local Competitor 1",
+                    "description": "A major player in the {target_country} market with established presence",
+                    "market_share": "unknown",
+                    "years_in_market": "unknown",
+                    "headquarters": "{target_country}"
                 },
                 {
-                    "name": "Sample Competitor 2", 
-                    "description": "Emerging competitor with innovative approach",
-                    "market_share": "unknown"
+                    "name": "Sample Local Competitor 2", 
+                    "description": "Emerging competitor with innovative approach in {target_country}",
+                    "market_share": "unknown",
+                    "years_in_market": "unknown",
+                    "headquarters": "{target_country}"
                 }
             ]
         
@@ -266,12 +342,10 @@ Provide maximum detail with specific data points, company examples, and quantita
             for i, competitor in enumerate(competitors):
                 if not isinstance(competitor, dict):
                     raise ValueError(f"Competitor {i} is not a dictionary")
-                if 'name' not in competitor:
-                    raise ValueError(f"Competitor {i} missing 'name' field")
-                if 'description' not in competitor:
-                    raise ValueError(f"Competitor {i} missing 'description' field")
-                if 'market_share' not in competitor:
-                    raise ValueError(f"Competitor {i} missing 'market_share' field")
+                required_fields = ['name', 'description', 'market_share', 'years_in_market', 'headquarters']
+                for field in required_fields:
+                    if field not in competitor:
+                        raise ValueError(f"Competitor {i} missing '{field}' field")
             
             print(f"Successfully parsed {len(competitors)} competitors")
             return competitors
@@ -295,39 +369,46 @@ Provide maximum detail with specific data points, company examples, and quantita
     
     async def generate_segment_arbitrage_analysis(self, company: str, industry: str, target_country: str, company_info: Dict[str, Any] = None, output_file: Optional[str] = None) -> str:
         """Generate segment arbitrage analysis to identify positioning gaps and opportunities."""
-        task_description = f"""You are an expert market strategist specializing in segment arbitrage. Analyze {company} in the {industry} industry expanding from their home market to {target_country}.
+        task_description = f"""You are an expert market strategist specializing in segment arbitrage in {target_country}. Analyze {company} in the {industry} industry expanding from their home market to {target_country}.
+
+CRITICAL REQUIREMENTS:
+1. Focus ONLY on segments that are underserved in {target_country}
+2. Analyze gaps based on competitors that are CURRENTLY OPERATING in {target_country}
+3. Do NOT reference competitors from {company}'s home market unless they have established operations in {target_country}
+4. Ensure all market size estimates are specific to {target_country}
 
 For each segment opportunity, provide exactly these fields:
-- "segment_name": Name of the underserved segment
-- "current_gap": Description of how this segment is currently underserved in the target market
-- "positioning_opportunity": How the company can position itself to capture this segment
-- "market_size": Estimated size of this segment opportunity
-- "competitive_advantage": Why the company has an advantage in serving this segment
-- "implementation_strategy": Specific steps to capture this segment
+- "segment_name": Name of the underserved segment in {target_country}
+- "current_gap": Description of how this segment is currently underserved in {target_country}
+- "positioning_opportunity": How the company can position itself to capture this segment in {target_country}
+- "market_size": Estimated size of this segment opportunity in {target_country}
+- "competitive_advantage": Why the company has an advantage in serving this segment in {target_country}
+- "implementation_strategy": Specific steps to capture this segment in {target_country}
 
 Focus on segments that are:
-1. Underserved in the target market
+1. Underserved in {target_country} specifically
 2. Align with the company's capabilities
-3. Have significant market potential
-4. Can be captured with the company's current positioning or slight modifications"""
+3. Have significant market potential in {target_country}
+4. Can be captured with the company's current positioning or slight modifications
+5. Are not well-served by existing competitors in {target_country}"""
 
         example_format = """Example format:
 [
   {
-    "segment_name": "Premium Health-Conscious Consumers",
-    "current_gap": "Limited premium healthy options in the market",
-    "positioning_opportunity": "Position as the premium healthy alternative with transparent sourcing",
-    "market_size": "15-20% of target market",
+    "segment_name": "Premium Health-Conscious Consumers in {target_country}",
+    "current_gap": "Limited premium healthy options in the {target_country} market",
+    "positioning_opportunity": "Position as the premium healthy alternative with transparent sourcing in {target_country}",
+    "market_size": "15-20% of {target_country} target market",
     "competitive_advantage": "Strong brand reputation for quality and transparency",
-    "implementation_strategy": "Launch premium product line with health-focused marketing"
+    "implementation_strategy": "Launch premium product line with health-focused marketing in {target_country}"
   },
   {
-    "segment_name": "Digital-Native Millennials",
-    "current_gap": "Lack of tech-integrated experiences in traditional offerings",
-    "positioning_opportunity": "Create seamless digital-first customer experience",
-    "market_size": "25-30% of target market",
+    "segment_name": "Digital-Native Millennials in {target_country}",
+    "current_gap": "Lack of tech-integrated experiences in traditional offerings in {target_country}",
+    "positioning_opportunity": "Create seamless digital-first customer experience in {target_country}",
+    "market_size": "25-30% of {target_country} target market",
     "competitive_advantage": "Digital expertise and mobile-first approach",
-    "implementation_strategy": "Develop mobile app and digital loyalty program"
+    "implementation_strategy": "Develop mobile app and digital loyalty program for {target_country} market"
   }
 ]"""
         
@@ -344,20 +425,20 @@ Focus on segments that are:
             print("Parsing failed, providing fallback arbitrage data")
             arbitrage_opportunities = [
                 {
-                    "segment_name": "Premium Segment",
-                    "current_gap": "Limited premium options in the market",
-                    "positioning_opportunity": "Position as the premium alternative",
-                    "market_size": "10-15% of target market",
+                    "segment_name": "Premium Segment in {target_country}",
+                    "current_gap": "Limited premium options in the {target_country} market",
+                    "positioning_opportunity": "Position as the premium alternative in {target_country}",
+                    "market_size": "10-15% of {target_country} target market",
                     "competitive_advantage": "Strong brand reputation",
-                    "implementation_strategy": "Launch premium product line"
+                    "implementation_strategy": "Launch premium product line in {target_country}"
                 },
                 {
-                    "segment_name": "Digital-First Consumers",
-                    "current_gap": "Lack of digital integration",
-                    "positioning_opportunity": "Create seamless digital experience",
-                    "market_size": "20-25% of target market",
+                    "segment_name": "Digital-First Consumers in {target_country}",
+                    "current_gap": "Lack of digital integration in {target_country}",
+                    "positioning_opportunity": "Create seamless digital experience in {target_country}",
+                    "market_size": "20-25% of {target_country} target market",
                     "competitive_advantage": "Digital expertise",
-                    "implementation_strategy": "Develop mobile app and digital features"
+                    "implementation_strategy": "Develop mobile app and digital features for {target_country}"
                 }
             ]
         

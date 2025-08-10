@@ -7,7 +7,6 @@ import { FiHome, FiBarChart, FiTarget, FiTrendingUp, FiMenu, FiX } from 'react-i
 const navLinks = [
   { to: '/', label: 'Home', icon: FiHome },
   { to: '/dashboard', label: 'Executive Dashboard', icon: FiBarChart },
-  { to: '/competitive', label: 'Competitive Landscape', icon: FiTarget },
   { to: '/arbitrage', label: 'Segment Arbitrage', icon: FiTrendingUp },
 ];
 

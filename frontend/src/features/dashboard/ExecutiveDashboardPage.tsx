@@ -317,22 +317,141 @@ const ExecutiveDashboardPage = () => {
                   );
                 } else if (competitorSummary && Array.isArray(competitorSummary)) {
                   return (
-                    <VStack align="start" spacing={3}>
-                      {competitorSummary.map((competitor: any, index: number) => (
-                        <Box key={index} p={4} bg="white" borderRadius="md" border="1px solid" borderColor="gray.200" w="full">
-                          <HStack justify="space-between" mb={2}>
-                            <Text fontWeight="bold" color="purple.700" fontSize="md">
-                              {competitor.name}
+                    <VStack align="start" spacing={4}>
+                      {/* Competitor Overview Stats */}
+                      <Box w="full" p={4} bg="purple.50" borderRadius="lg" border="1px solid" borderColor="purple.200">
+                        <HStack justify="space-between" mb={3}>
+                          <Text fontWeight="bold" color="purple.800" fontSize="md">Market Overview</Text>
+                          <Badge colorScheme="purple" variant="solid">
+                            {competitorSummary.length} Competitors Analyzed
+                          </Badge>
+                        </HStack>
+                        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+                          <Box textAlign="center">
+                            <Text fontSize="lg" fontWeight="bold" color="purple.700">
+                              {competitorSummary.filter((c: any) => c.market_share !== 'unknown').length}
                             </Text>
-                            <Badge colorScheme={competitor.market_share === 'unknown' ? 'gray' : 'green'} variant="subtle">
-                              {competitor.market_share}
-                            </Badge>
-                          </HStack>
-                          <Text color="gray.700" fontSize="sm">
-                            {competitor.description}
-                          </Text>
+                            <Text fontSize="sm" color="purple.600">With Market Share Data</Text>
+                          </Box>
+                          <Box textAlign="center">
+                            <Text fontSize="lg" fontWeight="bold" color="purple.700">
+                              {competitorSummary.filter((c: any) => c.years_in_market).length}
+                            </Text>
+                            <Text fontSize="sm" color="purple.600">With Experience Data</Text>
+                          </Box>
+                          <Box textAlign="center">
+                            <Text fontSize="lg" fontWeight="bold" color="purple.700">
+                              {competitorSummary.filter((c: any) => c.headquarters).length}
+                            </Text>
+                            <Text fontSize="sm" color="purple.600">With Location Data</Text>
+                          </Box>
+                        </SimpleGrid>
+                      </Box>
+
+                      {/* Detailed Competitor Cards */}
+                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
+                        {competitorSummary.map((competitor: any, index: number) => (
+                          <Box key={index} p={4} bg="white" borderRadius="lg" border="1px solid" borderColor="gray.200" w="full" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                            <VStack align="start" spacing={3}>
+                              <HStack justify="space-between" w="full">
+                                <Text fontWeight="bold" color="purple.700" fontSize="md">
+                                  {competitor.name}
+                                </Text>
+                                <Badge colorScheme={competitor.market_share === 'unknown' ? 'gray' : 'green'} variant="subtle">
+                                  {competitor.market_share}
+                                </Badge>
+                              </HStack>
+                              
+                              <Text color="gray.700" fontSize="sm" lineHeight="1.5">
+                                {competitor.description}
+                              </Text>
+
+                              <SimpleGrid columns={2} spacing={3} w="full">
+                                {competitor.years_in_market && (
+                                  <Box>
+                                    <Text fontSize="xs" color="gray.500" fontWeight="semibold">Years in Market</Text>
+                                    <Text fontSize="sm" fontWeight="bold" color="blue.600">
+                                      {competitor.years_in_market} years
+                                    </Text>
+                                  </Box>
+                                )}
+                                
+                                {competitor.headquarters && (
+                                  <Box>
+                                    <Text fontSize="xs" color="gray.500" fontWeight="semibold">Headquarters</Text>
+                                    <Text fontSize="sm" fontWeight="bold" color="blue.600">
+                                      {competitor.headquarters}
+                                    </Text>
+                                  </Box>
+                                )}
+                              </SimpleGrid>
+
+                              {/* Competitive Positioning Indicators */}
+                              <Box w="full">
+                                <Text fontSize="xs" color="gray.500" fontWeight="semibold" mb={1}>Competitive Profile</Text>
+                                <HStack spacing={2} flexWrap="wrap">
+                                  {competitor.market_share !== 'unknown' && (
+                                    <Badge colorScheme="green" variant="outline" size="sm">
+                                      Market Leader
+                                    </Badge>
+                                  )}
+                                  {parseInt(competitor.years_in_market) > 10 && (
+                                    <Badge colorScheme="blue" variant="outline" size="sm">
+                                      Established Player
+                                    </Badge>
+                                  )}
+                                  {parseInt(competitor.years_in_market) < 5 && (
+                                    <Badge colorScheme="orange" variant="outline" size="sm">
+                                      Emerging Player
+                                    </Badge>
+                                  )}
+                                  {competitor.headquarters && competitor.headquarters.includes('China') && (
+                                    <Badge colorScheme="red" variant="outline" size="sm">
+                                      Local Player
+                                    </Badge>
+                                  )}
+                                  {competitor.headquarters && !competitor.headquarters.includes('China') && (
+                                    <Badge colorScheme="purple" variant="outline" size="sm">
+                                      International Player
+                                    </Badge>
+                                  )}
+                                </HStack>
+                              </Box>
+                            </VStack>
+                          </Box>
+                        ))}
+                      </SimpleGrid>
+
+                      {/* Market Share Analysis */}
+                      {competitorSummary.filter((c: any) => c.market_share !== 'unknown').length > 0 && (
+                        <Box w="full" p={4} bg="green.50" borderRadius="lg" border="1px solid" borderColor="green.200">
+                          <Text fontWeight="bold" color="green.800" mb={3}>Market Share Analysis</Text>
+                          <VStack align="start" spacing={2}>
+                            {competitorSummary
+                              .filter((c: any) => c.market_share !== 'unknown')
+                              .sort((a: any, b: any) => parseFloat(b.market_share) - parseFloat(a.market_share))
+                              .map((competitor: any, index: number) => (
+                                <HStack key={index} w="full" justify="space-between">
+                                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                                    {competitor.name}
+                                  </Text>
+                                  <HStack spacing={2}>
+                                    <Text fontSize="sm" fontWeight="bold" color="green.600">
+                                      {competitor.market_share}
+                                    </Text>
+                                    <Progress 
+                                      value={parseFloat(competitor.market_share)} 
+                                      size="sm" 
+                                      colorScheme="green" 
+                                      w="100px"
+                                      borderRadius="full"
+                                    />
+                                  </HStack>
+                                </HStack>
+                              ))}
+                          </VStack>
                         </Box>
-                      ))}
+                      )}
                     </VStack>
                   );
                 } else {

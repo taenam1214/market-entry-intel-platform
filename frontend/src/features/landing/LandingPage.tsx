@@ -461,8 +461,8 @@ const LandingPage = () => {
                     <GridItem>
                       <FormControl isRequired>
                         <FormLabel fontWeight="semibold" fontSize="sm">Industry</FormLabel>
-                        <Select
-                          placeholder="Select your industry"
+                        <Input
+                          placeholder="e.g., Technology, Healthcare, Finance, Baked Goods"
                           value={formData.industry}
                           onChange={(e) => handleInputChange('industry', e.target.value)}
                           size="sm"
@@ -470,15 +470,7 @@ const LandingPage = () => {
                           border="1px solid"
                           borderColor="gray.200"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        >
-                          <option value="technology">Technology</option>
-                          <option value="healthcare">Healthcare</option>
-                          <option value="finance">Finance</option>
-                          <option value="retail">Retail</option>
-                          <option value="manufacturing">Manufacturing</option>
-                          <option value="education">Education</option>
-                          <option value="other">Other</option>
-                        </Select>
+                        />
                       </FormControl>
                     </GridItem>
 
@@ -486,7 +478,7 @@ const LandingPage = () => {
                       <FormControl isRequired>
                         <FormLabel fontWeight="semibold" fontSize="sm">Target Market</FormLabel>
                         <Input
-                          placeholder="e.g., US, Europe, Asia-Pacific"
+                          placeholder="e.g., US, China, South Korea"
                           value={formData.targetMarket}
                           onChange={(e) => handleInputChange('targetMarket', e.target.value)}
                           size="sm"
