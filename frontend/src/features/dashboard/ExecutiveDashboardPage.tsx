@@ -1,7 +1,5 @@
-import { Box, Container, Grid, GridItem, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatLabel, StatNumber, StatHelpText, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Collapse, Table, Thead, Tbody, Tr, Th, Td, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton } from '@chakra-ui/react';
-import { FiTrendingUp, FiTrendingDown, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiX, FiDownload } from 'react-icons/fi';
-import SectionHeader from '../../components/SectionHeader';
-import DataTable from '../../components/DataTable';
+import { Box, Container, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatNumber, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton } from '@chakra-ui/react';
+import { FiTrendingUp, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiDownload } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import React from 'react';
 
@@ -277,18 +275,201 @@ const ExecutiveDashboardPage = () => {
             ))}
           </SimpleGrid>
 
-          {/* Key Insights Section */}
+          {/* Enhanced Key Insights Section */}
           <Card shadow="lg" borderRadius="xl">
             <CardBody p={6}>
-              <Heading size="md" mb={4} color="blue.700">Key Insights</Heading>
-              <VStack align="start" spacing={4}>
-                {insights.length === 0 ? <Text>No insights available.</Text> : insights.map((insight: any, i: number) => (
-                  <Box key={i} p={3} bg="gray.50" borderRadius="md" w="full" boxShadow="sm">
-                    <Text fontWeight="bold" color="blue.700">{insight.title}</Text>
-                    <Text color="gray.700">{insight.description}</Text>
-                  </Box>
-                ))}
-              </VStack>
+              <HStack justify="space-between" mb={6}>
+                <Heading size="md" color="blue.700">🎯 Comprehensive Market Intelligence</Heading>
+                <Badge colorScheme="blue" variant="solid" px={3} py={1}>
+                  {insights.length} Key Insights
+                </Badge>
+              </HStack>
+
+              {/* Executive Summary Insights */}
+              {insights.filter((insight: any) => insight.category === 'executive' || insight.priority === 'high').length > 0 && (
+                <Box mb={6}>
+                  <Heading size="sm" color="purple.700" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiTarget} mr={2} />
+                    Executive Summary & Strategic Overview
+                  </Heading>
+                  <VStack align="start" spacing={3}>
+                    {insights.filter((insight: any) => insight.category === 'executive' || insight.priority === 'high').map((insight: any, i: number) => (
+                      <Box key={i} p={4} bg="purple.50" borderRadius="lg" w="full" border="1px solid" borderColor="purple.200" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="bold" color="purple.800" fontSize="md">{insight.title}</Text>
+                          <Badge colorScheme="purple" variant="solid" size="sm">High Priority</Badge>
+                        </HStack>
+                        <Text color="purple.700" mb={2} lineHeight="1.6">{insight.description}</Text>
+                        {insight.impact && (
+                          <Text fontSize="sm" color="purple.600" fontWeight="semibold">
+                            💡 Impact: {insight.impact}
+                          </Text>
+                        )}
+                        {insight.recommendation && (
+                          <Text fontSize="sm" color="purple.600" fontWeight="semibold">
+                            🎯 Recommendation: {insight.recommendation}
+                          </Text>
+                        )}
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>
+              )}
+
+              {/* Market Opportunity Insights */}
+              {insights.filter((insight: any) => insight.category === 'market' || insight.type === 'opportunity').length > 0 && (
+                <Box mb={6}>
+                  <Heading size="sm" color="green.700" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiTrendingUp} mr={2} />
+                    Market Opportunity & Growth Potential
+                  </Heading>
+                  <VStack align="start" spacing={3}>
+                    {insights.filter((insight: any) => insight.category === 'market' || insight.type === 'opportunity').map((insight: any, i: number) => (
+                      <Box key={i} p={4} bg="green.50" borderRadius="lg" w="full" border="1px solid" borderColor="green.200" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="bold" color="green.800" fontSize="md">{insight.title}</Text>
+                          <Badge colorScheme="green" variant="solid" size="sm">Market Insight</Badge>
+                        </HStack>
+                        <Text color="green.700" mb={2} lineHeight="1.6">{insight.description}</Text>
+                        {insight.metrics && (
+                          <Box p={2} bg="green.100" borderRadius="md" mb={2}>
+                            <Text fontSize="sm" color="green.800" fontWeight="semibold">📊 Key Metrics:</Text>
+                            <Text fontSize="sm" color="green.700">{insight.metrics}</Text>
+                          </Box>
+                        )}
+                        {insight.timeline && (
+                          <Text fontSize="sm" color="green.600" fontWeight="semibold">
+                            ⏰ Timeline: {insight.timeline}
+                          </Text>
+                        )}
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>
+              )}
+
+              {/* Competitive Intelligence Insights */}
+              {insights.filter((insight: any) => insight.category === 'competitive' || insight.type === 'competitor').length > 0 && (
+                <Box mb={6}>
+                  <Heading size="sm" color="orange.700" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiBarChart} mr={2} />
+                    Competitive Landscape & Positioning
+                  </Heading>
+                  <VStack align="start" spacing={3}>
+                    {insights.filter((insight: any) => insight.category === 'competitive' || insight.type === 'competitor').map((insight: any, i: number) => (
+                      <Box key={i} p={4} bg="orange.50" borderRadius="lg" w="full" border="1px solid" borderColor="orange.200" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="bold" color="orange.800" fontSize="md">{insight.title}</Text>
+                          <Badge colorScheme="orange" variant="solid" size="sm">Competitive Intel</Badge>
+                        </HStack>
+                        <Text color="orange.700" mb={2} lineHeight="1.6">{insight.description}</Text>
+                        {insight.competitors && (
+                          <Box p={2} bg="orange.100" borderRadius="md" mb={2}>
+                            <Text fontSize="sm" color="orange.800" fontWeight="semibold">🏢 Key Competitors:</Text>
+                            <Text fontSize="sm" color="orange.700">{insight.competitors}</Text>
+                          </Box>
+                        )}
+                        {insight.advantage && (
+                          <Text fontSize="sm" color="orange.600" fontWeight="semibold">
+                            ⚡ Competitive Advantage: {insight.advantage}
+                          </Text>
+                        )}
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>
+              )}
+
+              {/* Risk & Mitigation Insights */}
+              {insights.filter((insight: any) => insight.category === 'risk' || insight.type === 'risk').length > 0 && (
+                <Box mb={6}>
+                  <Heading size="sm" color="red.700" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiUsers} mr={2} />
+                    Risk Assessment & Mitigation Strategies
+                  </Heading>
+                  <VStack align="start" spacing={3}>
+                    {insights.filter((insight: any) => insight.category === 'risk' || insight.type === 'risk').map((insight: any, i: number) => (
+                      <Box key={i} p={4} bg="red.50" borderRadius="lg" w="full" border="1px solid" borderColor="red.200" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="bold" color="red.800" fontSize="md">{insight.title}</Text>
+                          <Badge colorScheme="red" variant="solid" size="sm">Risk Alert</Badge>
+                        </HStack>
+                        <Text color="red.700" mb={2} lineHeight="1.6">{insight.description}</Text>
+                        {insight.mitigation && (
+                          <Box p={2} bg="red.100" borderRadius="md" mb={2}>
+                            <Text fontSize="sm" color="red.800" fontWeight="semibold">🛡️ Mitigation Strategy:</Text>
+                            <Text fontSize="sm" color="red.700">{insight.mitigation}</Text>
+                          </Box>
+                        )}
+                        {insight.severity && (
+                          <Text fontSize="sm" color="red.600" fontWeight="semibold">
+                            ⚠️ Severity: {insight.severity}
+                          </Text>
+                        )}
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>
+              )}
+
+              {/* Actionable Recommendations */}
+              {insights.filter((insight: any) => insight.category === 'action' || insight.type === 'recommendation').length > 0 && (
+                <Box>
+                  <Heading size="sm" color="blue.700" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiDollarSign} mr={2} />
+                    Actionable Recommendations & Next Steps
+                  </Heading>
+                  <VStack align="start" spacing={3}>
+                    {insights.filter((insight: any) => insight.category === 'action' || insight.type === 'recommendation').map((insight: any, i: number) => (
+                      <Box key={i} p={4} bg="blue.50" borderRadius="lg" w="full" border="1px solid" borderColor="blue.200" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="bold" color="blue.800" fontSize="md">{insight.title}</Text>
+                          <Badge colorScheme="blue" variant="solid" size="sm">Action Required</Badge>
+                        </HStack>
+                        <Text color="blue.700" mb={2} lineHeight="1.6">{insight.description}</Text>
+                        {insight.budget && (
+                          <Text fontSize="sm" color="blue.600" fontWeight="semibold">
+                            💰 Budget: {insight.budget}
+                          </Text>
+                        )}
+                        {insight.timeline && (
+                          <Text fontSize="sm" color="blue.600" fontWeight="semibold">
+                            ⏰ Timeline: {insight.timeline}
+                          </Text>
+                        )}
+                        {insight.responsibility && (
+                          <Text fontSize="sm" color="blue.600" fontWeight="semibold">
+                            👤 Owner: {insight.responsibility}
+                          </Text>
+                        )}
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>
+              )}
+
+              {/* Fallback for basic insights without categories */}
+              {insights.length > 0 && insights.every((insight: any) => !insight.category && !insight.type) && (
+                <Box>
+                  <Heading size="sm" color="gray.700" mb={3}>General Insights</Heading>
+                  <VStack align="start" spacing={3}>
+                    {insights.map((insight: any, i: number) => (
+                      <Box key={i} p={3} bg="gray.50" borderRadius="md" w="full" boxShadow="sm">
+                        <Text fontWeight="bold" color="blue.700">{insight.title}</Text>
+                        <Text color="gray.700">{insight.description}</Text>
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>
+              )}
+
+              {/* No insights fallback */}
+              {insights.length === 0 && (
+                <Box textAlign="center" py={8}>
+                  <Text color="gray.500" fontSize="lg">No detailed insights available.</Text>
+                  <Text color="gray.400" fontSize="sm">Please run a comprehensive market analysis to generate insights.</Text>
+                </Box>
+              )}
             </CardBody>
           </Card>
 
