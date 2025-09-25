@@ -100,32 +100,27 @@ const LandingPage = () => {
     { 
       value: 'saas-tech', 
       label: 'SaaS/Tech Companies',
-      description: 'Series A-B companies expanding to Asia',
-      icon: '💻'
+      description: 'Series A-B companies expanding to Asia'
     },
     { 
       value: 'manufacturing', 
       label: 'Manufacturing/Industrial',
-      description: 'Companies with complex supply chains',
-      icon: '🏭'
+      description: 'Companies with complex supply chains'
     },
     { 
       value: 'healthcare', 
       label: 'Healthcare/Pharma',
-      description: 'Highly regulated, high-stakes expansion',
-      icon: '🏥'
+      description: 'Highly regulated, high-stakes expansion'
     },
     { 
       value: 'financial', 
       label: 'Financial Services',
-      description: 'Regulatory complexity and compliance focus',
-      icon: '🏦'
+      description: 'Regulatory complexity and compliance focus'
     },
     { 
       value: 'consumer', 
       label: 'Consumer Goods',
-      description: 'Brand positioning and distribution channels',
-      icon: '🛍️'
+      description: 'Brand positioning and distribution channels'
     }
   ];
 
@@ -368,7 +363,7 @@ const LandingPage = () => {
           <VStack spacing={8} textAlign="center">
             <VStack spacing={6}>
               <VStack spacing={2}>
-                <Heading 
+              <Heading 
                   size="2xl" 
                   fontWeight="extrabold" 
                   lineHeight="0.9"
@@ -377,9 +372,9 @@ const LandingPage = () => {
                   bgClip="text"
                   textShadow="0 2px 4px rgba(0,0,0,0.1)"
                   fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
-                >
-                  KairosAI
-                </Heading>
+              >
+                KairosAI
+              </Heading>
                 <Box 
                   w="120px" 
                   h="3px" 
@@ -558,28 +553,43 @@ const LandingPage = () => {
                     <VStack spacing={4} align="start">
                       <HStack spacing={3}>
                         <Box w="8" h="8" bg="red.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                          <Text color="white" fontWeight="bold" fontSize="sm">❌</Text>
+                          <Icon as={FiTarget} color="white" boxSize={4} />
                         </Box>
                         <Heading size="md" color="red.700">Traditional Market Research</Heading>
                       </HStack>
                       
                       <VStack spacing={3} align="start" w="full">
-                        <Box>
-                          <Text fontSize="sm" color="red.600" fontWeight="semibold">⏰ Timeline</Text>
-                          <Text fontSize="md" color="red.700" fontWeight="bold">3-6 months</Text>
-                        </Box>
-                        <Box>
-                          <Text fontSize="sm" color="red.600" fontWeight="semibold">💰 Cost</Text>
-                          <Text fontSize="md" color="red.700" fontWeight="bold">$50K - $200K</Text>
-                        </Box>
-                        <Box>
-                          <Text fontSize="sm" color="red.600" fontWeight="semibold">📊 Output</Text>
-                          <Text fontSize="md" color="red.700" fontWeight="bold">Static PDF reports</Text>
-                        </Box>
-                        <Box>
-                          <Text fontSize="sm" color="red.600" fontWeight="semibold">🔄 Updates</Text>
-                          <Text fontSize="md" color="red.700" fontWeight="bold">One-time analysis</Text>
-                        </Box>
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="red.600" fontWeight="semibold">Timeline</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="red.700" fontWeight="bold">3-6 months</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="red.600" fontWeight="semibold">Cost</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="red.700" fontWeight="bold">$50K - $200K</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="red.600" fontWeight="semibold">Output</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="red.700" fontWeight="bold">Static PDF reports</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="red.600" fontWeight="semibold">Updates</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="red.700" fontWeight="bold">One-time analysis</Text>
+                          </HStack>
+                        </VStack>
                       </VStack>
                       
                       <Text fontSize="sm" color="red.600" fontStyle="italic">
@@ -593,28 +603,43 @@ const LandingPage = () => {
                     <VStack spacing={4} align="start">
                       <HStack spacing={3}>
                         <Box w="8" h="8" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                          <Text color="white" fontWeight="bold" fontSize="sm">✅</Text>
+                          <Icon as={FiTrendingUp} color="white" boxSize={4} />
                         </Box>
                         <Heading size="md" color="green.700">KairosAI Platform</Heading>
                       </HStack>
                       
                       <VStack spacing={3} align="start" w="full">
-                        <Box>
-                          <Text fontSize="sm" color="green.600" fontWeight="semibold">⏰ Timeline</Text>
-                          <Text fontSize="md" color="green.700" fontWeight="bold">5 minutes</Text>
-                        </Box>
-                        <Box>
-                          <Text fontSize="sm" color="green.600" fontWeight="semibold">💰 Cost</Text>
-                          <Text fontSize="md" color="green.700" fontWeight="bold">Fraction of consultant fees</Text>
-                        </Box>
-                        <Box>
-                          <Text fontSize="sm" color="green.600" fontWeight="semibold">📊 Output</Text>
-                          <Text fontSize="md" color="green.700" fontWeight="bold">Executive-ready deliverables</Text>
-                        </Box>
-                        <Box>
-                          <Text fontSize="sm" color="green.600" fontWeight="semibold">🔄 Updates</Text>
-                          <Text fontSize="md" color="green.700" fontWeight="bold">Continuous monitoring</Text>
-                        </Box>
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="green.600" fontWeight="semibold">Timeline</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="green.700" fontWeight="bold">5 minutes</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="green.600" fontWeight="semibold">Cost</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="green.700" fontWeight="bold">Fraction of consultant fees</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="green.600" fontWeight="semibold">Output</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="green.700" fontWeight="bold">Executive-ready deliverables</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="green.600" fontWeight="semibold">Updates</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="green.700" fontWeight="bold">Continuous monitoring</Text>
+                          </HStack>
+                        </VStack>
                       </VStack>
                       
                       <Text fontSize="sm" color="green.600" fontStyle="italic">
@@ -744,24 +769,24 @@ const LandingPage = () => {
                   color="white"
                   _hover={{
                     bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: 'lg',
-                  }}
+                transform: 'translateY(-2px)',
+                boxShadow: 'lg',
+              }}
                   _active={{ transform: 'translateY(0)' }}
                   px={8}
-                  py={4}
-                  fontSize="md"
-                  fontWeight="bold"
+              py={4}
+              fontSize="md"
+              fontWeight="bold"
                   borderRadius="lg"
-                  onClick={() => {
-                    document.getElementById('analysis-form')?.scrollIntoView({
-                      behavior: 'smooth'
-                    });
-                  }}
-                  rightIcon={<FiArrowRight />}
-                >
+              onClick={() => {
+                document.getElementById('analysis-form')?.scrollIntoView({
+                  behavior: 'smooth'
+                });
+              }}
+              rightIcon={<FiArrowRight />}
+            >
                   Start Your Free Analysis
-                </Button>
+            </Button>
                 
                 <Button
                   size="lg"
@@ -823,7 +848,7 @@ const LandingPage = () => {
                     >
                       {customerSegments.map((segment) => (
                         <option key={segment.value} value={segment.value}>
-                          {segment.icon} {segment.label}
+                          {segment.label}
                         </option>
                       ))}
                     </Select>
@@ -906,13 +931,13 @@ const LandingPage = () => {
                           borderColor="gray.200"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         >
-                          <option value="United States">🇺🇸 United States</option>
-                          <option value="China">🇨🇳 China</option>
-                          <option value="South Korea">🇰🇷 South Korea</option>
-                          <option value="Japan">🇯🇵 Japan</option>
-                          <option value="Singapore">🇸🇬 Singapore</option>
-                          <option value="Hong Kong">🇭🇰 Hong Kong</option>
-                          <option value="Taiwan">🇹🇼 Taiwan</option>
+                          <option value="United States">United States</option>
+                          <option value="China">China</option>
+                          <option value="South Korea">South Korea</option>
+                          <option value="Japan">Japan</option>
+                          <option value="Singapore">Singapore</option>
+                          <option value="Hong Kong">Hong Kong</option>
+                          <option value="Taiwan">Taiwan</option>
                         </Select>
                       </FormControl>
                     </GridItem>
@@ -982,7 +1007,7 @@ const LandingPage = () => {
                   {/* Additional Company Details Section */}
                   <Box p={4} bg="purple.50" borderRadius="lg" border="1px solid" borderColor="purple.200">
                     <Heading size="sm" color="purple.700" mb={3}>
-                      📊 Additional Company Details (Optional but Recommended)
+                      Additional Company Details (Optional but Recommended)
                     </Heading>
                     <Text fontSize="xs" color="purple.600" mb={4}>
                       These details help KairosAI generate more accurate and detailed analysis

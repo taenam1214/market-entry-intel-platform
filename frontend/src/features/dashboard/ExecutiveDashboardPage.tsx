@@ -1102,14 +1102,14 @@ For questions or additional analysis, contact the Strategic Planning team.
                       {dashboard?.customer_segment ? 
                         (() => {
                           const segments: { [key: string]: string } = {
-                            'saas-tech': '💻 SaaS/Tech Companies',
-                            'manufacturing': '🏭 Manufacturing/Industrial',
-                            'healthcare': '🏥 Healthcare/Pharma',
-                            'financial': '🏦 Financial Services',
-                            'consumer': '🛍️ Consumer Goods'
+                            'saas-tech': 'SaaS/Tech Companies',
+                            'manufacturing': 'Manufacturing/Industrial',
+                            'healthcare': 'Healthcare/Pharma',
+                            'financial': 'Financial Services',
+                            'consumer': 'Consumer Goods'
                           };
-                          return segments[dashboard.customer_segment] || '💼 Business';
-                        })() : '💼 Business'
+                          return segments[dashboard.customer_segment] || 'Business';
+                        })() : 'Business'
                       }
                     </Text>
                     <Text fontSize="md" opacity="0.9">→</Text>
@@ -1117,12 +1117,12 @@ For questions or additional analysis, contact the Strategic Planning team.
                       {dashboard?.expansion_direction ? 
                         (() => {
                           const directions: { [key: string]: string } = {
-                            'us-to-asia': '🇺🇸 → 🇰🇷🇨🇳 US to Asia',
-                            'asia-to-us': '🇰🇷🇨🇳 → 🇺🇸 Asia to US',
-                            'both': '🌏 Multi-Market Expansion'
+                            'us-to-asia': 'US to Asia',
+                            'asia-to-us': 'Asia to US',
+                            'both': 'Multi-Market Expansion'
                           };
-                          return directions[dashboard.expansion_direction] || '🌍 Global Expansion';
-                        })() : '🌍 Global Expansion'
+                          return directions[dashboard.expansion_direction] || 'Global Expansion';
+                        })() : 'Global Expansion'
                       }
                     </Text>
                   </HStack>
@@ -1180,7 +1180,7 @@ For questions or additional analysis, contact the Strategic Planning team.
             <CardBody p={6}>
               <HStack justify="space-between" mb={4}>
                 <Heading size="md" color="purple.700" display="flex" alignItems="center">
-                  🎯 C-Level Deliverables
+                  C-Level Deliverables
                 </Heading>
                 <Badge colorScheme="purple" variant="solid" px={3} py={1}>
                   Executive Ready
@@ -1318,7 +1318,7 @@ For questions or additional analysis, contact the Strategic Planning team.
             <CardBody p={6}>
               <HStack justify="space-between" mb={4}>
                 <Heading size="md" color="blue.700" display="flex" alignItems="center">
-                  💰 Willingness To Pay Analysis
+                  Willingness To Pay Analysis
                 </Heading>
                 <Badge colorScheme="blue" variant="solid" px={3} py={1}>
                   {customerSegment === 'saas-tech' ? 'SaaS/Tech' : 
@@ -1393,7 +1393,7 @@ For questions or additional analysis, contact the Strategic Planning team.
           <Card shadow="lg" borderRadius="xl">
             <CardBody p={6}>
               <HStack justify="space-between" mb={6}>
-                <Heading size="md" color="blue.700">🎯 Comprehensive Market Intelligence</Heading>
+                <Heading size="md" color="blue.700">Comprehensive Market Intelligence</Heading>
                 <Badge colorScheme="blue" variant="solid" px={3} py={1}>
                   {insights.length} Key Insights
                 </Badge>
@@ -1416,12 +1416,12 @@ For questions or additional analysis, contact the Strategic Planning team.
                         <Text color="purple.700" mb={2} lineHeight="1.6">{insight.description}</Text>
                         {insight.impact && (
                           <Text fontSize="sm" color="purple.600" fontWeight="semibold">
-                            💡 Impact: {insight.impact}
+                            Impact: {insight.impact}
                           </Text>
                         )}
                         {insight.recommendation && (
                           <Text fontSize="sm" color="purple.600" fontWeight="semibold">
-                            🎯 Recommendation: {insight.recommendation}
+                            Recommendation: {insight.recommendation}
                           </Text>
                         )}
                       </Box>
@@ -1447,13 +1447,13 @@ For questions or additional analysis, contact the Strategic Planning team.
                         <Text color="green.700" mb={2} lineHeight="1.6">{insight.description}</Text>
                         {insight.metrics && (
                           <Box p={2} bg="green.100" borderRadius="md" mb={2}>
-                            <Text fontSize="sm" color="green.800" fontWeight="semibold">📊 Key Metrics:</Text>
+                            <Text fontSize="sm" color="green.800" fontWeight="semibold">Key Metrics:</Text>
                             <Text fontSize="sm" color="green.700">{insight.metrics}</Text>
                           </Box>
                         )}
                         {insight.timeline && (
                           <Text fontSize="sm" color="green.600" fontWeight="semibold">
-                            ⏰ Timeline: {insight.timeline}
+                            Timeline: {insight.timeline}
                           </Text>
                         )}
                       </Box>
@@ -1479,13 +1479,13 @@ For questions or additional analysis, contact the Strategic Planning team.
                         <Text color="orange.700" mb={2} lineHeight="1.6">{insight.description}</Text>
                         {insight.competitors && (
                           <Box p={2} bg="orange.100" borderRadius="md" mb={2}>
-                            <Text fontSize="sm" color="orange.800" fontWeight="semibold">🏢 Key Competitors:</Text>
+                            <Text fontSize="sm" color="orange.800" fontWeight="semibold">Key Competitors:</Text>
                             <Text fontSize="sm" color="orange.700">{insight.competitors}</Text>
                           </Box>
                         )}
                         {insight.advantage && (
                           <Text fontSize="sm" color="orange.600" fontWeight="semibold">
-                            ⚡ Competitive Advantage: {insight.advantage}
+                            Competitive Advantage: {insight.advantage}
                           </Text>
                         )}
                       </Box>
@@ -1511,13 +1511,13 @@ For questions or additional analysis, contact the Strategic Planning team.
                         <Text color="red.700" mb={2} lineHeight="1.6">{insight.description}</Text>
                         {insight.mitigation && (
                           <Box p={2} bg="red.100" borderRadius="md" mb={2}>
-                            <Text fontSize="sm" color="red.800" fontWeight="semibold">🛡️ Mitigation Strategy:</Text>
+                            <Text fontSize="sm" color="red.800" fontWeight="semibold">Mitigation Strategy:</Text>
                             <Text fontSize="sm" color="red.700">{insight.mitigation}</Text>
                           </Box>
                         )}
                         {insight.severity && (
                           <Text fontSize="sm" color="red.600" fontWeight="semibold">
-                            ⚠️ Severity: {insight.severity}
+                            Severity: {insight.severity}
                           </Text>
                         )}
                       </Box>
@@ -1543,17 +1543,17 @@ For questions or additional analysis, contact the Strategic Planning team.
                         <Text color="blue.700" mb={2} lineHeight="1.6">{insight.description}</Text>
                         {insight.budget && (
                           <Text fontSize="sm" color="blue.600" fontWeight="semibold">
-                            💰 Budget: {insight.budget}
+                            Budget: {insight.budget}
                           </Text>
                         )}
                         {insight.timeline && (
                           <Text fontSize="sm" color="blue.600" fontWeight="semibold">
-                            ⏰ Timeline: {insight.timeline}
+                            Timeline: {insight.timeline}
                           </Text>
                         )}
                         {insight.responsibility && (
                           <Text fontSize="sm" color="blue.600" fontWeight="semibold">
-                            👤 Owner: {insight.responsibility}
+                            Owner: {insight.responsibility}
                           </Text>
                         )}
                       </Box>

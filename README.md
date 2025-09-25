@@ -349,6 +349,16 @@ We welcome contributions to enhance KairosAI's agentic capabilities:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🎯 Recent Updates
+
+### Landing Page Enhancement (Latest)
+- **Added "How KairosAI Works" Section**: New comprehensive section explaining KairosAI's unique value proposition for first-time users
+- **Problem vs Solution Comparison**: Visual comparison between traditional market research and KairosAI's approach
+- **4-Step Workflow Visualization**: Clear process flow from input to executive deliverables
+- **Unique Value Propositions**: Highlighted autonomous AI agents, executive-ready outputs, segment arbitrage detection, and cross-Pacific expertise
+- **Enhanced Call-to-Actions**: Added "Start Your Free Analysis" and "View Sample Results" buttons
+- **Responsive Design**: Optimized for all screen sizes with consistent styling
+
 ## 📞 Support
 
 For questions about KairosAI's agentic capabilities or technical support, please open an issue in the GitHub repository.
