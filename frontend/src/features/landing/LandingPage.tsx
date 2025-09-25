@@ -22,14 +22,12 @@ import {
   Flex,
   Spinner,
   SimpleGrid,
-  Image,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import StreamlinedAnalysisForm from './StreamlinedAnalysisForm';
-import KairosAILogo from '../../assets/KairosAI_logo.png';
 
 // Animation keyframes for Global Business Network
 const nodePulse = keyframes`
@@ -560,20 +558,11 @@ const LandingPage = () => {
         />
 
         <Container maxW="100%" px={8} position="relative" zIndex={1}>
-          <VStack spacing={8} textAlign="center">
-            <VStack spacing={6}>
-              <VStack spacing={2}>
-                {/* KairosAI Logo */}
-                <Image 
-                  src={KairosAILogo} 
-                  alt="KairosAI Logo" 
-                  h="120px" 
-                  w="auto"
-                  objectFit="contain"
-                  filter="brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,0.1))"
-                />
+          <VStack spacing={8} textAlign="center" align="center" maxW="1000px" mx="auto">
+            <VStack spacing={6} align="start" w="100%">
+              <VStack spacing={2} align="start" w="100%">
               <Heading 
-                  size="2xl" 
+                  fontSize="96px"
                   fontWeight="extrabold" 
                   lineHeight="0.9"
                   letterSpacing="-0.02em"
@@ -581,6 +570,8 @@ const LandingPage = () => {
                   bgClip="text"
                   textShadow="0 2px 4px rgba(0,0,0,0.1)"
                   fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                  textAlign="left"
+                  alignSelf="start"
               >
                 KairosAI
               </Heading>
@@ -593,21 +584,22 @@ const LandingPage = () => {
               </VStack>
               
               <Text 
-                fontSize="xl" 
+                fontSize="80px" 
                 fontWeight="semibold"
                 opacity="0.95"
                 letterSpacing="0.01em"
-                textAlign="center"
-                maxW="4xl"
+                textAlign="left"
+                maxW="1000px"
                 lineHeight="1.3"
                 fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                alignSelf="start"
               >
                 Executive Intelligence for Cross-Pacific Expansion
               </Text>
               
               <Text 
                 fontSize="lg" 
-                maxW="3xl" 
+                maxW="1000px" 
                 opacity="0.9"
                 lineHeight="1.6"
                 textAlign="center"
@@ -621,8 +613,8 @@ const LandingPage = () => {
               </Text>
             </VStack>
 
-            <HStack spacing={12} mt={8}>
-              <VStack spacing={4}>
+            <HStack spacing={12} mt={8} align="center" justify="center">
+              <VStack spacing={4} align="center">
                 <Box
                   w="80px"
                   h="80px"
@@ -642,13 +634,13 @@ const LandingPage = () => {
                 >
                   <Icon as={FiTarget} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={2}>
+                <VStack spacing={2} align="center">
                   <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Autonomous Intelligence</Text>
                   <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
                 </VStack>
               </VStack>
 
-              <VStack spacing={4}>
+              <VStack spacing={4} align="center">
                 <Box
                   w="80px"
                   h="80px"
@@ -668,13 +660,13 @@ const LandingPage = () => {
                 >
                   <Icon as={FiTrendingUp} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={2}>
+                <VStack spacing={2} align="center">
                   <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Perfect Timing</Text>
                   <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
                 </VStack>
               </VStack>
 
-              <VStack spacing={4}>
+              <VStack spacing={4} align="center">
                 <Box
                   w="80px"
                   h="80px"
@@ -694,7 +686,7 @@ const LandingPage = () => {
                 >
                   <Icon as={FiBarChart} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={2}>
+                <VStack spacing={2} align="center">
                   <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Strategic Positioning</Text>
                   <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
                 </VStack>
