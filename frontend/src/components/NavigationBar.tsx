@@ -22,6 +22,13 @@ import {
   Avatar,
   useColorModeValue,
   Container,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from '@chakra-ui/react';
 import { FiMenu, FiUser, FiLogOut, FiSettings, FiHelpCircle, FiChevronDown } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -31,6 +38,7 @@ const NavigationBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isLogoutModalOpen, onOpen: onLogoutModalOpen, onClose: onLogoutModalClose } = useDisclosure();
   const { isAuthenticated, user, logout } = useAuth();
 
   // Transform user data to match NavigationBar interface
@@ -78,8 +86,13 @@ const NavigationBar: React.FC = () => {
   };
 
   const handleLogout = () => {
+    onLogoutModalOpen();
+  };
+
+  const confirmLogout = () => {
     logout();
     navigate('/');
+    onLogoutModalClose();
   };
 
   return (
@@ -299,6 +312,28 @@ const NavigationBar: React.FC = () => {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+      {/* Logout Confirmation Modal */}
+      <Modal isOpen={isLogoutModalOpen} onClose={onLogoutModalClose} isCentered>
+        <ModalOverlay />
+        <ModalContent mx={4}>
+          <ModalHeader>Confirm Logout</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text color="gray.600">
+              Are you sure you want to log out? You'll need to sign in again to access your dashboard and analysis reports.
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onLogoutModalClose}>
+              Cancel
+            </Button>
+            <Button colorScheme="red" onClick={confirmLogout}>
+              Log Out
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
