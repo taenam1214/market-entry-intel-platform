@@ -26,6 +26,8 @@ import {
 import { keyframes } from '@emotion/react';
 import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
+import StreamlinedAnalysisForm from './StreamlinedAnalysisForm';
 
 // Animation keyframes
 const float = keyframes`
@@ -67,6 +69,7 @@ const FloatingParticle = ({ delay, size, color, left, top }: {
 );
 
 const LandingPage = () => {
+  const { isAuthenticated, user } = useAuth();
   const [formData, setFormData] = useState({
     companyName: '',
     industry: '',
@@ -92,8 +95,23 @@ const LandingPage = () => {
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(300); // 5 minutes in seconds
   const [timerExpired, setTimerExpired] = useState(false);
+  const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
+
+  // Check if user has analysis history
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Check localStorage for analysis history
+      const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
+      setHasAnalysisHistory(!!analysisHistory);
+      
+      // Pre-fill email if user is logged in
+      if (!formData.email) {
+        setFormData(prev => ({ ...prev, email: user.email }));
+      }
+    }
+  }, [isAuthenticated, user]);
 
   // Customer segments
   const customerSegments = [
@@ -140,6 +158,64 @@ const LandingPage = () => {
       label: 'Both Directions', 
       description: 'Multi-market expansion strategy'
     }
+  ];
+
+  // Target markets
+  const targetMarkets = [
+    { value: 'United States', label: 'United States' },
+    { value: 'China', label: 'China' },
+    { value: 'South Korea', label: 'South Korea' },
+    { value: 'Japan', label: 'Japan' },
+    { value: 'Singapore', label: 'Singapore' },
+    { value: 'Hong Kong', label: 'Hong Kong' },
+    { value: 'Taiwan', label: 'Taiwan' },
+  ];
+
+  // Company sizes
+  const companySizes = [
+    { value: 'startup', label: 'Startup (1-10 employees)' },
+    { value: 'small', label: 'Small (11-50 employees)' },
+    { value: 'medium', label: 'Medium (51-250 employees)' },
+    { value: 'large', label: 'Large (251-1000 employees)' },
+    { value: 'enterprise', label: 'Enterprise (1000+ employees)' },
+  ];
+
+  // Revenue ranges
+  const revenueRanges = [
+    { value: 'under-1m', label: 'Under $1M' },
+    { value: '1m-10m', label: '$1M - $10M' },
+    { value: '10m-50m', label: '$10M - $50M' },
+    { value: '50m-100m', label: '$50M - $100M' },
+    { value: 'over-100m', label: 'Over $100M' },
+  ];
+
+  // Funding stages
+  const fundingStages = [
+    { value: 'pre-seed', label: 'Pre-Seed' },
+    { value: 'seed', label: 'Seed' },
+    { value: 'series-a', label: 'Series A' },
+    { value: 'series-b', label: 'Series B' },
+    { value: 'series-c', label: 'Series C+' },
+    { value: 'ipo', label: 'IPO/Public' },
+    { value: 'bootstrapped', label: 'Bootstrapped' },
+  ];
+
+  // Expansion timelines
+  const expansionTimelines = [
+    { value: '3-6-months', label: '3-6 months' },
+    { value: '6-12-months', label: '6-12 months' },
+    { value: '1-2-years', label: '1-2 years' },
+    { value: '2-3-years', label: '2-3 years' },
+    { value: 'over-3-years', label: 'Over 3 years' },
+  ];
+
+  // Budget ranges
+  const budgetRanges = [
+    { value: 'under-100k', label: 'Under $100K' },
+    { value: '100k-500k', label: '$100K - $500K' },
+    { value: '500k-1m', label: '$500K - $1M' },
+    { value: '1m-5m', label: '$1M - $5M' },
+    { value: 'over-5m', label: 'Over $5M' },
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -248,6 +324,22 @@ const LandingPage = () => {
       setLoading(false);
     }
   };
+
+  // Show streamlined form for authenticated users without analysis history
+  if (isAuthenticated && !hasAnalysisHistory) {
+    return (
+      <StreamlinedAnalysisForm
+        customerSegments={customerSegments}
+        expansionDirections={expansionDirections}
+        targetMarkets={targetMarkets}
+        companySizes={companySizes}
+        revenueRanges={revenueRanges}
+        fundingStages={fundingStages}
+        expansionTimelines={expansionTimelines}
+        budgetRanges={budgetRanges}
+      />
+    );
+  }
 
   return (
     <Box minH="100vh" bg="gray.50" w="100%">

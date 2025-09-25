@@ -1,28 +1,42 @@
-import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Badge, SimpleGrid, Spinner, Flex, Divider, Icon, Grid, GridItem } from '@chakra-ui/react';
-import { FiTarget, FiTrendingUp, FiUsers, FiZap } from 'react-icons/fi';
+import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Badge, SimpleGrid, Spinner, Flex, Divider, Icon, Grid, GridItem, Button } from '@chakra-ui/react';
+import { FiTarget, FiTrendingUp, FiUsers, FiZap, FiArrowRight, FiBarChart } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const SegmentArbitragePage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [arbitrageData, setArbitrageData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
 
   useEffect(() => {
-    const arbitrage = localStorage.getItem('segmentArbitrage');
-    console.log('Raw arbitrage data from localStorage:', arbitrage);
-    if (arbitrage) {
-      try {
-        const parsedArbitrage = JSON.parse(arbitrage);
-        console.log('Parsed arbitrage data:', parsedArbitrage);
-        setArbitrageData(parsedArbitrage);
-      } catch (e) {
-        console.log('Failed to parse arbitrage data, using as string:', e);
-        setArbitrageData(arbitrage);
+    if (user) {
+      // Check for analysis history
+      const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
+      setHasAnalysisHistory(!!analysisHistory);
+      
+      // Only load arbitrage data if user has analysis history
+      if (analysisHistory) {
+        const arbitrage = localStorage.getItem('segmentArbitrage');
+        console.log('Raw arbitrage data from localStorage:', arbitrage);
+        if (arbitrage) {
+          try {
+            const parsedArbitrage = JSON.parse(arbitrage);
+            console.log('Parsed arbitrage data:', parsedArbitrage);
+            setArbitrageData(parsedArbitrage);
+          } catch (e) {
+            console.log('Failed to parse arbitrage data, using as string:', e);
+            setArbitrageData(arbitrage);
+          }
+        } else {
+          console.log('No arbitrage data found in localStorage');
+        }
       }
-    } else {
-      console.log('No arbitrage data found in localStorage');
     }
     setLoading(false);
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (
@@ -31,6 +45,72 @@ const SegmentArbitragePage = () => {
           <VStack py={8}>
             <Spinner size="xl" />
             <Text>Loading arbitrage analysis...</Text>
+          </VStack>
+        </Container>
+      </Box>
+    );
+  }
+
+  // Show empty state for users without analysis history
+  if (!hasAnalysisHistory || !arbitrageData) {
+    return (
+      <Box p={6} bg="gray.50" minH="100vh" w="100%">
+        <Container maxW="4xl" px={8}>
+          <VStack spacing={8} py={16} textAlign="center">
+            <VStack spacing={4}>
+              <Icon as={FiTarget} boxSize={16} color="purple.400" />
+              <Heading size="xl" color="gray.700">
+                Segment Arbitrage Detection
+              </Heading>
+              <Text fontSize="lg" color="gray.600" maxW="2xl">
+                Discover untapped opportunities by analyzing gaps between market positioning 
+                and competitor landscapes. Our AI detects segments where your brand can capture 
+                higher value and underserved markets.
+              </Text>
+            </VStack>
+
+            <VStack spacing={4} bg="white" p={8} borderRadius="xl" shadow="md" maxW="md" w="full">
+              <Icon as={FiZap} boxSize={8} color="purple.500" />
+              <Heading size="md" color="gray.800">
+                Ready for Arbitrage Analysis?
+              </Heading>
+              <Text fontSize="md" color="gray.600" textAlign="center">
+                Start your market analysis to unlock:
+              </Text>
+              <VStack spacing={2} align="start" w="full">
+                <HStack>
+                  <Badge colorScheme="green" borderRadius="full">✓</Badge>
+                  <Text fontSize="sm">Competitor Positioning Gap Analysis</Text>
+                </HStack>
+                <HStack>
+                  <Badge colorScheme="blue" borderRadius="full">✓</Badge>
+                  <Text fontSize="sm">Underserved Segment Identification</Text>
+                </HStack>
+                <HStack>
+                  <Badge colorScheme="purple" borderRadius="full">✓</Badge>
+                  <Text fontSize="sm">Premium Pricing Opportunity Detection</Text>
+                </HStack>
+                <HStack>
+                  <Badge colorScheme="orange" borderRadius="full">✓</Badge>
+                  <Text fontSize="sm">Strategic Repositioning Recommendations</Text>
+                </HStack>
+              </VStack>
+              <Button 
+                colorScheme="purple" 
+                size="lg" 
+                rightIcon={<FiArrowRight />}
+                onClick={() => navigate('/')}
+                w="full"
+                mt={4}
+              >
+                Start Your Analysis
+              </Button>
+            </VStack>
+
+            <Text fontSize="sm" color="gray.500" maxW="lg">
+              Our arbitrage detection algorithms analyze competitor positioning across multiple 
+              dimensions to identify strategic opportunities for differentiation and premium capture.
+            </Text>
           </VStack>
         </Container>
       </Box>

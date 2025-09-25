@@ -1,37 +1,51 @@
 import { Box, Container, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatNumber, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton } from '@chakra-ui/react';
-import { FiTrendingUp, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiDownload } from 'react-icons/fi';
+import { FiTrendingUp, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiDownload, FiArrowRight } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import React from 'react';
+import { useAuth } from '../../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const ExecutiveDashboardPage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [dashboard, setDashboard] = useState<any>(null);
   const [competitorSummary, setCompetitorSummary] = useState<any>(null);
   const [loadingCompetitorSummary, setLoadingCompetitorSummary] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
   const [competitorError, setCompetitorError] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<any>(null);
+  const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    const data = localStorage.getItem('dashboardData');
-    if (data) {
-      setDashboard(JSON.parse(data));
-    }
-    const competitor = localStorage.getItem('competitorSummary');
-    console.log('Raw competitor data from localStorage:', competitor);
-    if (competitor) {
-      try {
-        const parsedCompetitor = JSON.parse(competitor);
-        console.log('Parsed competitor data:', parsedCompetitor);
-        setCompetitorSummary(parsedCompetitor);
-      } catch (e) {
-        console.log('Failed to parse competitor data, using as string:', e);
-        setCompetitorSummary(competitor);
+    if (user) {
+      // Check for analysis history
+      const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
+      setHasAnalysisHistory(!!analysisHistory);
+      
+      // Only load dashboard data if user has analysis history
+      if (analysisHistory) {
+        const data = localStorage.getItem('dashboardData');
+        if (data) {
+          setDashboard(JSON.parse(data));
+        }
+        const competitor = localStorage.getItem('competitorSummary');
+        console.log('Raw competitor data from localStorage:', competitor);
+        if (competitor) {
+          try {
+            const parsedCompetitor = JSON.parse(competitor);
+            console.log('Parsed competitor data:', parsedCompetitor);
+            setCompetitorSummary(parsedCompetitor);
+          } catch (e) {
+            console.log('Failed to parse competitor data, using as string:', e);
+            setCompetitorSummary(competitor);
+          }
+        } else {
+          console.log('No competitor data found in localStorage');
+        }
       }
-    } else {
-      console.log('No competitor data found in localStorage');
     }
-  }, []);
+  }, [user]);
 
   const fetchCompetitorSummary = async (companyInfo: any) => {
     setLoadingCompetitorSummary(true);
@@ -956,12 +970,67 @@ For questions or additional analysis, contact the Strategic Planning team.
     return formattedElements;
   };
 
-  if (!dashboard) {
+  // Show empty state for users without analysis history
+  if (!hasAnalysisHistory || !dashboard) {
     return (
       <Box p={6} bg="gray.50" minH="100vh" w="100%">
-        <Container maxW="100%" px={8}>
-          <Heading size="lg">No analysis data found</Heading>
-          <Text mt={2}>Please run a market analysis from the landing page.</Text>
+        <Container maxW="4xl" px={8}>
+          <VStack spacing={8} py={16} textAlign="center">
+            <VStack spacing={4}>
+              <Icon as={FiBarChart} boxSize={16} color="purple.400" />
+              <Heading size="xl" color="gray.700">
+                Welcome to Your Executive Dashboard
+              </Heading>
+              <Text fontSize="lg" color="gray.600" maxW="2xl">
+                Start your market intelligence journey by running your first analysis. 
+                Our AI agents will provide comprehensive insights, competitive analysis, 
+                and strategic recommendations for your market expansion.
+              </Text>
+            </VStack>
+
+            <VStack spacing={4} bg="white" p={8} borderRadius="xl" shadow="md" maxW="md" w="full">
+              <Icon as={FiTarget} boxSize={8} color="purple.500" />
+              <Heading size="md" color="gray.800">
+                Ready to Get Started?
+              </Heading>
+              <Text fontSize="md" color="gray.600" textAlign="center">
+                Launch your first market analysis to unlock:
+              </Text>
+              <VStack spacing={2} align="start" w="full">
+                <HStack>
+                  <Badge colorScheme="green" borderRadius="full">✓</Badge>
+                  <Text fontSize="sm">Executive Summary & Go/No-Go Recommendations</Text>
+                </HStack>
+                <HStack>
+                  <Badge colorScheme="blue" borderRadius="full">✓</Badge>
+                  <Text fontSize="sm">Competitive Intelligence Reports</Text>
+                </HStack>
+                <HStack>
+                  <Badge colorScheme="purple" borderRadius="full">✓</Badge>
+                  <Text fontSize="sm">Market Entry Strategy & Financial Projections</Text>
+                </HStack>
+                <HStack>
+                  <Badge colorScheme="orange" borderRadius="full">✓</Badge>
+                  <Text fontSize="sm">Regulatory & Compliance Analysis</Text>
+                </HStack>
+              </VStack>
+              <Button 
+                colorScheme="purple" 
+                size="lg" 
+                rightIcon={<FiArrowRight />}
+                onClick={() => navigate('/')}
+                w="full"
+                mt={4}
+              >
+                Start Your Analysis
+              </Button>
+            </VStack>
+
+            <Text fontSize="sm" color="gray.500" maxW="lg">
+              Our autonomous AI agents will research market opportunities, analyze competitors, 
+              and generate board-ready reports in minutes, not months.
+            </Text>
+          </VStack>
         </Container>
       </Box>
     );
