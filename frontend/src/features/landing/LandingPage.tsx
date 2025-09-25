@@ -31,43 +31,86 @@ import { useAuth } from '../../auth/AuthContext';
 import StreamlinedAnalysisForm from './StreamlinedAnalysisForm';
 import KairosAILogo from '../../assets/KairosAI_logo.png';
 
-// Animation keyframes
-const float = keyframes`
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(180deg); }
+// Animation keyframes for Global Business Network
+const nodePulse = keyframes`
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
 `;
 
-const pulse = keyframes`
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.1); }
-`;
-
-const gradientShift = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
-
-
-const FloatingParticle = ({ delay, size, color, left, top }: {
-  delay: number;
-  size: number;
-  color: string;
-  left: string;
-  top: string;
+// Global Business Network Node Component
+const NetworkNode = ({ 
+  x, 
+  y, 
+  label, 
+  size = 8, 
+  delay = 0,
+  isMajor = false 
+}: {
+  x: string;
+  y: string;
+  label: string;
+  size?: number;
+  delay?: number;
+  isMajor?: boolean;
 }) => (
   <Box
     position="absolute"
-    left={left}
-    top={top}
+    left={x}
+    top={y}
     w={`${size}px`}
     h={`${size}px`}
-    bg={color}
-    borderRadius="full"
-    opacity="0.3"
-    animation={`${float} 6s ease-in-out infinite`}
+    bg={isMajor ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.95)"}
+    borderRadius="50%"
+    animation={`${nodePulse} 3s ease-in-out infinite`}
     style={{ animationDelay: `${delay}s` }}
+    boxShadow="0 0 12px rgba(255,255,255,0.8)"
+    _before={{
+      content: `"${label}"`,
+      position: "absolute",
+      top: "-30px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      fontSize: "12px",
+      color: "rgba(255,255,255,1)",
+      fontWeight: "bold",
+      whiteSpace: "nowrap",
+      textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+    }}
   />
+);
+
+// Dynamic Connection Line Component
+const DynamicConnectionLine = ({ 
+  fromX, 
+  fromY, 
+  toX, 
+  toY, 
+  opacity = 0.8
+}: {
+  fromX: string;
+  fromY: string;
+  toX: string;
+  toY: string;
+  opacity?: number;
+}) => (
+  <line
+    x1={fromX}
+    y1={fromY}
+    x2={toX}
+    y2={toY}
+    stroke={`rgba(255,255,255,${opacity})`}
+    strokeWidth="3"
+    strokeDasharray="10,10"
+    opacity={opacity}
+    filter="drop-shadow(0 0 4px rgba(255,255,255,0.5))"
+  >
+    <animate
+      attributeName="stroke-dashoffset"
+      values="0;20"
+      dur="3s"
+      repeatCount="indefinite"
+    />
+  </line>
 );
 
 const LandingPage = () => {
@@ -98,8 +141,89 @@ const LandingPage = () => {
   const [timer, setTimer] = useState(300); // 5 minutes in seconds
   const [timerExpired, setTimerExpired] = useState(false);
   const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
+  const [activeConnections, setActiveConnections] = useState<Array<{
+    fromX: string;
+    fromY: string;
+    toX: string;
+    toY: string;
+    opacity: number;
+    delay: number;
+  }>>([]);
   const navigate = useNavigate();
   const toast = useToast();
+
+  // City coordinates for dynamic connections
+  const cities = [
+    { x: "15%", y: "35%", label: "NYC" },
+    { x: "85%", y: "25%", label: "Tokyo" },
+    { x: "20%", y: "60%", label: "London" },
+    { x: "80%", y: "40%", label: "Singapore" },
+    { x: "25%", y: "75%", label: "LA" },
+    { x: "75%", y: "65%", label: "Hong Kong" },
+    { x: "50%", y: "20%", label: "Seoul" },
+    { x: "40%", y: "80%", label: "Sydney" },
+    { x: "60%", y: "15%", label: "Shanghai" },
+    { x: "35%", y: "45%", label: "Frankfurt" },
+    { x: "65%", y: "55%", label: "Dubai" },
+    { x: "45%", y: "35%", label: "Toronto" },
+  ];
+
+  // Generate random connections
+  const generateRandomConnections = () => {
+    const numConnections = Math.floor(Math.random() * 4) + 3; // 3-6 connections
+    const connections = [];
+    const usedPairs = new Set(); // Prevent duplicate connections
+    
+    for (let i = 0; i < numConnections && connections.length < 6; i++) {
+      const fromCity = cities[Math.floor(Math.random() * cities.length)];
+      const toCity = cities[Math.floor(Math.random() * cities.length)];
+      
+      // Don't connect a city to itself and avoid duplicates
+      const connectionKey = `${fromCity.label}-${toCity.label}`;
+      const reverseKey = `${toCity.label}-${fromCity.label}`;
+      
+      if (fromCity.label !== toCity.label && !usedPairs.has(connectionKey) && !usedPairs.has(reverseKey)) {
+        usedPairs.add(connectionKey);
+        connections.push({
+          fromX: fromCity.x,
+          fromY: fromCity.y,
+          toX: toCity.x,
+          toY: toCity.y,
+          opacity: Math.random() * 0.2 + 0.7, // 0.7 to 0.9 opacity (much brighter)
+          delay: Math.random() * 2, // 0 to 2 seconds delay
+        });
+      }
+    }
+    
+    // Ensure we have at least 2 connections
+    if (connections.length < 2) {
+      connections.push({
+        fromX: "15%", fromY: "35%", toX: "85%", toY: "25%", opacity: 0.9, delay: 0
+      });
+      connections.push({
+        fromX: "20%", fromY: "60%", toX: "80%", toY: "40%", opacity: 0.8, delay: 1
+      });
+    }
+    
+    return connections;
+  };
+
+  // Update connections every 2-4 seconds
+  useEffect(() => {
+    const updateConnections = () => {
+      const newConnections = generateRandomConnections();
+      console.log('Generated connections:', newConnections); // Debug log
+      setActiveConnections(newConnections);
+    };
+
+    // Initial connections
+    updateConnections();
+
+    // Set up interval for random updates
+    const interval = setInterval(updateConnections, Math.random() * 2000 + 2000); // 2-4 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Check if user has analysis history
   useEffect(() => {
@@ -373,84 +497,66 @@ const LandingPage = () => {
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"
-        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        bg="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"
         color="white"
         display="flex"
         alignItems="center"
         position="relative"
         overflow="hidden"
         w="100%"
-        sx={{
-          background: 'linear-gradient(-45deg, #667eea, #764ba2, #4facfe, #00f2fe)',
-          backgroundSize: '400% 400%',
-          animation: `${gradientShift} 15s ease infinite`,
-        }}
       >
-        {/* Animated Background Pattern */}
+        {/* Global Business Network Background */}
         <Box
           position="absolute"
           top="0"
           left="0"
           right="0"
           bottom="0"
-          opacity="0.1"
-          backgroundImage="radial-gradient(circle at 25% 25%, white 2px, transparent 2px), radial-gradient(circle at 75% 75%, white 2px, transparent 2px)"
-          backgroundSize="50px 50px"
-          animation={`${pulse} 4s ease-in-out infinite`}
-        />
+          opacity="0.4"
+        >
+          {/* Dynamic Connection Lines */}
+          <svg
+            width="100%"
+            height="100%"
+            style={{ position: 'absolute', top: 0, left: 0 }}
+          >
+            {activeConnections.map((connection, index) => (
+              <DynamicConnectionLine
+                key={`${connection.fromX}-${connection.fromY}-${connection.toX}-${connection.toY}-${index}`}
+                fromX={connection.fromX}
+                fromY={connection.fromY}
+                toX={connection.toX}
+                toY={connection.toY}
+                opacity={connection.opacity}
+              />
+            ))}
+          </svg>
 
-        {/* Floating Particles */}
-        <FloatingParticle delay={0} size={8} color="rgba(255,255,255,0.4)" left="10%" top="20%" />
-        <FloatingParticle delay={1} size={12} color="rgba(255,255,255,0.3)" left="85%" top="15%" />
-        <FloatingParticle delay={2} size={6} color="rgba(255,255,255,0.5)" left="20%" top="80%" />
-        <FloatingParticle delay={3} size={10} color="rgba(255,255,255,0.2)" left="75%" top="70%" />
-        <FloatingParticle delay={4} size={14} color="rgba(255,255,255,0.3)" left="50%" top="10%" />
-        <FloatingParticle delay={5} size={8} color="rgba(255,255,255,0.4)" left="15%" top="60%" />
+          {/* Major Business Hubs */}
+          <NetworkNode x="15%" y="35%" label="NYC" size={12} delay={0} isMajor={true} />
+          <NetworkNode x="85%" y="25%" label="Tokyo" size={12} delay={1} isMajor={true} />
+          <NetworkNode x="20%" y="60%" label="London" size={10} delay={2} isMajor={true} />
+          <NetworkNode x="80%" y="40%" label="Singapore" size={10} delay={3} isMajor={true} />
+          <NetworkNode x="25%" y="75%" label="LA" size={8} delay={4} />
+          <NetworkNode x="75%" y="65%" label="Hong Kong" size={8} delay={5} />
+          <NetworkNode x="50%" y="20%" label="Seoul" size={8} delay={6} />
+          <NetworkNode x="40%" y="80%" label="Sydney" size={8} delay={7} />
+          <NetworkNode x="60%" y="15%" label="Shanghai" size={8} delay={8} />
+          <NetworkNode x="35%" y="45%" label="Frankfurt" size={6} delay={9} />
+          <NetworkNode x="65%" y="55%" label="Dubai" size={6} delay={10} />
+          <NetworkNode x="45%" y="35%" label="Toronto" size={6} delay={11} />
+        </Box>
 
-        {/* Animated Geometric Shapes */}
+        {/* Subtle Grid Pattern */}
         <Box
           position="absolute"
-          top="5%"
-          right="10%"
-          w="100px"
-          h="100px"
-          border="2px solid rgba(255,255,255,0.1)"
-          borderRadius="50%"
-          animation={`${float} 8s ease-in-out infinite`}
-          style={{ animationDelay: '2s' }}
-        />
-        <Box
-          position="absolute"
-          bottom="15%"
-          left="5%"
-          w="80px"
-          h="80px"
-          border="2px solid rgba(255,255,255,0.1)"
-          transform="rotate(45deg)"
-          animation={`${float} 10s ease-in-out infinite`}
-          style={{ animationDelay: '1s' }}
-        />
-
-        {/* Animated Lines */}
-        <Box
-          position="absolute"
-          top="30%"
+          top="0"
           left="0"
-          w="100px"
-          h="2px"
-          bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)"
-          animation={`${pulse} 4s ease-in-out infinite`}
-          style={{ animationDelay: '0.5s' }}
-        />
-        <Box
-          position="absolute"
-          bottom="40%"
           right="0"
-          w="150px"
-          h="2px"
-          bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)"
-          animation={`${pulse} 4s ease-in-out infinite`}
-          style={{ animationDelay: '2.5s' }}
+          bottom="0"
+          opacity="0.05"
+          backgroundImage="linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)"
+          backgroundSize="50px 50px"
         />
 
         <Container maxW="100%" px={8} position="relative" zIndex={1}>
@@ -466,7 +572,7 @@ const LandingPage = () => {
                   objectFit="contain"
                   filter="brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,0.1))"
                 />
-                <Heading 
+              <Heading 
                   size="2xl" 
                   fontWeight="extrabold" 
                   lineHeight="0.9"
@@ -475,9 +581,9 @@ const LandingPage = () => {
                   bgClip="text"
                   textShadow="0 2px 4px rgba(0,0,0,0.1)"
                   fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
-                >
-                  KairosAI
-                </Heading>
+              >
+                KairosAI
+              </Heading>
                 <Box 
                   w="120px" 
                   h="3px" 
