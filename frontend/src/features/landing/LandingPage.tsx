@@ -366,119 +366,161 @@ const LandingPage = () => {
 
         <Container maxW="100%" px={8} position="relative" zIndex={1}>
           <VStack spacing={8} textAlign="center">
-            <VStack spacing={4}>
-              <Heading 
-                size="xl" 
-                fontWeight="bold" 
-                lineHeight="1.2"
-              >
-                KairosAI
-              </Heading>
+            <VStack spacing={6}>
+              <VStack spacing={2}>
+                <Heading 
+                  size="2xl" 
+                  fontWeight="extrabold" 
+                  lineHeight="0.9"
+                  letterSpacing="-0.02em"
+                  bg="linear-gradient(135deg, #ffffff 0%, #f0f0ff 100%)"
+                  bgClip="text"
+                  textShadow="0 2px 4px rgba(0,0,0,0.1)"
+                  fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                >
+                  KairosAI
+                </Heading>
+                <Box 
+                  w="120px" 
+                  h="3px" 
+                  bg="linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)"
+                  borderRadius="full"
+                />
+              </VStack>
+              
               <Text 
-                fontSize="md" 
-                opacity="0.8"
+                fontSize="xl" 
+                fontWeight="semibold"
+                opacity="0.95"
+                letterSpacing="0.01em"
+                textAlign="center"
+                maxW="4xl"
+                lineHeight="1.3"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
               >
-                Seizing the Perfect Moment for Market Success
+                Executive Intelligence for Cross-Pacific Expansion
               </Text>
+              
               <Text 
                 fontSize="lg" 
-                maxW="2xl" 
+                maxW="3xl" 
                 opacity="0.9"
+                lineHeight="1.6"
+                textAlign="center"
+                fontWeight="normal"
+                letterSpacing="0.005em"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
               >
-                Agentic AI that autonomously analyzes US-Asia market entry opportunities, 
-                competitive landscapes, and strategic positioning to help you identify 
-                and seize the perfect moment for cross-Pacific expansion.
+                Stop waiting 6 months and spending six figures on market research. 
+                KairosAI's autonomous AI agents deliver board-ready market intelligence, 
+                competitive analysis, and strategic positioning for US-Asia expansion in minutes.
               </Text>
             </VStack>
 
-            <HStack spacing={8} mt={6}>
-              <VStack spacing={3}>
+            <HStack spacing={12} mt={8}>
+              <VStack spacing={4}>
                 <Box
-                  w="60px"
-                  h="60px"
+                  w="80px"
+                  h="80px"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.5)"
-                  borderRadius="full"
-                  backdropFilter="blur(10px)"
+                  bg="rgba(255,255,255,0.15)"
+                  borderRadius="2xl"
+                  backdropFilter="blur(15px)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.1)',
-                    transition: 'transform 0.3s ease',
-                    bg: 'rgba(255,255,255,0.1)',
+                    transform: 'scale(1.05) translateY(-4px)',
+                    transition: 'all 0.3s ease',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                   }}
                 >
-                  <Icon as={FiTarget} boxSize={6} opacity="0.8" />
+                  <Icon as={FiTarget} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Autonomous Intelligence</Text>
-                  <Text fontSize="sm" opacity="0.8">AI-driven market research</Text>
+                <VStack spacing={2}>
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Autonomous Intelligence</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
                 </VStack>
               </VStack>
 
-              <VStack spacing={3}>
+              <VStack spacing={4}>
                 <Box
-                  w="60px"
-                  h="60px"
+                  w="80px"
+                  h="80px"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.5)"
-                  borderRadius="full"
-                  backdropFilter="blur(10px)"
+                  bg="rgba(255,255,255,0.15)"
+                  borderRadius="2xl"
+                  backdropFilter="blur(15px)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.1)',
-                    transition: 'transform 0.3s ease',
-                    bg: 'rgba(255,255,255,0.1)',
+                    transform: 'scale(1.05) translateY(-4px)',
+                    transition: 'all 0.3s ease',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                   }}
                 >
-                  <Icon as={FiTrendingUp} boxSize={6} opacity="0.8" />
+                  <Icon as={FiTrendingUp} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Perfect Timing</Text>
-                  <Text fontSize="sm" opacity="0.8">Seize market opportunities</Text>
+                <VStack spacing={2}>
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Perfect Timing</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
                 </VStack>
               </VStack>
 
-              <VStack spacing={3}>
+              <VStack spacing={4}>
                 <Box
-                  w="60px"
-                  h="60px"
+                  w="80px"
+                  h="80px"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.5)"
-                  borderRadius="full"
-                  backdropFilter="blur(10px)"
+                  bg="rgba(255,255,255,0.15)"
+                  borderRadius="2xl"
+                  backdropFilter="blur(15px)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.1)',
-                    transition: 'transform 0.3s ease',
-                    bg: 'rgba(255,255,255,0.1)',
+                    transform: 'scale(1.05) translateY(-4px)',
+                    transition: 'all 0.3s ease',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                   }}
                 >
-                  <Icon as={FiBarChart} boxSize={6} opacity="0.8" />
+                  <Icon as={FiBarChart} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Strategic Positioning</Text>
-                  <Text fontSize="sm" opacity="0.8">Data-driven market entry</Text>
+                <VStack spacing={2}>
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Strategic Positioning</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
                 </VStack>
               </VStack>
             </HStack>
 
             <Button
-              size="md"
+              size="lg"
               bg="white"
               color="purple.600"
               _hover={{ 
-                bg: 'gray.100',
-                transform: 'translateY(-2px)',
-                boxShadow: 'lg',
+                bg: 'gray.50',
+                transform: 'translateY(-3px)',
+                boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
                 transition: 'all 0.3s ease',
               }}
-              px={6}
-              py={4}
-              fontSize="md"
+              _active={{ 
+                transform: 'translateY(-1px)',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+              }}
+              px={8}
+              py={5}
+              fontSize="lg"
               fontWeight="bold"
+              borderRadius="xl"
+              letterSpacing="0.01em"
+              border="2px solid transparent"
+              _focus={{
+                boxShadow: '0 0 0 3px rgba(255,255,255,0.3)',
+              }}
               onClick={() => {
                 document.getElementById('analysis-form')?.scrollIntoView({
                   behavior: 'smooth'
