@@ -21,11 +21,13 @@ INSTALLED_APPS = [
     
     # Third party apps
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     
     # Local apps
     'apps.companies',
     'apps.analysis',
+    'apps.accounts',
 ]
 
 MIDDLEWARE = [
@@ -129,6 +131,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom User Model
+AUTH_USER_MODEL = 'accounts.User'
 
 # Logging
 LOGGING = {
