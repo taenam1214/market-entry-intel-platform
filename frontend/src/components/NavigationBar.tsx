@@ -29,10 +29,12 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Image,
 } from '@chakra-ui/react';
 import { FiMenu, FiUser, FiLogOut, FiSettings, FiHelpCircle, FiChevronDown } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import KairosAILogo from '../assets/KairosAI_logo.png';
 
 const NavigationBar: React.FC = () => {
   const navigate = useNavigate();
@@ -110,15 +112,24 @@ const NavigationBar: React.FC = () => {
         <Flex h={16} alignItems="center" justifyContent="space-between">
           {/* Logo */}
           <Flex alignItems="center" cursor="pointer" onClick={() => handleNavigation('/')}>
-            <Text
-              fontSize="xl"
-              fontWeight="bold"
-              bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-              bgClip="text"
-              color="transparent"
-            >
-              KairosAI
-            </Text>
+            <HStack spacing={3} align="center">
+              <Image 
+                src={KairosAILogo} 
+                alt="KairosAI Logo" 
+                h="40px" 
+                w="auto"
+                objectFit="contain"
+              />
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                bgClip="text"
+                color="transparent"
+              >
+                KairosAI
+              </Text>
+            </HStack>
           </Flex>
 
           {/* Desktop Navigation */}
@@ -216,15 +227,24 @@ const NavigationBar: React.FC = () => {
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>
-            <Text
-              fontSize="xl"
-              fontWeight="bold"
-              bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-              bgClip="text"
-              color="transparent"
-            >
-              KairosAI
-            </Text>
+            <HStack spacing={3} align="center">
+              <Image 
+                src={KairosAILogo} 
+                alt="KairosAI Logo" 
+                h="32px" 
+                w="auto"
+                objectFit="contain"
+              />
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                bgClip="text"
+                color="transparent"
+              >
+                KairosAI
+              </Text>
+            </HStack>
           </DrawerHeader>
 
           <DrawerBody>

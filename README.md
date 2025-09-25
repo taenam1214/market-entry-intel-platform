@@ -79,6 +79,8 @@ Unlike traditional AI that simply responds to prompts, **Agentic AI** takes auto
 - **Vite** for fast development and building
 - **Agentic UI Components** that adapt based on AI insights
 - **Real-time Updates** from autonomous AI agents
+- **Authentication System** with React Context and Django backend integration
+- **Protected Routes** with automatic redirects and state management
 
 ### Backend Stack
 - **Django** (Python) for robust API development
@@ -91,6 +93,40 @@ Unlike traditional AI that simply responds to prompts, **Agentic AI** takes auto
 - **Secondary AI**: Claude (Anthropic) for global strategic analysis
 - **Fallback AI**: OpenAI GPT-4 for comprehensive reasoning
 - **Autonomous Agents**: Custom-built agentic workflows for market research
+
+### Authentication System
+- **Django REST Framework** authentication with token-based auth
+- **Email-only Authentication** - no username required for convenience
+- **React Context API** for global authentication state management
+- **Protected Routes** with automatic authentication checks
+- **Login/Register Pages** with form validation and error handling
+- **Navigation Integration** with dynamic user menu and logout functionality
+- **Session Persistence** with localStorage token management
+
+## 📁 Project Structure
+
+```
+frontend/src/
+├── auth/                          # Authentication system
+│   ├── AuthContext.tsx           # Global auth state management
+│   ├── authService.ts            # API calls to Django backend
+│   ├── LoginPage.tsx             # User login interface
+│   └── RegisterPage.tsx          # User registration interface
+├── components/                    # Reusable UI components
+│   ├── NavigationBar.tsx         # Main navigation with auth integration
+│   ├── Layout.tsx               # App layout wrapper
+│   ├── Card.tsx                 # Reusable card component
+│   ├── DataTable.tsx            # Data display component
+│   └── SectionHeader.tsx       # Section header component
+├── features/                     # Feature-specific pages
+│   ├── landing/                 # Landing page components
+│   │   ├── LandingPage.tsx     # Main landing page with conditional rendering
+│   │   └── StreamlinedAnalysisForm.tsx # Focused form for new users
+│   ├── dashboard/              # Executive dashboard with empty states
+│   └── arbitrage/              # Segment arbitrage analysis with empty states
+└── routes/                      # Application routing
+    └── AppRoutes.tsx           # Route definitions with auth protection
+```
 
 ## 📦 Installation & Setup
 
@@ -351,7 +387,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎯 Recent Updates
 
-### Landing Page Enhancement (Latest)
+### Navigation System Implementation (Latest)
+- **NavigationBar Component**: Comprehensive navigation component with authentication states
+- **Public Routes**: Home, About, Pricing, Contact pages with placeholder content
+- **Protected Routes**: Dashboard, Arbitrage, Profile, Settings, Help pages
+- **Authentication UI**: Login/Register buttons for unauthenticated users
+- **User Menu**: Profile dropdown with user info, settings, help, and logout
+- **Mobile Responsive**: Hamburger menu with drawer navigation for mobile devices
+- **Future-Ready**: Easy to extend with new routes and authentication logic
+
+### Landing Page Enhancement
 - **Added "How KairosAI Works" Section**: New comprehensive section explaining KairosAI's unique value proposition for first-time users
 - **Problem vs Solution Comparison**: Visual comparison between traditional market research and KairosAI's approach
 - **4-Step Workflow Visualization**: Clear process flow from input to executive deliverables

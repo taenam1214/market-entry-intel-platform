@@ -22,12 +22,14 @@ import {
   Flex,
   Spinner,
   SimpleGrid,
+  Image,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import StreamlinedAnalysisForm from './StreamlinedAnalysisForm';
+import KairosAILogo from '../../assets/KairosAI_logo.png';
 
 // Animation keyframes
 const float = keyframes`
@@ -455,7 +457,16 @@ const LandingPage = () => {
           <VStack spacing={8} textAlign="center">
             <VStack spacing={6}>
               <VStack spacing={2}>
-              <Heading 
+                {/* KairosAI Logo */}
+                <Image 
+                  src={KairosAILogo} 
+                  alt="KairosAI Logo" 
+                  h="120px" 
+                  w="auto"
+                  objectFit="contain"
+                  filter="brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,0.1))"
+                />
+                <Heading 
                   size="2xl" 
                   fontWeight="extrabold" 
                   lineHeight="0.9"
@@ -464,9 +475,9 @@ const LandingPage = () => {
                   bgClip="text"
                   textShadow="0 2px 4px rgba(0,0,0,0.1)"
                   fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
-              >
-                KairosAI
-              </Heading>
+                >
+                  KairosAI
+                </Heading>
                 <Box 
                   w="120px" 
                   h="3px" 
