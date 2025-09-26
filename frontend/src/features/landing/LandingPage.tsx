@@ -731,7 +731,7 @@ const LandingPage = () => {
       {/* Tagline Section */}
       <Box py={16} bg="white" w="100%">
         <Container maxW="100%" px={8}>
-          <VStack spacing={0} textAlign="left" align="start">
+          <VStack spacing={0} textAlign="left" align="start" maxW="7xl" mx="auto">
             <Text 
               fontSize="32px" 
               fontWeight="normal" 
