@@ -25,24 +25,24 @@ const ExecutiveDashboardPage = () => {
       
       // Only load dashboard data if user has analysis history
       if (analysisHistory) {
-        const data = localStorage.getItem('dashboardData');
-        if (data) {
-          setDashboard(JSON.parse(data));
-        }
-        const competitor = localStorage.getItem('competitorSummary');
-        console.log('Raw competitor data from localStorage:', competitor);
-        if (competitor) {
-          try {
-            const parsedCompetitor = JSON.parse(competitor);
-            console.log('Parsed competitor data:', parsedCompetitor);
-            setCompetitorSummary(parsedCompetitor);
-          } catch (e) {
-            console.log('Failed to parse competitor data, using as string:', e);
-            setCompetitorSummary(competitor);
-          }
-        } else {
-          console.log('No competitor data found in localStorage');
-        }
+    const data = localStorage.getItem('dashboardData');
+    if (data) {
+      setDashboard(JSON.parse(data));
+    }
+    const competitor = localStorage.getItem('competitorSummary');
+    console.log('Raw competitor data from localStorage:', competitor);
+    if (competitor) {
+      try {
+        const parsedCompetitor = JSON.parse(competitor);
+        console.log('Parsed competitor data:', parsedCompetitor);
+        setCompetitorSummary(parsedCompetitor);
+      } catch (e) {
+        console.log('Failed to parse competitor data, using as string:', e);
+        setCompetitorSummary(competitor);
+      }
+    } else {
+      console.log('No competitor data found in localStorage');
+    }
       }
     }
   }, [user]);

@@ -558,7 +558,7 @@ const LandingPage = () => {
         />
 
         <Container maxW="100%" px={8} position="relative" zIndex={1}>
-          <VStack spacing={8} textAlign="center" align="center" maxW="1000px" mx="auto">
+          <VStack spacing={8} textAlign="center" align="center" maxW="7xl" mx="auto">
             <VStack spacing={6} align="start" w="100%">
               <VStack spacing={2} align="start" w="100%">
               <Heading 
@@ -576,7 +576,7 @@ const LandingPage = () => {
                 KairosAI
               </Heading>
                 <Box 
-                  w="120px" 
+                  w="360px" 
                   h="3px" 
                   bg="linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)"
                   borderRadius="full"
@@ -589,7 +589,7 @@ const LandingPage = () => {
                 opacity="0.95"
                 letterSpacing="0.01em"
                 textAlign="left"
-                maxW="1000px"
+                maxW="7xl"
                 lineHeight="1.3"
                 fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
                 alignSelf="start"
@@ -598,14 +598,15 @@ const LandingPage = () => {
               </Text>
               
               <Text 
-                fontSize="lg" 
-                maxW="1000px" 
+                fontSize="24px" 
+                maxW="7xl" 
                 opacity="0.9"
                 lineHeight="1.6"
-                textAlign="center"
+                textAlign="left"
                 fontWeight="normal"
                 letterSpacing="0.005em"
                 fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                alignSelf="start"
               >
                 Stop waiting 6 months and spending six figures on market research. 
                 KairosAI's autonomous AI agents deliver board-ready market intelligence, 
@@ -613,8 +614,8 @@ const LandingPage = () => {
               </Text>
             </VStack>
 
-            <HStack spacing={12} mt={8} align="center" justify="center">
-              <VStack spacing={4} align="center">
+            <HStack spacing={0} mt={8} align="flex-start" justify="space-evenly" w="100%" maxW="7xl" mx="auto">
+              <VStack spacing={4} align="center" flex="0 0 auto">
                 <Box
                   w="80px"
                   h="80px"
@@ -626,7 +627,6 @@ const LandingPage = () => {
                   backdropFilter="blur(15px)"
                   border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.05) translateY(-4px)',
                     transition: 'all 0.3s ease',
                     bg: 'rgba(255,255,255,0.25)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
@@ -634,13 +634,13 @@ const LandingPage = () => {
                 >
                   <Icon as={FiTarget} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={2} align="center">
-                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Autonomous Intelligence</Text>
-                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
+                <VStack spacing={2} align="center" w="140px">
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Autonomous Intelligence</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
                 </VStack>
               </VStack>
 
-              <VStack spacing={4} align="center">
+              <VStack spacing={4} align="center" flex="0 0 auto">
                 <Box
                   w="80px"
                   h="80px"
@@ -652,7 +652,6 @@ const LandingPage = () => {
                   backdropFilter="blur(15px)"
                   border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.05) translateY(-4px)',
                     transition: 'all 0.3s ease',
                     bg: 'rgba(255,255,255,0.25)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
@@ -660,13 +659,13 @@ const LandingPage = () => {
                 >
                   <Icon as={FiTrendingUp} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={2} align="center">
-                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Perfect Timing</Text>
-                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
+                <VStack spacing={2} align="center" w="140px">
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Perfect Timing</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
                 </VStack>
               </VStack>
 
-              <VStack spacing={4} align="center">
+              <VStack spacing={4} align="center" flex="0 0 auto">
                 <Box
                   w="80px"
                   h="80px"
@@ -678,7 +677,6 @@ const LandingPage = () => {
                   backdropFilter="blur(15px)"
                   border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.05) translateY(-4px)',
                     transition: 'all 0.3s ease',
                     bg: 'rgba(255,255,255,0.25)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
@@ -686,9 +684,9 @@ const LandingPage = () => {
                 >
                   <Icon as={FiBarChart} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={2} align="center">
-                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Strategic Positioning</Text>
-                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" maxW="140px" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
+                <VStack spacing={2} align="center" w="140px">
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Strategic Positioning</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
                 </VStack>
               </VStack>
             </HStack>
@@ -730,6 +728,40 @@ const LandingPage = () => {
         </Container>
       </Box>
 
+      {/* Tagline Section */}
+      <Box py={16} bg="white" w="100%">
+        <Container maxW="100%" px={8}>
+          <VStack spacing={0} textAlign="left" align="start">
+            <Text 
+              fontSize="32px" 
+              fontWeight="normal" 
+              color="#667EEA" 
+              letterSpacing="0.01em"
+              fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+            >
+              AI intelligence for global expansion
+            </Text>
+            <VStack spacing={0} textAlign="left" align="start" mt={6}>
+              <Text 
+                fontSize="54px" 
+                color="gray.700"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+              >
+                Traditional market research takes 6 months.
+              </Text>
+              <Text 
+                fontSize="54px" 
+                fontWeight="normal"
+                color="black"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+              >
+                Let KairosAI do it in minutes.
+              </Text>
+            </VStack>
+          </VStack>
+        </Container>
+      </Box>
+
       {/* How KairosAI Works Section */}
       <Box py={16} bg="white" w="100%">
         <Container maxW="100%" px={8}>
@@ -739,14 +771,14 @@ const LandingPage = () => {
               <Heading size="xl" color="gray.800">
                 Why KairosAI is Different
               </Heading>
-              <Text fontSize="lg" color="gray.600" maxW="3xl">
+              <Text fontSize="lg" color="gray.600" maxW="7xl">
                 Traditional market research takes months and costs six figures. 
                 KairosAI delivers executive-ready insights in minutes using autonomous AI agents.
               </Text>
             </VStack>
 
             {/* Problem vs Solution Comparison */}
-            <Card shadow="xl" borderRadius="2xl" bg="gradient-to-r from-red.50 to-green.50" border="1px solid" borderColor="gray.200" w="full" maxW="6xl">
+            <Card shadow="xl" borderRadius="2xl" bg="gradient-to-r from-red.50 to-green.50" border="1px solid" borderColor="gray.200" w="full" maxW="7xl">
               <CardBody p={8}>
                 <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
                   {/* Traditional Approach */}
@@ -856,7 +888,7 @@ const LandingPage = () => {
             <VStack spacing={8} w="full">
               <Heading size="lg" color="gray.800">How KairosAI Works</Heading>
               
-              <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6} w="full" maxW="5xl">
+              <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6} w="full" maxW="7xl">
                 {/* Step 1 */}
                 <VStack spacing={4} p={6} bg="purple.50" borderRadius="xl" border="1px solid" borderColor="purple.200">
                   <Box w="12" h="12" bg="purple.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
@@ -904,7 +936,7 @@ const LandingPage = () => {
             </VStack>
 
             {/* Unique Value Propositions */}
-            <Card shadow="lg" borderRadius="xl" bg="gradient-to-r from-purple.50 to-blue.50" border="1px solid" borderColor="purple.200" w="full" maxW="5xl">
+            <Card shadow="lg" borderRadius="xl" bg="gradient-to-r from-purple.50 to-blue.50" border="1px solid" borderColor="purple.200" w="full" maxW="7xl">
               <CardBody p={8}>
                 <VStack spacing={6}>
                   <Heading size="lg" color="purple.700">What Makes KairosAI Unique</Heading>
@@ -1019,7 +1051,7 @@ const LandingPage = () => {
       {/* Form Section */}
       <Box id="analysis-form" py={8} bg="white" w="100%">
         <Container maxW="100%" px={4}>
-          <Card shadow="lg" borderRadius="lg" overflow="hidden" maxW="800px" mx="auto">
+          <Card shadow="lg" borderRadius="lg" overflow="hidden" maxW="7xl" mx="auto">
             <Box bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" p={4} color="white">
               <VStack spacing={2} textAlign="center">
                 <Heading size="lg">
