@@ -50,11 +50,11 @@ const NetworkNode = ({
     top={y}
     w={`${size}px`}
     h={`${size}px`}
-    bg={isMajor ? "rgba(0,0,0,1)" : "rgba(0,0,0,0.95)"}
+    bg={isMajor ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.95)"}
     borderRadius="50%"
     animation={`${nodePulse} 12s ease-in-out infinite`}
     style={{ animationDelay: `${delay}s` }}
-    boxShadow="0 0 12px rgba(0,0,0,0.8)"
+    boxShadow="0 0 12px rgba(255,255,255,0.8)"
     _before={{
       content: `"${label}"`,
       position: "absolute",
@@ -62,10 +62,10 @@ const NetworkNode = ({
       left: "50%",
       transform: "translateX(-50%)",
       fontSize: "12px",
-      color: "rgba(0,0,0,1)",
+      color: "rgba(255,255,255,1)",
       fontWeight: "bold",
       whiteSpace: "nowrap",
-      textShadow: "0 2px 4px rgba(255,255,255,0.5)",
+      textShadow: "0 2px 4px rgba(0,0,0,0.5)",
     }}
   />
 );
@@ -91,11 +91,11 @@ const DynamicConnectionLine = ({
     y1={fromY}
     x2={toX}
     y2={toY}
-    stroke={`rgba(0,0,0,${opacity})`}
+    stroke={`rgba(255,255,255,${opacity})`}
     strokeWidth="3"
     strokeDasharray="10,10"
     opacity={opacity}
-    filter="drop-shadow(0 0 4px rgba(0,0,0,0.5))"
+    filter="drop-shadow(0 0 4px rgba(255,255,255,0.5))"
   >
     <animate
       attributeName="stroke-dashoffset"
@@ -238,8 +238,8 @@ const LandingPage = () => {
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"
-        bg="#ebe8fc"
-        color="black"
+        bg="black"
+        color="white"
         display="flex"
         alignItems="center"
         position="relative"
@@ -310,7 +310,7 @@ const LandingPage = () => {
                   fontWeight="extrabold" 
                   lineHeight="0.9"
                   letterSpacing="-0.02em"
-                  bg="linear-gradient(135deg, #000000 0%, #333333 100%)"
+                  bg="linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)"
                   bgClip="text"
                   textShadow="0 2px 4px rgba(0,0,0,0.1)"
                   fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
@@ -322,7 +322,7 @@ const LandingPage = () => {
                 <Box 
                   w="360px" 
                   h="3px" 
-                  bg="linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 100%)"
+                  bg="linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)"
                   borderRadius="full"
                 />
               </VStack>
@@ -337,6 +337,7 @@ const LandingPage = () => {
                 lineHeight="1.3"
                 fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
                 alignSelf="start"
+                color="white"
               >
                 Executive Intelligence for Cross-Pacific Expansion
               </Text>
@@ -351,6 +352,7 @@ const LandingPage = () => {
                 letterSpacing="0.005em"
                 fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
                 alignSelf="start"
+                color="white"
               >
                 Stop waiting 6 months and spending six figures on market research. 
                 KairosAI's autonomous AI agents deliver board-ready market intelligence, 
@@ -366,21 +368,21 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(0,0,0,0.15)"
+                  bg="rgba(255,255,255,0.15)"
                   borderRadius="2xl"
                   backdropFilter="blur(15px)"
-                  border="1px solid rgba(0,0,0,0.2)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
                     transition: 'all 0.3s ease',
-                    bg: 'rgba(0,0,0,0.25)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(255,255,255,0.1)',
                   }}
                 >
-                  <Icon as={FiTarget} boxSize={8} color="black" />
+                  <Icon as={FiTarget} boxSize={8} color="white" />
                 </Box>
                 <VStack spacing={2} align="center" w="140px">
-                  <Text fontWeight="bold" fontSize="lg" color="black" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Autonomous Intelligence</Text>
-                  <Text fontSize="sm" opacity="0.85" color="black" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Autonomous Intelligence</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
                 </VStack>
               </VStack>
 
@@ -391,21 +393,21 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(0,0,0,0.15)"
+                  bg="rgba(255,255,255,0.15)"
                   borderRadius="2xl"
                   backdropFilter="blur(15px)"
-                  border="1px solid rgba(0,0,0,0.2)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
                     transition: 'all 0.3s ease',
-                    bg: 'rgba(0,0,0,0.25)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(255,255,255,0.1)',
                   }}
                 >
-                  <Icon as={FiTrendingUp} boxSize={8} color="black" />
+                  <Icon as={FiTrendingUp} boxSize={8} color="white" />
                 </Box>
                 <VStack spacing={2} align="center" w="140px">
-                  <Text fontWeight="bold" fontSize="lg" color="black" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Perfect Timing</Text>
-                  <Text fontSize="sm" opacity="0.85" color="black" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Perfect Timing</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
                 </VStack>
               </VStack>
 
@@ -416,21 +418,21 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(0,0,0,0.15)"
+                  bg="rgba(255,255,255,0.15)"
                   borderRadius="2xl"
                   backdropFilter="blur(15px)"
-                  border="1px solid rgba(0,0,0,0.2)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
                     transition: 'all 0.3s ease',
-                    bg: 'rgba(0,0,0,0.25)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(255,255,255,0.1)',
                   }}
                 >
-                  <Icon as={FiBarChart} boxSize={8} color="black" />
+                  <Icon as={FiBarChart} boxSize={8} color="white" />
                 </Box>
                 <VStack spacing={2} align="center" w="140px">
-                  <Text fontWeight="bold" fontSize="lg" color="black" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Strategic Positioning</Text>
-                  <Text fontSize="sm" opacity="0.85" color="black" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Strategic Positioning</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
                 </VStack>
               </VStack>
             </HStack>
@@ -544,7 +546,7 @@ const LandingPage = () => {
                   color="black"
                 >
                   Traditional market research takes months and costs six figures.
-                </Text>
+                      </Text>
                 <Text 
                   fontSize="32px" 
                   opacity="0.9"
@@ -556,7 +558,7 @@ const LandingPage = () => {
                   color="black"
                 >
                   KairosAI delivers executive-ready insights in <Text as="span" color="#667EEA" fontWeight="bold">minutes.</Text>
-                </Text>
+                      </Text>
               </VStack>
             </VStack>
 
@@ -665,50 +667,50 @@ const LandingPage = () => {
 
             {/* How It Works Workflow */}
             <VStack spacing={8} w="full">
-              <Heading size="lg" color="gray.800">How KairosAI Works</Heading>
+              <Heading size="lg" color="gray.800">KairosAI does it All. </Heading>
               
-              <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6} w="full" maxW="7xl">
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full" maxW="7xl">
                 {/* Step 1 */}
-                <VStack spacing={4} p={6} bg="purple.50" borderRadius="xl" border="1px solid" borderColor="purple.200">
-                  <Box w="12" h="12" bg="purple.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                    <Text color="white" fontWeight="bold" fontSize="lg">1</Text>
+                <VStack spacing={6} p={8} bg="purple.50" borderRadius="xl">
+                  <Box w="16" h="16" bg="purple.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                    <Text color="white" fontWeight="bold" fontSize="2xl">1</Text>
                   </Box>
-                  <VStack spacing={2} textAlign="center">
-                    <Heading size="sm" color="purple.700">Input Company Info</Heading>
-                    <Text fontSize="sm" color="purple.600">Share your company details, target market, and expansion goals</Text>
+                  <VStack spacing={3} textAlign="center">
+                    <Heading size="md" color="purple.700">Input Company Info</Heading>
+                    <Text fontSize="md" color="purple.600">Share your company details, target market, and expansion goals</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 2 */}
-                <VStack spacing={4} p={6} bg="blue.50" borderRadius="xl" border="1px solid" borderColor="blue.200">
-                  <Box w="12" h="12" bg="blue.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                    <Text color="white" fontWeight="bold" fontSize="lg">2</Text>
+                <VStack spacing={6} p={8} bg="blue.50" borderRadius="xl">
+                  <Box w="16" h="16" bg="blue.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                    <Text color="white" fontWeight="bold" fontSize="2xl">2</Text>
                   </Box>
-                  <VStack spacing={2} textAlign="center">
-                    <Heading size="sm" color="blue.700">AI Agents Research</Heading>
-                    <Text fontSize="sm" color="blue.600">Autonomous agents analyze market data, competitors, and opportunities 24/7</Text>
+                  <VStack spacing={3} textAlign="center">
+                    <Heading size="md" color="blue.700">AI Agents Research</Heading>
+                    <Text fontSize="md" color="blue.600">Autonomous agents analyze market data, competitors, and opportunities 24/7</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 3 */}
-                <VStack spacing={4} p={6} bg="green.50" borderRadius="xl" border="1px solid" borderColor="green.200">
-                  <Box w="12" h="12" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                    <Text color="white" fontWeight="bold" fontSize="lg">3</Text>
+                <VStack spacing={6} p={8} bg="green.50" borderRadius="xl">
+                  <Box w="16" h="16" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                    <Text color="white" fontWeight="bold" fontSize="2xl">3</Text>
                   </Box>
-                  <VStack spacing={2} textAlign="center">
-                    <Heading size="sm" color="green.700">Generate Insights</Heading>
-                    <Text fontSize="sm" color="green.600">Get market intelligence dashboard and segment arbitrage opportunities</Text>
+                  <VStack spacing={3} textAlign="center">
+                    <Heading size="md" color="green.700">Generate Insights</Heading>
+                    <Text fontSize="md" color="green.600">Get market intelligence dashboard and segment arbitrage opportunities</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 4 */}
-                <VStack spacing={4} p={6} bg="orange.50" borderRadius="xl" border="1px solid" borderColor="orange.200">
-                  <Box w="12" h="12" bg="orange.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                    <Text color="white" fontWeight="bold" fontSize="lg">4</Text>
+                <VStack spacing={6} p={8} bg="teal.50" borderRadius="xl">
+                  <Box w="16" h="16" bg="teal.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                    <Text color="white" fontWeight="bold" fontSize="2xl">4</Text>
                   </Box>
-                  <VStack spacing={2} textAlign="center">
-                    <Heading size="sm" color="orange.700">Executive Deliverables</Heading>
-                    <Text fontSize="sm" color="orange.600">Download board presentations, investment memos, and strategic recommendations</Text>
+                  <VStack spacing={3} textAlign="center">
+                    <Heading size="md" color="teal.700">Executive Deliverables</Heading>
+                    <Text fontSize="md" color="teal.600">Download board presentations, investment memos, and strategic recommendations</Text>
                   </VStack>
                 </VStack>
               </SimpleGrid>
