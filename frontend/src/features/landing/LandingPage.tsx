@@ -207,7 +207,7 @@ const LandingPage = () => {
 
   // Show streamlined form for authenticated users without analysis history
   if (isAuthenticated && !hasAnalysisHistory) {
-    return (
+  return (
       <Box minH="100vh" bg="white" py={8}>
         <Container maxW="100%" px={4}>
           <VStack spacing={8}>
@@ -218,8 +218,8 @@ const LandingPage = () => {
               </Heading>
               <Text fontSize="lg" color="gray.600" maxW="2xl">
                 Ready to start your market analysis? Let's gather some information about your expansion opportunity.
-              </Text>
-            </VStack>
+            </Text>
+          </VStack>
             <AnalysisForm 
               showWelcomeMessage={true}
               welcomeTitle="Start Your US-Asia Market Analysis"
@@ -229,7 +229,7 @@ const LandingPage = () => {
             />
           </VStack>
         </Container>
-      </Box>
+        </Box>
     );
   }
 
@@ -504,11 +504,11 @@ const LandingPage = () => {
                 fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
               >
                 Let KairosAI do it in minutes.
-              </Text>
-            </VStack>
+                </Text>
+              </VStack>
           </VStack>
         </Container>
-      </Box>
+            </Box>
 
       {/* How KairosAI Works Section with Continued Gradient */}
       <Box 
@@ -517,24 +517,53 @@ const LandingPage = () => {
         bg="linear-gradient(to bottom, rgba(235, 232, 252, 0.1) 0%, rgba(235, 232, 252, 0.05) 30%, white 100%)"
       >
         <Container maxW="100%" px={8}>
-          <VStack spacing={12} textAlign="center">
+          <VStack spacing={12} textAlign="left" align="start" maxW="7xl" mx="auto">
             {/* Section Header */}
-            <VStack spacing={4}>
-              <Heading size="xl" color="gray.800">
-                Why KairosAI is Different
+            <VStack spacing={4} align="start" w="100%">
+              <Heading 
+                fontSize="54px" 
+                fontWeight="normal"
+                opacity="0.95"
+                letterSpacing="0.01em"
+                textAlign="left"
+                lineHeight="1.3"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                color="black"
+              >
+                Why KairosAI?
               </Heading>
-              <Text fontSize="lg" color="gray.600" maxW="7xl">
-                Traditional market research takes months and costs six figures. 
-                KairosAI delivers executive-ready insights in minutes using autonomous AI agents.
-              </Text>
+              <VStack spacing={2} align="start" w="100%">
+                <Text 
+                  fontSize="32px" 
+                  opacity="0.9"
+                  lineHeight="1.6"
+                  textAlign="left"
+                  fontWeight="normal"
+                  letterSpacing="0.005em"
+                  fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                  color="black"
+                >
+                  Traditional market research takes months and costs six figures.
+                </Text>
+                <Text 
+                  fontSize="32px" 
+                  opacity="0.9"
+                  lineHeight="1.6"
+                  textAlign="left"
+                  fontWeight="normal"
+                  letterSpacing="0.005em"
+                  fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                  color="black"
+                >
+                  KairosAI delivers executive-ready insights in <Text as="span" color="#667EEA" fontWeight="bold">minutes.</Text>
+                </Text>
+              </VStack>
             </VStack>
 
             {/* Problem vs Solution Comparison */}
-            <Card shadow="xl" borderRadius="2xl" bg="gradient-to-r from-red.50 to-green.50" border="1px solid" borderColor="gray.200" w="full" maxW="7xl">
-              <CardBody p={8}>
-                <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
+            <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8} w="full" maxW="7xl">
                   {/* Traditional Approach */}
-                  <Box p={6} bg="red.50" borderRadius="xl" border="1px solid" borderColor="red.200">
+                  <Box p={6} bg="red.50" borderRadius="xl">
                     <VStack spacing={4} align="start">
                       <HStack spacing={3}>
                         <Box w="8" h="8" bg="red.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
@@ -584,7 +613,7 @@ const LandingPage = () => {
                   </Box>
 
                   {/* KairosAI Approach */}
-                  <Box p={6} bg="green.50" borderRadius="xl" border="1px solid" borderColor="green.200">
+                  <Box p={6} bg="green.50" borderRadius="xl">
                     <VStack spacing={4} align="start">
                       <HStack spacing={3}>
                         <Box w="8" h="8" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
@@ -629,12 +658,10 @@ const LandingPage = () => {
                       
                       <Text fontSize="sm" color="green.600" fontStyle="italic">
                         "Real-time intelligence that evolves with your market"
-                      </Text>
+                    </Text>
                     </VStack>
                   </Box>
                 </SimpleGrid>
-              </CardBody>
-            </Card>
 
             {/* How It Works Workflow */}
             <VStack spacing={8} w="full">
@@ -737,7 +764,7 @@ const LandingPage = () => {
                         <Text fontSize="sm" color="purple.600">
                           Built specifically for US-Asia market dynamics, understanding cultural nuances, regulatory requirements, and business practices.
                         </Text>
-                      </Box>
+                  </Box>
                     </VStack>
                   </SimpleGrid>
                 </VStack>
@@ -748,30 +775,30 @@ const LandingPage = () => {
             <VStack spacing={4}>
               <Heading size="md" color="gray.700">Ready to Transform Your Market Entry Strategy?</Heading>
               <HStack spacing={4}>
-                <Button
+                  <Button
                   size="lg"
-                  bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                   color="white"
-                  _hover={{
-                    bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                    _hover={{
+                      bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                 transform: 'translateY(-2px)',
                 boxShadow: 'lg',
-              }}
+                    }}
                   _active={{ transform: 'translateY(0)' }}
                   px={8}
-              py={4}
-              fontSize="md"
-              fontWeight="bold"
-                  borderRadius="lg"
+                    py={4}
+                    fontSize="md"
+                    fontWeight="bold"
+                    borderRadius="lg"
               onClick={() => {
                 document.getElementById('analysis-form')?.scrollIntoView({
                   behavior: 'smooth'
                 });
               }}
-              rightIcon={<FiArrowRight />}
-            >
+                    rightIcon={<FiArrowRight />}
+                  >
                   Start Your Free Analysis
-            </Button>
+                  </Button>
                 
                 <Button
                   size="lg"

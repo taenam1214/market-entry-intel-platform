@@ -307,6 +307,23 @@ market-entry-intel-platform-1/
 - **Data-Driven Visualizations**: Charts and graphs that tell stories
 - **Responsive & Adaptive**: Works seamlessly across all devices
 
+### Color Palette
+Our brand uses a carefully curated 4-color palette for consistent visual identity:
+
+#### Primary Colors
+- **Blue-Purple**: `#667eea` - Primary brand color, used for main CTAs and highlights
+- **Purple**: `#764ba2` - Secondary brand color, used in gradients and accents
+
+#### Supporting Colors
+- **Deep Navy Blue**: `#1e3a8a` - Professional headers, important text, sophisticated elements
+- **Deep Teal**: `#059669` - Success states, positive actions, growth indicators
+
+#### Usage Guidelines
+- **Primary Actions**: Use blue-purple gradient (`#667eea` to `#764ba2`)
+- **Text Highlights**: Use blue-purple (`#667eea`) for emphasis
+- **Professional Elements**: Use deep navy (`#1e3a8a`) for headers and important text
+- **Success/Positive**: Use deep teal (`#059669`) for confirmations and growth metrics
+
 ## 🚀 Usage
 
 ### Getting Started with Agentic AI
