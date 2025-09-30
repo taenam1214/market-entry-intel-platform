@@ -500,7 +500,7 @@ const LandingPage = () => {
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"
-        bg="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"
+        bg="linear-gradient(135deg, #667eea 0%, #764ba2 50%, #5b21b6 100%)"
         color="white"
         display="flex"
         alignItems="center"
