@@ -27,6 +27,7 @@ import { keyframes } from '@emotion/react';
 import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
+import { authService } from '../../auth/authService';
 import StreamlinedAnalysisForm from './StreamlinedAnalysisForm';
 
 // Animation keyframes for Global Business Network
@@ -393,20 +394,24 @@ const LandingPage = () => {
         regulatory_requirements: formData.regulatoryRequirements,
         partnership_preferences: formData.partnershipPreferences,
       };
+      
+      // Get authentication headers
+      const authHeaders = authService.getAuthHeaders();
+      
       const [marketRes, competitorRes, arbitrageRes] = await Promise.all([
         fetch('http://localhost:8000/api/v1/market-analysis/', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders,
           body: JSON.stringify(payload),
         }),
         fetch('http://localhost:8000/api/v1/competitor-analysis/', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders,
           body: JSON.stringify(payload),
         }),
         fetch('http://localhost:8000/api/v1/segment-arbitrage/', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders,
           body: JSON.stringify(payload),
         })
       ]);

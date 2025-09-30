@@ -9,6 +9,8 @@ import json
 from datetime import datetime
 from typing import Dict
 
+from .models import MarketReport
+
 logger = logging.getLogger(__name__)
 
 class MarketAnalysisRequestSerializer:
@@ -33,7 +35,7 @@ class MarketAnalysisAPIView(APIView):
     """
     API endpoint to trigger market analysis using research and scoring agents
     """
-    permission_classes = [permissions.AllowAny]  # Remove auth for now, add later
+    permission_classes = [permissions.AllowAny]  # Allow both authenticated and unauthenticated access
     
     def post(self, request):
         try:
@@ -152,6 +154,71 @@ class MarketAnalysisAPIView(APIView):
             
             logger.info(f"Market analysis completed for {company_info['company_name']}")
             
+            # Save report to database
+            try:
+                # Create executive summary for RAG
+                executive_summary = self._generate_executive_summary(scores, company_info)
+                
+                # Create full content for RAG
+                full_content = f"""
+Market Analysis Report: {company_info['company_name']} expanding to {company_info['target_market']}
+
+Company Information:
+- Company: {company_info['company_name']}
+- Industry: {company_info['industry']}
+- Target Market: {company_info['target_market']}
+- Website: {company_info.get('website', 'N/A')}
+- Current Positioning: {company_info.get('current_positioning', 'N/A')}
+- Brand Description: {company_info.get('brand_description', 'N/A')}
+
+Executive Summary:
+{executive_summary}
+
+Detailed Analysis:
+{json.dumps(research_report, indent=2)}
+
+Key Insights:
+{json.dumps(self._extract_key_insights(scores), indent=2)}
+
+Revenue Projections:
+{json.dumps(response_data['revenue_projections'], indent=2)}
+
+Recommended Actions:
+{json.dumps(response_data['recommended_actions'], indent=2)}
+"""
+                
+                # Save to database - only if user is authenticated
+                if hasattr(request, 'user') and request.user and request.user.is_authenticated:
+                    market_report = MarketReport.objects.create(
+                        analysis_id=analysis_id,
+                        user=request.user,
+                        analysis_type='standard',
+                        status='completed',
+                        company_name=company_info['company_name'],
+                        industry=company_info['industry'],
+                        target_market=company_info['target_market'],
+                        website=company_info.get('website', ''),
+                        current_positioning=company_info.get('current_positioning', ''),
+                        brand_description=company_info.get('brand_description', ''),
+                        dashboard_data=response_data['dashboard'],
+                        detailed_scores=scores,
+                        research_report=research_report,
+                        key_insights=self._extract_key_insights(scores),
+                        revenue_projections=response_data['revenue_projections'],
+                        recommended_actions=response_data['recommended_actions'],
+                        executive_summary=executive_summary,
+                        full_content=full_content,
+                        completed_at=datetime.now()
+                    )
+                    
+                    logger.info(f"Market report saved to database with ID: {market_report.id}")
+                else:
+                    logger.info("Market report not saved to database - user not authenticated")
+                
+            except Exception as e:
+                logger.error(f"Error saving market report to database: {str(e)}")
+                # Continue with response even if database save fails
+            
             return Response(response_data, status=status.HTTP_200_OK)
             
         except Exception as e:
@@ -253,6 +320,64 @@ class MarketAnalysisAPIView(APIView):
         })
         
         return insights[:3]  # Return top 3 insights
+    
+    def _generate_executive_summary(self, scores: Dict, company_info: Dict) -> str:
+        """Generate executive summary from scores."""
+        company_name = company_info.get('company_name', 'Company')
+        target_market = company_info.get('target_market', 'target market')
+        
+        market_score = scores.get('market_opportunity_score', 5.0)
+        competitive_intensity = scores.get('competitive_intensity', 'Medium')
+        complexity_score = scores.get('entry_complexity_score', 5.0)
+        
+        summary = f"""
+**Executive Summary: {company_name} Market Entry Analysis**
+
+**Market Opportunity:** {market_score}/10 - """
+        
+        if market_score >= 7.0:
+            summary += f"Strong market opportunity identified in {target_market} with favorable growth conditions and market dynamics."
+        elif market_score >= 5.0:
+            summary += f"Moderate market opportunity in {target_market} with balanced risk-reward profile."
+        else:
+            summary += f"Limited market opportunity in {target_market} requiring careful consideration of entry strategy."
+        
+        summary += f"""
+
+**Competitive Landscape:** {competitive_intensity} intensity - Current market structure """
+        
+        if competitive_intensity == 'Low':
+            summary += "provides favorable entry conditions with limited direct competition."
+        elif competitive_intensity == 'Medium':
+            summary += "shows balanced competition requiring strategic differentiation."
+        else:
+            summary += "presents significant competitive challenges requiring strong market positioning."
+        
+        summary += f"""
+
+**Entry Complexity:** {complexity_score}/10 - Market entry """
+        
+        if complexity_score <= 4.0:
+            summary += "presents minimal barriers with straightforward implementation path."
+        elif complexity_score <= 7.0:
+            summary += "involves moderate complexity requiring structured approach and local partnerships."
+        else:
+            summary += "requires extensive planning due to significant regulatory and operational barriers."
+        
+        summary += f"""
+
+**Recommendation:** Based on comprehensive analysis, market entry into {target_market} """
+        
+        overall_score = (market_score + (10 - scores.get('competitive_intensity_score', 5)) + (10 - complexity_score)) / 3
+        
+        if overall_score >= 7.0:
+            summary += "is strongly recommended with high probability of success."
+        elif overall_score >= 5.0:
+            summary += "is recommended with careful strategic planning and risk mitigation."
+        else:
+            summary += "should be reconsidered or delayed pending strategy optimization."
+        
+        return summary
 
 class DeepMarketAnalysisAPIView(APIView):
     """
@@ -337,64 +462,6 @@ class DeepMarketAnalysisAPIView(APIView):
                 {'error': 'An error occurred during deep market analysis', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-    
-    def _generate_executive_summary(self, scores: Dict, company_info: Dict) -> str:
-        """Generate executive summary from scores."""
-        company_name = company_info.get('company_name', 'Company')
-        target_market = company_info.get('target_market', 'target market')
-        
-        market_score = scores.get('market_opportunity_score', 5.0)
-        competitive_intensity = scores.get('competitive_intensity', 'Medium')
-        complexity_score = scores.get('entry_complexity_score', 5.0)
-        
-        summary = f"""
-**Executive Summary: {company_name} Market Entry Analysis**
-
-**Market Opportunity:** {market_score}/10 - """
-        
-        if market_score >= 7.0:
-            summary += f"Strong market opportunity identified in {target_market} with favorable growth conditions and market dynamics."
-        elif market_score >= 5.0:
-            summary += f"Moderate market opportunity in {target_market} with balanced risk-reward profile."
-        else:
-            summary += f"Limited market opportunity in {target_market} requiring careful consideration of entry strategy."
-        
-        summary += f"""
-
-**Competitive Landscape:** {competitive_intensity} intensity - Current market structure """
-        
-        if competitive_intensity == 'Low':
-            summary += "provides favorable entry conditions with limited direct competition."
-        elif competitive_intensity == 'Medium':
-            summary += "shows balanced competition requiring strategic differentiation."
-        else:
-            summary += "presents significant competitive challenges requiring strong market positioning."
-        
-        summary += f"""
-
-**Entry Complexity:** {complexity_score}/10 - Market entry """
-        
-        if complexity_score <= 4.0:
-            summary += "presents minimal barriers with straightforward implementation path."
-        elif complexity_score <= 7.0:
-            summary += "involves moderate complexity requiring structured approach and local partnerships."
-        else:
-            summary += "requires extensive planning due to significant regulatory and operational barriers."
-        
-        summary += f"""
-
-**Recommendation:** Based on comprehensive analysis, market entry into {target_market} """
-        
-        overall_score = (market_score + (10 - scores.get('competitive_intensity_score', 5)) + (10 - complexity_score)) / 3
-        
-        if overall_score >= 7.0:
-            summary += "is strongly recommended with high probability of success."
-        elif overall_score >= 5.0:
-            summary += "is recommended with careful strategic planning and risk mitigation."
-        else:
-            summary += "should be reconsidered or delayed pending strategy optimization."
-        
-        return summary
 
 class HealthCheckAPIView(APIView):
     """Simple health check endpoint"""

@@ -22,6 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
+import { authService } from '../../auth/authService';
 
 interface StreamlinedAnalysisFormProps {
   customerSegments: Array<{ value: string; label: string; description: string }>;
@@ -103,12 +104,85 @@ const StreamlinedAnalysisForm: React.FC<StreamlinedAnalysisFormProps> = ({
         localStorage.setItem(`analysis_${user.id}`, JSON.stringify(formData));
       }
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare API payload (same structure as LandingPage)
+      const payload = {
+        company_name: formData.companyName,
+        industry: formData.industry,
+        target_market: formData.targetMarket,
+        current_positioning: formData.currentPositioning,
+        brand_description: formData.brandDescription,
+        website: formData.website,
+        email: formData.email,
+        customer_segment: formData.customerSegment,
+        expansion_direction: formData.expansionDirection,
+        // Additional detailed fields
+        company_size: formData.companySize,
+        annual_revenue: formData.annualRevenue,
+        funding_stage: formData.fundingStage,
+        current_markets: formData.currentMarkets,
+        key_products: formData.keyProducts,
+        competitive_advantage: formData.competitiveAdvantage,
+        expansion_timeline: formData.expansionTimeline,
+        budget_range: formData.budgetRange,
+        regulatory_requirements: formData.regulatoryRequirements,
+        partnership_preferences: formData.partnershipPreferences,
+      };
+
+      // Get authentication headers
+      const authHeaders = authService.getAuthHeaders();
+
+      // Make API calls (same as LandingPage)
+      const [marketRes, competitorRes, arbitrageRes] = await Promise.all([
+        fetch('http://localhost:8000/api/v1/market-analysis/', {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify(payload),
+        }),
+        fetch('http://localhost:8000/api/v1/competitor-analysis/', {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify(payload),
+        }),
+        fetch('http://localhost:8000/api/v1/segment-arbitrage/', {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify(payload),
+        })
+      ]);
+
+      // Handle market analysis response
+      if (!marketRes.ok) {
+        const errorData = await marketRes.json();
+        throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'Market analysis API error');
+      }
+      const data = await marketRes.json();
+      localStorage.setItem('dashboardData', JSON.stringify(data));
+
+      // Handle competitor analysis response
+      if (competitorRes.ok) {
+        const competitorData = await competitorRes.json();
+        console.log('Competitor API response:', competitorData);
+        console.log('Competitor analysis data:', competitorData.competitor_analysis);
+        localStorage.setItem('competitorSummary', JSON.stringify(competitorData.competitor_analysis));
+      } else {
+        console.log('Competitor API failed:', competitorRes.status);
+        localStorage.setItem('competitorSummary', 'No competitor summary available.');
+      }
+      
+      // Handle arbitrage analysis response
+      if (arbitrageRes.ok) {
+        const arbitrageData = await arbitrageRes.json();
+        console.log('Arbitrage API response:', arbitrageData);
+        console.log('Arbitrage analysis data:', arbitrageData.segment_arbitrage);
+        localStorage.setItem('segmentArbitrage', JSON.stringify(arbitrageData.segment_arbitrage));
+      } else {
+        console.log('Arbitrage API failed:', arbitrageRes.status);
+        localStorage.setItem('segmentArbitrage', 'No arbitrage analysis available.');
+      }
       
       toast({
-        title: "Analysis Started!",
-        description: "KairosAI is now generating your market intelligence report.",
+        title: "Analysis Complete!",
+        description: "Your market intelligence report has been generated successfully.",
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -116,7 +190,9 @@ const StreamlinedAnalysisForm: React.FC<StreamlinedAnalysisFormProps> = ({
       
       // Navigate to dashboard
       navigate('/dashboard');
+      
     } catch (error) {
+      console.error('Error starting analysis:', error);
       toast({
         title: "Error",
         description: "Failed to start analysis. Please try again.",

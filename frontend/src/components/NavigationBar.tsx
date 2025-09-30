@@ -68,6 +68,7 @@ const NavigationBar: React.FC = () => {
     { label: 'Home', path: '/' },
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Arbitrage', path: '/arbitrage' },
+    { label: 'Chatbot', path: '/chatbot' },
     { label: 'Contact', path: '/contact' },
     { label: 'Support', path: '/help' },
   ];

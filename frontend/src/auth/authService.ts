@@ -35,7 +35,7 @@ interface User {
 }
 
 class AuthService {
-  private getAuthHeaders() {
+  getAuthHeaders() {
     const token = localStorage.getItem('authToken');
     return {
       'Content-Type': 'application/json',

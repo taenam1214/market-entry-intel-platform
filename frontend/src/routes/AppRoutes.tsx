@@ -3,6 +3,7 @@ import { Box, Container, Heading, Text, VStack } from '@chakra-ui/react';
 import LandingPage from '../features/landing/LandingPage';
 import SegmentArbitragePage from '../features/arbitrage/SegmentArbitragePage';
 import ExecutiveDashboardPage from '../features/dashboard/ExecutiveDashboardPage';
+import ChatbotPage from '../features/chatbot/ChatbotPage';
 import LoginPage from '../auth/LoginPage';
 import RegisterPage from '../auth/RegisterPage';
 
@@ -100,6 +101,7 @@ const AppRoutes = () => (
     {/* Protected Routes */}
     <Route path="/dashboard" element={<ExecutiveDashboardPage />} />
     <Route path="/arbitrage" element={<SegmentArbitragePage />} />
+    <Route path="/chatbot" element={<ChatbotPage />} />
     <Route path="/profile" element={<ProfilePage />} />
     <Route path="/settings" element={<SettingsPage />} />
     <Route path="/help" element={<HelpPage />} />
