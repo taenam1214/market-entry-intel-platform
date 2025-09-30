@@ -103,6 +103,12 @@ Unlike traditional AI that simply responds to prompts, **Agentic AI** takes auto
 - **Navigation Integration** with dynamic user menu and logout functionality
 - **Session Persistence** with localStorage token management
 
+### Shared Analysis Form
+- **Unified Analysis Experience** - Both logged-in and non-logged-in users use the same analysis form
+- **Consistent Data Collection** - Same fields and validation across all user types
+- **Scalable Implementation** - Changes to the analysis form automatically apply to all users
+- **Reusable Component** - AnalysisForm component used by LandingPage and StreamlinedAnalysisForm
+
 ## 📁 Project Structure
 
 ```
@@ -117,7 +123,8 @@ frontend/src/
 │   ├── Layout.tsx               # App layout wrapper
 │   ├── Card.tsx                 # Reusable card component
 │   ├── DataTable.tsx            # Data display component
-│   └── SectionHeader.tsx       # Section header component
+│   ├── SectionHeader.tsx       # Section header component
+│   └── AnalysisForm.tsx        # Shared analysis form component
 ├── features/                     # Feature-specific pages
 │   ├── landing/                 # Landing page components
 │   │   ├── LandingPage.tsx     # Main landing page with conditional rendering

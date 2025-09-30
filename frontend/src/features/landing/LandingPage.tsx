@@ -6,29 +6,19 @@ import {
   Text,
   VStack,
   HStack,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  Select,
-  Button,
-  Card,
-  CardBody,
-  useToast,
-  Grid,
-  GridItem,
   Badge,
   Icon,
   Flex,
-  Spinner,
   SimpleGrid,
+  Button,
+  Card,
+  CardBody,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { authService } from '../../auth/authService';
-import StreamlinedAnalysisForm from './StreamlinedAnalysisForm';
+import AnalysisForm from '../../components/AnalysisForm';
 
 // Animation keyframes for Global Business Network
 const nodePulse = keyframes`
@@ -125,31 +115,6 @@ const DynamicConnectionLine = ({
 
 const LandingPage = () => {
   const { isAuthenticated, user } = useAuth();
-  const [formData, setFormData] = useState({
-    companyName: '',
-    industry: '',
-    targetMarket: '',
-    currentPositioning: '',
-    brandDescription: '',
-    website: '',
-    email: '',
-    customerSegment: '',
-    expansionDirection: '',
-    // Additional detailed fields for better analysis
-    companySize: '',
-    annualRevenue: '',
-    fundingStage: '',
-    currentMarkets: '',
-    keyProducts: '',
-    competitiveAdvantage: '',
-    expansionTimeline: '',
-    budgetRange: '',
-    regulatoryRequirements: '',
-    partnershipPreferences: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(300); // 5 minutes in seconds
-  const [timerExpired, setTimerExpired] = useState(false);
   const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
   const [activeConnections, setActiveConnections] = useState<Array<{
     fromX: string;
@@ -160,7 +125,6 @@ const LandingPage = () => {
     delay: number;
   }>>([]);
   const navigate = useNavigate();
-  const toast = useToast();
 
   // City coordinates for dynamic connections
   const cities = [
@@ -238,273 +202,39 @@ const LandingPage = () => {
       // Check localStorage for analysis history
       const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
       setHasAnalysisHistory(!!analysisHistory);
-      
-      // Pre-fill email if user is logged in
-      if (!formData.email) {
-        setFormData(prev => ({ ...prev, email: user.email }));
-      }
     }
   }, [isAuthenticated, user]);
-
-  // Customer segments
-  const customerSegments = [
-    { 
-      value: 'saas-tech', 
-      label: 'SaaS/Tech Companies',
-      description: 'Series A-B companies expanding to Asia'
-    },
-    { 
-      value: 'manufacturing', 
-      label: 'Manufacturing/Industrial',
-      description: 'Companies with complex supply chains'
-    },
-    { 
-      value: 'healthcare', 
-      label: 'Healthcare/Pharma',
-      description: 'Highly regulated, high-stakes expansion'
-    },
-    { 
-      value: 'financial', 
-      label: 'Financial Services',
-      description: 'Regulatory complexity and compliance focus'
-    },
-    { 
-      value: 'consumer', 
-      label: 'Consumer Goods',
-      description: 'Brand positioning and distribution channels'
-    }
-  ];
-
-  const expansionDirections = [
-    { 
-      value: 'us-to-asia', 
-      label: 'US → Asia (China/Korea)', 
-      description: 'US companies expanding to Asian markets'
-    },
-    { 
-      value: 'asia-to-us', 
-      label: 'Asia → US', 
-      description: 'Asian companies entering US market'
-    },
-    { 
-      value: 'both', 
-      label: 'Both Directions', 
-      description: 'Multi-market expansion strategy'
-    }
-  ];
-
-  // Target markets
-  const targetMarkets = [
-    { value: 'United States', label: 'United States' },
-    { value: 'China', label: 'China' },
-    { value: 'South Korea', label: 'South Korea' },
-    { value: 'Japan', label: 'Japan' },
-    { value: 'Singapore', label: 'Singapore' },
-    { value: 'Hong Kong', label: 'Hong Kong' },
-    { value: 'Taiwan', label: 'Taiwan' },
-  ];
-
-  // Company sizes
-  const companySizes = [
-    { value: 'startup', label: 'Startup (1-10 employees)' },
-    { value: 'small', label: 'Small (11-50 employees)' },
-    { value: 'medium', label: 'Medium (51-250 employees)' },
-    { value: 'large', label: 'Large (251-1000 employees)' },
-    { value: 'enterprise', label: 'Enterprise (1000+ employees)' },
-  ];
-
-  // Revenue ranges
-  const revenueRanges = [
-    { value: 'under-1m', label: 'Under $1M' },
-    { value: '1m-10m', label: '$1M - $10M' },
-    { value: '10m-50m', label: '$10M - $50M' },
-    { value: '50m-100m', label: '$50M - $100M' },
-    { value: 'over-100m', label: 'Over $100M' },
-  ];
-
-  // Funding stages
-  const fundingStages = [
-    { value: 'pre-seed', label: 'Pre-Seed' },
-    { value: 'seed', label: 'Seed' },
-    { value: 'series-a', label: 'Series A' },
-    { value: 'series-b', label: 'Series B' },
-    { value: 'series-c', label: 'Series C+' },
-    { value: 'ipo', label: 'IPO/Public' },
-    { value: 'bootstrapped', label: 'Bootstrapped' },
-  ];
-
-  // Expansion timelines
-  const expansionTimelines = [
-    { value: '3-6-months', label: '3-6 months' },
-    { value: '6-12-months', label: '6-12 months' },
-    { value: '1-2-years', label: '1-2 years' },
-    { value: '2-3-years', label: '2-3 years' },
-    { value: 'over-3-years', label: 'Over 3 years' },
-  ];
-
-  // Budget ranges
-  const budgetRanges = [
-    { value: 'under-100k', label: 'Under $100K' },
-    { value: '100k-500k', label: '$100K - $500K' },
-    { value: '500k-1m', label: '$500K - $1M' },
-    { value: '1m-5m', label: '$1M - $5M' },
-    { value: 'over-5m', label: 'Over $5M' },
-  ];
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (loading && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (loading && timer === 0) {
-      setTimerExpired(true);
-    }
-    return () => clearInterval(interval);
-  }, [loading, timer]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: 'Analysis Started!',
-      description: "We're analyzing your market entry opportunities. You'll be redirected to your dashboard shortly.",
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
-    setLoading(true);
-    setTimer(300);
-    setTimerExpired(false);
-    try {
-      const payload = {
-        company_name: formData.companyName,
-        industry: formData.industry,
-        target_market: formData.targetMarket,
-        website: formData.website,
-        current_positioning: formData.currentPositioning,
-        brand_description: formData.brandDescription,
-        email: formData.email,
-        customer_segment: formData.customerSegment,
-        expansion_direction: formData.expansionDirection,
-        // Additional detailed fields
-        company_size: formData.companySize,
-        annual_revenue: formData.annualRevenue,
-        funding_stage: formData.fundingStage,
-        current_markets: formData.currentMarkets,
-        key_products: formData.keyProducts,
-        competitive_advantage: formData.competitiveAdvantage,
-        expansion_timeline: formData.expansionTimeline,
-        budget_range: formData.budgetRange,
-        regulatory_requirements: formData.regulatoryRequirements,
-        partnership_preferences: formData.partnershipPreferences,
-      };
-      
-      // Get authentication headers
-      const authHeaders = authService.getAuthHeaders();
-      
-      const [marketRes, competitorRes, arbitrageRes] = await Promise.all([
-        fetch('http://localhost:8000/api/v1/market-analysis/', {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify(payload),
-        }),
-        fetch('http://localhost:8000/api/v1/competitor-analysis/', {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify(payload),
-        }),
-        fetch('http://localhost:8000/api/v1/segment-arbitrage/', {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify(payload),
-        })
-      ]);
-      if (!marketRes.ok) {
-        const errorData = await marketRes.json();
-        throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
-      }
-      const data = await marketRes.json();
-      localStorage.setItem('dashboardData', JSON.stringify(data));
-      if (competitorRes.ok) {
-        const competitorData = await competitorRes.json();
-        console.log('Competitor API response:', competitorData);
-        console.log('Competitor analysis data:', competitorData.competitor_analysis);
-        localStorage.setItem('competitorSummary', JSON.stringify(competitorData.competitor_analysis));
-      } else {
-        console.log('Competitor API failed:', competitorRes.status);
-        localStorage.setItem('competitorSummary', 'No competitor summary available.');
-      }
-      
-      if (arbitrageRes.ok) {
-        const arbitrageData = await arbitrageRes.json();
-        console.log('Arbitrage API response:', arbitrageData);
-        console.log('Arbitrage analysis data:', arbitrageData.segment_arbitrage);
-        localStorage.setItem('segmentArbitrage', JSON.stringify(arbitrageData.segment_arbitrage));
-      } else {
-        console.log('Arbitrage API failed:', arbitrageRes.status);
-        localStorage.setItem('segmentArbitrage', 'No arbitrage analysis available.');
-      }
-      setLoading(false);
-      navigate('/dashboard');
-    } catch (error: any) {
-      toast({
-        title: 'Analysis Failed',
-        description: error.message || 'An error occurred while analyzing the market.',
-        status: 'error',
-        duration: 6000,
-        isClosable: true,
-      });
-      setLoading(false);
-    }
-  };
 
   // Show streamlined form for authenticated users without analysis history
   if (isAuthenticated && !hasAnalysisHistory) {
     return (
-      <StreamlinedAnalysisForm
-        customerSegments={customerSegments}
-        expansionDirections={expansionDirections}
-        targetMarkets={targetMarkets}
-        companySizes={companySizes}
-        revenueRanges={revenueRanges}
-        fundingStages={fundingStages}
-        expansionTimelines={expansionTimelines}
-        budgetRanges={budgetRanges}
-      />
+      <Box minH="100vh" bg="gray.50" py={8}>
+        <Container maxW="100%" px={4}>
+          <VStack spacing={8}>
+            {/* Welcome Header */}
+            <VStack spacing={4} textAlign="center">
+              <Heading size="xl" color="gray.800">
+                Welcome back, {user?.first_name}!
+              </Heading>
+              <Text fontSize="lg" color="gray.600" maxW="2xl">
+                Ready to start your market analysis? Let's gather some information about your expansion opportunity.
+              </Text>
+            </VStack>
+            <AnalysisForm 
+              showWelcomeMessage={true}
+              welcomeTitle="Start Your US-Asia Market Analysis"
+              welcomeSubtitle="Let KairosAI autonomously research and analyze your cross-Pacific expansion opportunities"
+              submitButtonText="Start KairosAI Analysis"
+              isStreamlined={true}
+            />
+          </VStack>
+        </Container>
+      </Box>
     );
   }
 
   return (
     <Box minH="100vh" bg="gray.50" w="100%">
-      {loading && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          width="100vw"
-          height="100vh"
-          bg="rgba(255,255,255,0.8)"
-          zIndex={9999}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <VStack spacing={4}>
-            <Spinner size="xl" color="purple.500" thickness="4px" speed="0.7s" />
-            <Text fontSize="lg" color="purple.700" fontWeight="bold">Running Market Analysis...</Text>
-            <Text fontSize="md" color="gray.700">
-              Estimated time remaining: {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
-            </Text>
-            {timerExpired && (
-              <Text color="red.500" fontWeight="bold">This is taking longer than expected. Please wait or try again later.</Text>
-            )}
-          </VStack>
-        </Box>
-      )}
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"
@@ -1063,448 +793,7 @@ const LandingPage = () => {
       </Box>
 
       {/* Form Section */}
-      <Box id="analysis-form" py={8} bg="white" w="100%">
-        <Container maxW="100%" px={4}>
-          <Card shadow="lg" borderRadius="lg" overflow="hidden" maxW="7xl" mx="auto">
-            <Box bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" p={4} color="white">
-              <VStack spacing={2} textAlign="center">
-                <Heading size="lg">
-                  Start Your US-Asia Market Analysis
-                </Heading>
-                <Text fontSize="md" opacity="0.9">
-                  Let KairosAI autonomously research and analyze your cross-Pacific expansion opportunities
-                </Text>
-              </VStack>
-            </Box>
-
-            <CardBody p={4}>
-              <form onSubmit={handleSubmit}>
-                <VStack spacing={4} align="stretch">
-                  {/* Customer Segment Selection */}
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm">Customer Segment</FormLabel>
-                    <Select
-                      placeholder="Select your company type"
-                      value={formData.customerSegment}
-                      onChange={(e) => handleInputChange('customerSegment', e.target.value)}
-                      size="sm"
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    >
-                      {customerSegments.map((segment) => (
-                        <option key={segment.value} value={segment.value}>
-                          {segment.label}
-                        </option>
-                      ))}
-                    </Select>
-                    {formData.customerSegment && (
-                      <Text fontSize="xs" color="gray.600" mt={1}>
-                        {customerSegments.find(s => s.value === formData.customerSegment)?.description}
-                      </Text>
-                    )}
-                  </FormControl>
-
-                  {/* Expansion Direction Selection */}
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm">Expansion Direction</FormLabel>
-                    <Select
-                      placeholder="Select your expansion direction"
-                      value={formData.expansionDirection}
-                      onChange={(e) => handleInputChange('expansionDirection', e.target.value)}
-                      size="sm"
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    >
-                    {expansionDirections.map((direction) => (
-                        <option key={direction.value} value={direction.value}>
-                          {direction.label}
-                        </option>
-                      ))}
-                    </Select>
-                    {formData.expansionDirection && (
-                      <Text fontSize="xs" color="gray.600" mt={1}>
-                        {expansionDirections.find(d => d.value === formData.expansionDirection)?.description}
-                      </Text>
-                    )}
-                  </FormControl>
-
-                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={3}>
-                    <GridItem>
-                      <FormControl isRequired>
-                        <FormLabel fontWeight="semibold" fontSize="sm">Company Name</FormLabel>
-                        <Input
-                          placeholder="Enter your company name"
-                          value={formData.companyName}
-                          onChange={(e) => handleInputChange('companyName', e.target.value)}
-                          size="sm"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        />
-                      </FormControl>
-                    </GridItem>
-
-                    <GridItem>
-                      <FormControl isRequired>
-                        <FormLabel fontWeight="semibold" fontSize="sm">Industry</FormLabel>
-                        <Input
-                          placeholder="e.g., Technology, Healthcare, Finance, Baked Goods"
-                          value={formData.industry}
-                          onChange={(e) => handleInputChange('industry', e.target.value)}
-                          size="sm"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        />
-                      </FormControl>
-                    </GridItem>
-
-                    <GridItem>
-                      <FormControl isRequired>
-                        <FormLabel fontWeight="semibold" fontSize="sm">Target Market</FormLabel>
-                        <Select
-                          placeholder="Select target market"
-                          value={formData.targetMarket}
-                          onChange={(e) => handleInputChange('targetMarket', e.target.value)}
-                          size="sm"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        >
-                          <option value="United States">United States</option>
-                          <option value="China">China</option>
-                          <option value="South Korea">South Korea</option>
-                          <option value="Japan">Japan</option>
-                          <option value="Singapore">Singapore</option>
-                          <option value="Hong Kong">Hong Kong</option>
-                          <option value="Taiwan">Taiwan</option>
-                        </Select>
-                      </FormControl>
-                    </GridItem>
-
-                    <GridItem>
-                      <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm">Website</FormLabel>
-                        <Input
-                          placeholder="https://yourcompany.com"
-                          value={formData.website}
-                          onChange={(e) => handleInputChange('website', e.target.value)}
-                          size="sm"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        />
-                      </FormControl>
-                    </GridItem>
-                  </Grid>
-
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm">Current Brand Positioning</FormLabel>
-                    <Textarea
-                      placeholder="Describe how your brand is currently positioned in your home market..."
-                      value={formData.currentPositioning}
-                      onChange={(e) => handleInputChange('currentPositioning', e.target.value)}
-                      size="sm"
-                      rows={2}
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    />
-                  </FormControl>
-
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm">Brand Description</FormLabel>
-                    <Textarea
-                      placeholder="Describe your brand, products/services, and unique value proposition..."
-                      value={formData.brandDescription}
-                      onChange={(e) => handleInputChange('brandDescription', e.target.value)}
-                      size="sm"
-                      rows={3}
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    />
-                  </FormControl>
-
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm">Email Address</FormLabel>
-                    <Input
-                      type="email"
-                      placeholder="your.email@company.com"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      size="sm"
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    />
-                  </FormControl>
-
-                  {/* Additional Company Details Section */}
-                  <Box p={4} bg="purple.50" borderRadius="lg" border="1px solid" borderColor="purple.200">
-                    <Heading size="sm" color="purple.700" mb={3}>
-                      Additional Company Details (Optional but Recommended)
-                    </Heading>
-                    <Text fontSize="xs" color="purple.600" mb={4}>
-                      These details help KairosAI generate more accurate and detailed analysis
-                    </Text>
-                    
-                    <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={3}>
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Company Size</FormLabel>
-                          <Select
-                            placeholder="Select company size"
-                            value={formData.companySize}
-                            onChange={(e) => handleInputChange('companySize', e.target.value)}
-                            size="sm"
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          >
-                            <option value="1-10">1-10 employees (Startup)</option>
-                            <option value="11-50">11-50 employees (Small)</option>
-                            <option value="51-200">51-200 employees (Medium)</option>
-                            <option value="201-1000">201-1000 employees (Large)</option>
-                            <option value="1000+">1000+ employees (Enterprise)</option>
-                          </Select>
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Annual Revenue</FormLabel>
-                          <Select
-                            placeholder="Select revenue range"
-                            value={formData.annualRevenue}
-                            onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
-                            size="sm"
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          >
-                            <option value="0-1M">$0 - $1M</option>
-                            <option value="1M-10M">$1M - $10M</option>
-                            <option value="10M-50M">$10M - $50M</option>
-                            <option value="50M-200M">$50M - $200M</option>
-                            <option value="200M+">$200M+</option>
-                          </Select>
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Funding Stage</FormLabel>
-                          <Select
-                            placeholder="Select funding stage"
-                            value={formData.fundingStage}
-                            onChange={(e) => handleInputChange('fundingStage', e.target.value)}
-                            size="sm"
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          >
-                            <option value="bootstrap">Bootstrap/Self-funded</option>
-                            <option value="seed">Seed</option>
-                            <option value="series-a">Series A</option>
-                            <option value="series-b">Series B</option>
-                            <option value="series-c">Series C+</option>
-                            <option value="public">Public</option>
-                          </Select>
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Current Markets</FormLabel>
-                          <Input
-                            placeholder="e.g., US, China, South Korea"
-                            value={formData.currentMarkets}
-                            onChange={(e) => handleInputChange('currentMarkets', e.target.value)}
-                            size="sm"
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          />
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Key Products/Services</FormLabel>
-                          <Textarea
-                            placeholder="Describe your main products or services..."
-                            value={formData.keyProducts}
-                            onChange={(e) => handleInputChange('keyProducts', e.target.value)}
-                            size="sm"
-                            rows={2}
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          />
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Competitive Advantage</FormLabel>
-                          <Textarea
-                            placeholder="What makes you unique vs competitors?"
-                            value={formData.competitiveAdvantage}
-                            onChange={(e) => handleInputChange('competitiveAdvantage', e.target.value)}
-                            size="sm"
-                            rows={2}
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          />
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Expansion Timeline</FormLabel>
-                          <Select
-                            placeholder="When do you plan to expand?"
-                            value={formData.expansionTimeline}
-                            onChange={(e) => handleInputChange('expansionTimeline', e.target.value)}
-                            size="sm"
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          >
-                            <option value="immediate">Immediate (0-3 months)</option>
-                            <option value="short-term">Short-term (3-12 months)</option>
-                            <option value="medium-term">Medium-term (1-2 years)</option>
-                            <option value="long-term">Long-term (2+ years)</option>
-                            <option value="exploring">Just exploring options</option>
-                          </Select>
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Budget Range</FormLabel>
-                          <Select
-                            placeholder="Select budget range"
-                            value={formData.budgetRange}
-                            onChange={(e) => handleInputChange('budgetRange', e.target.value)}
-                            size="sm"
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          >
-                            <option value="0-50K">$0 - $50K</option>
-                            <option value="50K-200K">$50K - $200K</option>
-                            <option value="200K-500K">$200K - $500K</option>
-                            <option value="500K-1M">$500K - $1M</option>
-                            <option value="1M+">$1M+</option>
-                          </Select>
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Regulatory Requirements</FormLabel>
-                          <Textarea
-                            placeholder="Any specific regulatory requirements or compliance needs?"
-                            value={formData.regulatoryRequirements}
-                            onChange={(e) => handleInputChange('regulatoryRequirements', e.target.value)}
-                            size="sm"
-                            rows={2}
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          />
-                        </FormControl>
-                      </GridItem>
-
-                      <GridItem>
-                        <FormControl>
-                          <FormLabel fontWeight="semibold" fontSize="sm">Partnership Preferences</FormLabel>
-                          <Textarea
-                            placeholder="Preferred partnership types (distributors, JVs, etc.)"
-                            value={formData.partnershipPreferences}
-                            onChange={(e) => handleInputChange('partnershipPreferences', e.target.value)}
-                            size="sm"
-                            rows={2}
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="gray.200"
-                            _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                          />
-                        </FormControl>
-                      </GridItem>
-                    </Grid>
-                  </Box>
-
-                  <Button
-                    type="submit"
-                    size="md"
-                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                    _hover={{
-                      bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                      transform: 'translateY(-1px)',
-                      boxShadow: 'md',
-                    }}
-                    _active={{
-                      transform: 'translateY(0)',
-                    }}
-                    py={4}
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderRadius="lg"
-                    rightIcon={<FiArrowRight />}
-                  >
-                    See KairosAI Analysis
-                  </Button>
-                </VStack>
-              </form>
-
-              {/* Features Preview */}
-              <Box mt={4} p={3} bg="gray.50" borderRadius="lg">
-                <Text fontSize="sm" color="gray.600" textAlign="center" mb={2}>
-                  KairosAI will autonomously deliver:
-                </Text>
-                <Flex justify="center" wrap="wrap" gap={2}>
-                  <Badge colorScheme="green" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Executive Summary & Go/No-Go Recommendations
-                  </Badge>
-                  <Badge colorScheme="blue" px={2} py={1} borderRadius="full" fontSize="sm">
-                    US-Asia Market Intelligence
-                  </Badge>
-                  <Badge colorScheme="purple" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Investment Memo & Board Presentations
-                  </Badge>
-                  <Badge colorScheme="orange" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Regulatory Compliance Analysis
-                  </Badge>
-                </Flex>
-              </Box>
-            </CardBody>
-          </Card>
-        </Container>
-      </Box>
+      <AnalysisForm />
     </Box>
   );
 };
