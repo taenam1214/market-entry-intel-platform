@@ -208,7 +208,7 @@ const LandingPage = () => {
   // Show streamlined form for authenticated users without analysis history
   if (isAuthenticated && !hasAnalysisHistory) {
     return (
-      <Box minH="100vh" bg="gray.50" py={8}>
+      <Box minH="100vh" bg="white" py={8}>
         <Container maxW="100%" px={4}>
           <VStack spacing={8}>
             {/* Welcome Header */}
@@ -234,7 +234,7 @@ const LandingPage = () => {
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" w="100%">
+    <Box minH="100vh" bg="white" w="100%">
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"
@@ -472,8 +472,12 @@ const LandingPage = () => {
         </Container>
       </Box>
 
-      {/* Tagline Section */}
-      <Box py={16} bg="white" w="100%">
+      {/* Tagline Section with Gradient Transition */}
+      <Box 
+        py={16} 
+        w="100%"
+        bg="linear-gradient(to bottom, #ebe8fc 0%, #ebe8fc 20%, rgba(235, 232, 252, 0.8) 40%, rgba(235, 232, 252, 0.4) 60%, rgba(235, 232, 252, 0.1) 80%, white 100%)"
+      >
         <Container maxW="100%" px={8}>
           <VStack spacing={0} textAlign="left" align="start" maxW="7xl" mx="auto">
             <Text 
@@ -506,8 +510,12 @@ const LandingPage = () => {
         </Container>
       </Box>
 
-      {/* How KairosAI Works Section */}
-      <Box py={16} bg="white" w="100%">
+      {/* How KairosAI Works Section with Continued Gradient */}
+      <Box 
+        py={16} 
+        w="100%"
+        bg="linear-gradient(to bottom, rgba(235, 232, 252, 0.1) 0%, rgba(235, 232, 252, 0.05) 30%, white 100%)"
+      >
         <Container maxW="100%" px={8}>
           <VStack spacing={12} textAlign="center">
             {/* Section Header */}
