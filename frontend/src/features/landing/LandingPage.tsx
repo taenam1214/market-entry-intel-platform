@@ -32,8 +32,10 @@ import StreamlinedAnalysisForm from './StreamlinedAnalysisForm';
 
 // Animation keyframes for Global Business Network
 const nodePulse = keyframes`
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0% { opacity: 0; transform: scale(0.8); }
+  20% { opacity: 1; transform: scale(1); }
+  80% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.8); }
 `;
 
 // Global Business Network Node Component
@@ -58,11 +60,11 @@ const NetworkNode = ({
     top={y}
     w={`${size}px`}
     h={`${size}px`}
-    bg={isMajor ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.95)"}
+    bg={isMajor ? "rgba(0,0,0,1)" : "rgba(0,0,0,0.95)"}
     borderRadius="50%"
-    animation={`${nodePulse} 3s ease-in-out infinite`}
+    animation={`${nodePulse} 12s ease-in-out infinite`}
     style={{ animationDelay: `${delay}s` }}
-    boxShadow="0 0 12px rgba(255,255,255,0.8)"
+    boxShadow="0 0 12px rgba(0,0,0,0.8)"
     _before={{
       content: `"${label}"`,
       position: "absolute",
@@ -70,10 +72,10 @@ const NetworkNode = ({
       left: "50%",
       transform: "translateX(-50%)",
       fontSize: "12px",
-      color: "rgba(255,255,255,1)",
+      color: "rgba(0,0,0,1)",
       fontWeight: "bold",
       whiteSpace: "nowrap",
-      textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+      textShadow: "0 2px 4px rgba(255,255,255,0.5)",
     }}
   />
 );
@@ -84,30 +86,39 @@ const DynamicConnectionLine = ({
   fromY, 
   toX, 
   toY, 
-  opacity = 0.8
+  opacity = 0.8,
+  delay = 0
 }: {
   fromX: string;
   fromY: string;
   toX: string;
   toY: string;
   opacity?: number;
+  delay?: number;
 }) => (
   <line
     x1={fromX}
     y1={fromY}
     x2={toX}
     y2={toY}
-    stroke={`rgba(255,255,255,${opacity})`}
+    stroke={`rgba(0,0,0,${opacity})`}
     strokeWidth="3"
     strokeDasharray="10,10"
     opacity={opacity}
-    filter="drop-shadow(0 0 4px rgba(255,255,255,0.5))"
+    filter="drop-shadow(0 0 4px rgba(0,0,0,0.5))"
   >
     <animate
       attributeName="stroke-dashoffset"
       values="0;20"
       dur="3s"
       repeatCount="indefinite"
+    />
+    <animate
+      attributeName="opacity"
+      values="0;1;1;0"
+      dur="12s"
+      repeatCount="indefinite"
+      begin={`${delay}s`}
     />
   </line>
 );
@@ -169,11 +180,11 @@ const LandingPage = () => {
 
   // Generate random connections
   const generateRandomConnections = () => {
-    const numConnections = Math.floor(Math.random() * 4) + 3; // 3-6 connections
+    const numConnections = Math.floor(Math.random() * 2) + 1; // 1-2 connections
     const connections = [];
     const usedPairs = new Set(); // Prevent duplicate connections
     
-    for (let i = 0; i < numConnections && connections.length < 6; i++) {
+    for (let i = 0; i < numConnections && connections.length < 2; i++) {
       const fromCity = cities[Math.floor(Math.random() * cities.length)];
       const toCity = cities[Math.floor(Math.random() * cities.length)];
       
@@ -194,13 +205,10 @@ const LandingPage = () => {
       }
     }
     
-    // Ensure we have at least 2 connections
-    if (connections.length < 2) {
+    // Ensure we have at least 1 connection
+    if (connections.length < 1) {
       connections.push({
         fromX: "15%", fromY: "35%", toX: "85%", toY: "25%", opacity: 0.9, delay: 0
-      });
-      connections.push({
-        fromX: "20%", fromY: "60%", toX: "80%", toY: "40%", opacity: 0.8, delay: 1
       });
     }
     
@@ -500,8 +508,8 @@ const LandingPage = () => {
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"
-        bg="linear-gradient(135deg, #667eea 0%, #764ba2 50%, #5b21b6 100%)"
-        color="white"
+        bg="#ebe8fc"
+        color="black"
         display="flex"
         alignItems="center"
         position="relative"
@@ -531,6 +539,7 @@ const LandingPage = () => {
                 toX={connection.toX}
                 toY={connection.toY}
                 opacity={connection.opacity}
+                delay={connection.delay}
               />
             ))}
           </svg>
@@ -571,7 +580,7 @@ const LandingPage = () => {
                   fontWeight="extrabold" 
                   lineHeight="0.9"
                   letterSpacing="-0.02em"
-                  bg="linear-gradient(135deg, #ffffff 0%, #f0f0ff 100%)"
+                  bg="linear-gradient(135deg, #000000 0%, #333333 100%)"
                   bgClip="text"
                   textShadow="0 2px 4px rgba(0,0,0,0.1)"
                   fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
@@ -583,7 +592,7 @@ const LandingPage = () => {
                 <Box 
                   w="360px" 
                   h="3px" 
-                  bg="linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)"
+                  bg="linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 100%)"
                   borderRadius="full"
                 />
               </VStack>
@@ -627,21 +636,21 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.15)"
+                  bg="rgba(0,0,0,0.15)"
                   borderRadius="2xl"
                   backdropFilter="blur(15px)"
-                  border="1px solid rgba(255,255,255,0.2)"
+                  border="1px solid rgba(0,0,0,0.2)"
                   _hover={{
                     transition: 'all 0.3s ease',
-                    bg: 'rgba(255,255,255,0.25)',
+                    bg: 'rgba(0,0,0,0.25)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                   }}
                 >
-                  <Icon as={FiTarget} boxSize={8} color="white" />
+                  <Icon as={FiTarget} boxSize={8} color="black" />
                 </Box>
                 <VStack spacing={2} align="center" w="140px">
-                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Autonomous Intelligence</Text>
-                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
+                  <Text fontWeight="bold" fontSize="lg" color="black" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Autonomous Intelligence</Text>
+                  <Text fontSize="sm" opacity="0.85" color="black" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
                 </VStack>
               </VStack>
 
@@ -652,21 +661,21 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.15)"
+                  bg="rgba(0,0,0,0.15)"
                   borderRadius="2xl"
                   backdropFilter="blur(15px)"
-                  border="1px solid rgba(255,255,255,0.2)"
+                  border="1px solid rgba(0,0,0,0.2)"
                   _hover={{
                     transition: 'all 0.3s ease',
-                    bg: 'rgba(255,255,255,0.25)',
+                    bg: 'rgba(0,0,0,0.25)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                   }}
                 >
-                  <Icon as={FiTrendingUp} boxSize={8} color="white" />
+                  <Icon as={FiTrendingUp} boxSize={8} color="black" />
                 </Box>
                 <VStack spacing={2} align="center" w="140px">
-                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Perfect Timing</Text>
-                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
+                  <Text fontWeight="bold" fontSize="lg" color="black" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Perfect Timing</Text>
+                  <Text fontSize="sm" opacity="0.85" color="black" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
                 </VStack>
               </VStack>
 
@@ -677,21 +686,21 @@ const LandingPage = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.15)"
+                  bg="rgba(0,0,0,0.15)"
                   borderRadius="2xl"
                   backdropFilter="blur(15px)"
-                  border="1px solid rgba(255,255,255,0.2)"
+                  border="1px solid rgba(0,0,0,0.2)"
                   _hover={{
                     transition: 'all 0.3s ease',
-                    bg: 'rgba(255,255,255,0.25)',
+                    bg: 'rgba(0,0,0,0.25)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                   }}
                 >
-                  <Icon as={FiBarChart} boxSize={8} color="white" />
+                  <Icon as={FiBarChart} boxSize={8} color="black" />
                 </Box>
                 <VStack spacing={2} align="center" w="140px">
-                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Strategic Positioning</Text>
-                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
+                  <Text fontWeight="bold" fontSize="lg" color="black" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Strategic Positioning</Text>
+                  <Text fontSize="sm" opacity="0.85" color="black" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
                 </VStack>
               </VStack>
             </HStack>
