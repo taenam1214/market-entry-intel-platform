@@ -50,11 +50,8 @@ const NavigationBar: React.FC = () => {
     avatar: undefined, // You can add avatar support later
   } : undefined;
   
-  // Color mode values
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const textColor = useColorModeValue('gray.800', 'white');
-  const hoverBg = useColorModeValue('gray.50', 'gray.700');
+  // Color mode values for glass effect - darker colors for better contrast on transparent background
+  const textColor = useColorModeValue('gray.900', 'gray.100');
 
   // Navigation items
   const publicNavItems = [
@@ -100,19 +97,19 @@ const NavigationBar: React.FC = () => {
   return (
     <Box
       as="nav"
-      bg={bg}
-      borderBottom="1px"
-      borderColor={borderColor}
+      bg="rgba(255, 255, 255, 0.02)"
+      backdropFilter="blur(20px) saturate(100%)"
       position="sticky"
       top={0}
       zIndex={1000}
-      boxShadow="sm"
+      border="none"
+      outline="none"
     >
-      <Container maxW="100%" px={4}>
-        <Flex h={16} alignItems="center" justifyContent="space-between">
+      <Container maxW="1400px" px={4} mx="auto" border="none">
+        <Flex h={16} alignItems="center" justifyContent="space-between" border="none">
           {/* Logo */}
-          <Flex alignItems="center" cursor="pointer" onClick={() => handleNavigation('/')}>
-            <HStack spacing={3} align="center">
+          <Flex alignItems="center" cursor="pointer" onClick={() => handleNavigation('/')} border="none">
+            <HStack spacing={3} align="center" border="none">
               <Image 
                 src={KairosAILogo} 
                 alt="KairosAI Logo" 
@@ -133,24 +130,38 @@ const NavigationBar: React.FC = () => {
           </Flex>
 
           {/* Desktop Navigation */}
-          <HStack spacing={8} display={{ base: 'none', md: 'flex' }}>
+          <HStack spacing={8} display={{ base: 'none', md: 'flex' }} border="none">
             {/* Navigation Items - Different for authenticated vs public */}
             {(isAuthenticated ? authenticatedNavItems : publicNavItems).map((item) => (
-              <Button
-                key={item.path}
-                variant="ghost"
-                color={isActiveRoute(item.path) ? 'purple.600' : textColor}
-                fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
-                _hover={{ bg: hoverBg }}
-                onClick={() => handleNavigation(item.path)}
-              >
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  color={isActiveRoute(item.path) ? 'purple.600' : textColor}
+                  fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
+                  border="none"
+                  outline="none"
+                  transition="all 0.2s ease-in-out"
+                  _hover={{ 
+                    bg: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(10px)',
+                    border: 'none',
+                    outline: 'none',
+                    color: 'purple.600',
+                    transform: 'translateY(-1px)',
+                  }}
+                  _active={{ 
+                    transform: 'translateY(0)',
+                    transition: 'all 0.1s ease-in-out'
+                  }}
+                  onClick={() => handleNavigation(item.path)}
+                >
                 {item.label}
               </Button>
             ))}
           </HStack>
 
           {/* Desktop Auth Section */}
-          <HStack spacing={4} display={{ base: 'none', md: 'flex' }}>
+          <HStack spacing={4} display={{ base: 'none', md: 'flex' }} border="none">
             {isAuthenticated ? (
               // User Menu
               <Menu>
@@ -159,7 +170,14 @@ const NavigationBar: React.FC = () => {
                   variant="ghost"
                   rightIcon={<FiChevronDown />}
                   leftIcon={<Avatar size="sm" name={navigationUser?.name} src={navigationUser?.avatar} />}
-                  _hover={{ bg: hoverBg }}
+                  border="none"
+                  outline="none"
+                  _hover={{ 
+                    bg: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(10px)',
+                    border: 'none',
+                    outline: 'none',
+                  }}
                 >
                   <VStack spacing={0} align="start">
                     <Text fontSize="sm" fontWeight="semibold">{navigationUser?.name}</Text>
@@ -188,7 +206,14 @@ const NavigationBar: React.FC = () => {
                 <Button
                   variant="ghost"
                   color={textColor}
-                  _hover={{ bg: hoverBg }}
+                  border="none"
+                  outline="none"
+                  _hover={{ 
+                    bg: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(10px)',
+                    border: 'none',
+                    outline: 'none',
+                  }}
                   onClick={handleLogin}
                 >
                   Login
@@ -196,12 +221,16 @@ const NavigationBar: React.FC = () => {
                 <Button
                   bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                   color="white"
+                  border="none"
+                  outline="none"
                   _hover={{
                     bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                     transform: 'translateY(-1px)',
                     boxShadow: 'md',
+                    border: 'none',
+                    outline: 'none',
                   }}
-                  _active={{ transform: 'translateY(0)' }}
+                  _active={{ transform: 'translateY(0)', border: 'none', outline: 'none' }}
                   onClick={handleRegister}
                 >
                   Get Started
@@ -217,6 +246,9 @@ const NavigationBar: React.FC = () => {
             variant="ghost"
             aria-label="Open menu"
             icon={<FiMenu />}
+            border="none"
+            outline="none"
+            _hover={{ border: 'none', outline: 'none' }}
           />
         </Flex>
       </Container>
@@ -226,8 +258,8 @@ const NavigationBar: React.FC = () => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>
-            <HStack spacing={3} align="center">
+          <DrawerHeader border="none">
+            <HStack spacing={3} align="center" border="none">
               <Image 
                 src={KairosAILogo} 
                 alt="KairosAI Logo" 
@@ -248,7 +280,7 @@ const NavigationBar: React.FC = () => {
           </DrawerHeader>
 
           <DrawerBody>
-            <VStack spacing={4} align="stretch">
+            <VStack spacing={4} align="stretch" border="none">
               {/* Navigation Items - Different for authenticated vs public */}
               {(isAuthenticated ? authenticatedNavItems : publicNavItems).map((item) => (
                 <Button
@@ -257,6 +289,20 @@ const NavigationBar: React.FC = () => {
                   justifyContent="flex-start"
                   color={isActiveRoute(item.path) ? 'purple.600' : textColor}
                   fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
+                  border="none"
+                  outline="none"
+                  transition="all 0.2s ease-in-out"
+                  _hover={{ 
+                    border: 'none', 
+                    outline: 'none',
+                    bg: 'rgba(102, 126, 234, 0.1)',
+                    color: 'purple.600',
+                    transform: 'translateX(4px)',
+                  }}
+                  _active={{
+                    transform: 'translateX(0)',
+                    transition: 'all 0.1s ease-in-out'
+                  }}
                   onClick={() => handleNavigation(item.path)}
                 >
                   {item.label}
@@ -264,7 +310,7 @@ const NavigationBar: React.FC = () => {
               ))}
 
               {/* Mobile Auth Section */}
-              <Box borderTop="1px" borderColor={borderColor} pt={4}>
+              <Box pt={4}>
                 {isAuthenticated ? (
                   <VStack spacing={3} align="stretch">
                     <VStack spacing={1} align="center" p={3} bg="gray.50" borderRadius="md">
@@ -276,6 +322,9 @@ const NavigationBar: React.FC = () => {
                     <Button
                       variant="ghost"
                       justifyContent="flex-start"
+                      border="none"
+                      outline="none"
+                      _hover={{ border: 'none', outline: 'none' }}
                       leftIcon={<FiUser />}
                       onClick={() => handleNavigation('/profile')}
                     >
@@ -284,6 +333,9 @@ const NavigationBar: React.FC = () => {
                     <Button
                       variant="ghost"
                       justifyContent="flex-start"
+                      border="none"
+                      outline="none"
+                      _hover={{ border: 'none', outline: 'none' }}
                       leftIcon={<FiSettings />}
                       onClick={() => handleNavigation('/settings')}
                     >
@@ -292,6 +344,9 @@ const NavigationBar: React.FC = () => {
                     <Button
                       variant="ghost"
                       justifyContent="flex-start"
+                      border="none"
+                      outline="none"
+                      _hover={{ border: 'none', outline: 'none' }}
                       leftIcon={<FiHelpCircle />}
                       onClick={() => handleNavigation('/help')}
                     >
@@ -300,6 +355,9 @@ const NavigationBar: React.FC = () => {
                     <Button
                       variant="ghost"
                       justifyContent="flex-start"
+                      border="none"
+                      outline="none"
+                      _hover={{ border: 'none', outline: 'none' }}
                       leftIcon={<FiLogOut />}
                       color="red.500"
                       onClick={handleLogout}
@@ -311,6 +369,9 @@ const NavigationBar: React.FC = () => {
                   <VStack spacing={3} align="stretch">
                     <Button
                       variant="outline"
+                      border="none"
+                      outline="none"
+                      _hover={{ border: 'none', outline: 'none' }}
                       onClick={handleLogin}
                     >
                       Login
@@ -318,9 +379,14 @@ const NavigationBar: React.FC = () => {
                     <Button
                       bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                       color="white"
+                      border="none"
+                      outline="none"
                       _hover={{
                         bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                        border: 'none',
+                        outline: 'none',
                       }}
+                      _active={{ border: 'none', outline: 'none' }}
                       onClick={handleRegister}
                     >
                       Get Started
