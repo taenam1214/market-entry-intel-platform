@@ -51,7 +51,7 @@ const NavigationBar: React.FC = () => {
   } : undefined;
   
   // Color mode values for glass effect - darker colors for better contrast on transparent background
-  const textColor = useColorModeValue('gray.900', 'gray.100');
+  const textColor = 'white';
 
   // Navigation items
   const publicNavItems = [
@@ -98,8 +98,7 @@ const NavigationBar: React.FC = () => {
   return (
     <Box
       as="nav"
-      bg="rgba(255, 255, 255, 0.02)"
-      backdropFilter="blur(20px) saturate(100%)"
+      bg="#140d28"
       position="sticky"
       top={0}
       zIndex={1000}
@@ -137,17 +136,16 @@ const NavigationBar: React.FC = () => {
                 <Button
                   key={item.path}
                   variant="ghost"
-                  color={isActiveRoute(item.path) ? 'purple.600' : textColor}
+                  color={isActiveRoute(item.path) ? 'purple.400' : textColor}
                   fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
                   border="none"
                   outline="none"
                   transition="all 0.2s ease-in-out"
                   _hover={{ 
-                    bg: 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: 'blur(10px)',
+                    bg: 'rgba(255, 255, 255, 0.1)',
                     border: 'none',
                     outline: 'none',
-                    color: 'purple.600',
+                    color: 'purple.400',
                     transform: 'translateY(-1px)',
                   }}
                   _active={{ 
@@ -210,8 +208,7 @@ const NavigationBar: React.FC = () => {
                   border="none"
                   outline="none"
                   _hover={{ 
-                    bg: 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: 'blur(10px)',
+                    bg: 'rgba(255, 255, 255, 0.1)',
                     border: 'none',
                     outline: 'none',
                   }}

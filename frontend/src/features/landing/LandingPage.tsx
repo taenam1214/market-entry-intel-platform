@@ -15,7 +15,7 @@ import {
   CardBody,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers } from 'react-icons/fi';
+import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers, FiMessageCircle } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import AnalysisForm from '../../components/AnalysisForm';
@@ -234,11 +234,11 @@ const LandingPage = () => {
   }
 
   return (
-    <Box minH="100vh" bg="white" w="100%">
+    <Box minH="100vh" bg="#140d28" w="100%">
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"
-        bg="black"
+        bg="#140d28"
         color="white"
         display="flex"
         alignItems="center"
@@ -478,7 +478,7 @@ const LandingPage = () => {
       <Box 
         py={16} 
         w="100%"
-        bg="linear-gradient(to bottom, #ebe8fc 0%, #ebe8fc 20%, rgba(235, 232, 252, 0.8) 40%, rgba(235, 232, 252, 0.4) 60%, rgba(235, 232, 252, 0.1) 80%, white 100%)"
+        bg="#140d28"
       >
         <Container maxW="100%" px={8}>
           <VStack spacing={0} textAlign="left" align="start" maxW="7xl" mx="auto">
@@ -494,7 +494,7 @@ const LandingPage = () => {
             <VStack spacing={0} textAlign="left" align="start" mt={6}>
               <Text 
                 fontSize="54px" 
-                color="gray.700"
+                color="white"
                 fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
               >
                 Traditional market research takes 6 months.
@@ -502,7 +502,7 @@ const LandingPage = () => {
               <Text 
                 fontSize="54px" 
                 fontWeight="normal"
-                color="black"
+                color="white"
                 fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
               >
                 Let KairosAI do it in minutes.
@@ -516,149 +516,113 @@ const LandingPage = () => {
       <Box 
         py={16} 
         w="100%"
-        bg="linear-gradient(to bottom, rgba(235, 232, 252, 0.1) 0%, rgba(235, 232, 252, 0.05) 30%, white 100%)"
+        bg="#140d28"
       >
         <Container maxW="100%" px={8}>
           <VStack spacing={12} textAlign="left" align="start" maxW="7xl" mx="auto">
-            {/* Section Header */}
-            <VStack spacing={4} align="start" w="100%">
-              <Heading 
-                fontSize="54px" 
-                fontWeight="normal"
-                opacity="0.95"
-                letterSpacing="0.01em"
-                textAlign="left"
-                lineHeight="1.3"
-                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
-                color="black"
-              >
-                Why KairosAI?
-              </Heading>
-              <VStack spacing={2} align="start" w="100%">
-                <Text 
-                  fontSize="32px" 
-                  opacity="0.9"
-                  lineHeight="1.6"
-                  textAlign="left"
-                  fontWeight="normal"
-                  letterSpacing="0.005em"
-                  fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
-                  color="black"
-                >
-                  Traditional market research takes months and costs six figures.
-                      </Text>
-                <Text 
-                  fontSize="32px" 
-                  opacity="0.9"
-                  lineHeight="1.6"
-                  textAlign="left"
-                  fontWeight="normal"
-                  letterSpacing="0.005em"
-                  fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
-                  color="black"
-                >
-                  KairosAI delivers executive-ready insights in <Text as="span" color="#667EEA" fontWeight="bold">minutes.</Text>
-                      </Text>
-              </VStack>
-            </VStack>
-
             {/* Problem vs Solution Comparison */}
             <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8} w="full" maxW="7xl">
                   {/* Traditional Approach */}
-                  <Box p={6} bg="red.50" borderRadius="xl">
+                  <Box p={6} bg="gray.800" borderRadius="xl">
                     <VStack spacing={4} align="start">
                       <HStack spacing={3}>
                         <Box w="8" h="8" bg="red.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
                           <Icon as={FiTarget} color="white" boxSize={4} />
                         </Box>
-                        <Heading size="md" color="red.700">Traditional Market Research</Heading>
+                        <Heading size="md" color="white">Traditional Market Research</Heading>
                       </HStack>
                       
                       <VStack spacing={3} align="start" w="full">
                         <VStack spacing={1} align="start">
-                          <Text fontSize="sm" color="red.600" fontWeight="semibold">Timeline</Text>
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Timeline</Text>
                           <HStack spacing={2} align="start">
                             <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
-                            <Text fontSize="md" color="red.700" fontWeight="bold">3-6 months</Text>
+                            <Text fontSize="md" color="white" fontWeight="bold">3-6 months</Text>
                           </HStack>
                         </VStack>
                         
                         <VStack spacing={1} align="start">
-                          <Text fontSize="sm" color="red.600" fontWeight="semibold">Cost</Text>
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Cost</Text>
                           <HStack spacing={2} align="start">
                             <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
-                            <Text fontSize="md" color="red.700" fontWeight="bold">$50K - $200K</Text>
+                            <Text fontSize="md" color="white" fontWeight="bold">$50K - $200K</Text>
                           </HStack>
                         </VStack>
                         
                         <VStack spacing={1} align="start">
-                          <Text fontSize="sm" color="red.600" fontWeight="semibold">Output</Text>
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Output</Text>
                           <HStack spacing={2} align="start">
                             <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
-                            <Text fontSize="md" color="red.700" fontWeight="bold">Static PDF reports</Text>
+                            <VStack spacing={1} align="start">
+                              <Text fontSize="md" color="white" fontWeight="bold">Static PDF reports</Text>
+                              <Text fontSize="xs" color="gray.400">Generic templates, outdated data, limited insights</Text>
+                            </VStack>
                           </HStack>
                         </VStack>
                         
                         <VStack spacing={1} align="start">
-                          <Text fontSize="sm" color="red.600" fontWeight="semibold">Updates</Text>
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Updates</Text>
                           <HStack spacing={2} align="start">
                             <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
-                            <Text fontSize="md" color="red.700" fontWeight="bold">One-time analysis</Text>
+                            <Text fontSize="md" color="white" fontWeight="bold">One-time analysis</Text>
                           </HStack>
                         </VStack>
                       </VStack>
                       
-                      <Text fontSize="sm" color="red.600" fontStyle="italic">
+                      <Text fontSize="sm" color="gray.300" fontStyle="italic">
                         "By the time you get results, the market has already changed"
                       </Text>
                     </VStack>
                   </Box>
 
                   {/* KairosAI Approach */}
-                  <Box p={6} bg="green.50" borderRadius="xl">
+                  <Box p={6} bg="gray.800" borderRadius="xl">
                     <VStack spacing={4} align="start">
                       <HStack spacing={3}>
                         <Box w="8" h="8" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
                           <Icon as={FiTrendingUp} color="white" boxSize={4} />
                         </Box>
-                        <Heading size="md" color="green.700">KairosAI Platform</Heading>
+                        <Heading size="md" color="white">KairosAI Platform</Heading>
                       </HStack>
                       
                       <VStack spacing={3} align="start" w="full">
                         <VStack spacing={1} align="start">
-                          <Text fontSize="sm" color="green.600" fontWeight="semibold">Timeline</Text>
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Timeline</Text>
                           <HStack spacing={2} align="start">
                             <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
-                            <Text fontSize="md" color="green.700" fontWeight="bold">5 minutes</Text>
+                            <Text fontSize="md" color="white" fontWeight="bold">5 minutes</Text>
                           </HStack>
                         </VStack>
                         
                         <VStack spacing={1} align="start">
-                          <Text fontSize="sm" color="green.600" fontWeight="semibold">Cost</Text>
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Cost</Text>
                           <HStack spacing={2} align="start">
                             <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
-                            <Text fontSize="md" color="green.700" fontWeight="bold">Fraction of consultant fees</Text>
+                            <Text fontSize="md" color="white" fontWeight="bold">Fraction of consultant fees</Text>
                           </HStack>
                         </VStack>
                         
                         <VStack spacing={1} align="start">
-                          <Text fontSize="sm" color="green.600" fontWeight="semibold">Output</Text>
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Output</Text>
                           <HStack spacing={2} align="start">
                             <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
-                            <Text fontSize="md" color="green.700" fontWeight="bold">Executive-ready deliverables</Text>
+                            <VStack spacing={1} align="start">
+                              <Text fontSize="md" color="white" fontWeight="bold">Executive-ready deliverables</Text>
+                              <Text fontSize="xs" color="gray.400">Interactive dashboards, board presentations, investment memos, strategic recommendations</Text>
+                            </VStack>
                           </HStack>
                         </VStack>
                         
                         <VStack spacing={1} align="start">
-                          <Text fontSize="sm" color="green.600" fontWeight="semibold">Updates</Text>
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Updates</Text>
                           <HStack spacing={2} align="start">
                             <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
-                            <Text fontSize="md" color="green.700" fontWeight="bold">Continuous monitoring</Text>
+                            <Text fontSize="md" color="white" fontWeight="bold">Continuous monitoring</Text>
                           </HStack>
                         </VStack>
                       </VStack>
                       
-                      <Text fontSize="sm" color="green.600" fontStyle="italic">
+                      <Text fontSize="sm" color="gray.300" fontStyle="italic">
                         "Real-time intelligence that evolves with your market"
                     </Text>
                     </VStack>
@@ -666,81 +630,79 @@ const LandingPage = () => {
                 </SimpleGrid>
 
             {/* How It Works Workflow */}
-            <VStack spacing={8} w="full">
-              <Heading size="lg" color="gray.800">KairosAI does it All. </Heading>
+            <VStack spacing={8} w="full" mt={16}>
+              <Heading size="lg" color="white">KairosAI does it All. </Heading>
               
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full" maxW="7xl">
                 {/* Step 1 */}
-                <VStack spacing={6} p={8} bg="purple.50" borderRadius="xl">
+                <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
                   <Box w="16" h="16" bg="purple.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
                     <Text color="white" fontWeight="bold" fontSize="2xl">1</Text>
                   </Box>
                   <VStack spacing={3} textAlign="center">
-                    <Heading size="md" color="purple.700">Input Company Info</Heading>
-                    <Text fontSize="md" color="purple.600">Share your company details, target market, and expansion goals</Text>
+                    <Heading size="md" color="white">Input Company Info</Heading>
+                    <Text fontSize="md" color="gray.300">Share your company details, target market, and expansion goals</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 2 */}
-                <VStack spacing={6} p={8} bg="blue.50" borderRadius="xl">
+                <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
                   <Box w="16" h="16" bg="blue.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
                     <Text color="white" fontWeight="bold" fontSize="2xl">2</Text>
                   </Box>
                   <VStack spacing={3} textAlign="center">
-                    <Heading size="md" color="blue.700">AI Agents Research</Heading>
-                    <Text fontSize="md" color="blue.600">Autonomous agents analyze market data, competitors, and opportunities 24/7</Text>
+                    <Heading size="md" color="white">AI Agents Research</Heading>
+                    <Text fontSize="md" color="gray.300">Autonomous agents analyze market data, competitors, and opportunities 24/7</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 3 */}
-                <VStack spacing={6} p={8} bg="green.50" borderRadius="xl">
+                <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
                   <Box w="16" h="16" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
                     <Text color="white" fontWeight="bold" fontSize="2xl">3</Text>
                   </Box>
                   <VStack spacing={3} textAlign="center">
-                    <Heading size="md" color="green.700">Generate Insights</Heading>
-                    <Text fontSize="md" color="green.600">Get market intelligence dashboard and segment arbitrage opportunities</Text>
+                    <Heading size="md" color="white">Generate Insights</Heading>
+                    <Text fontSize="md" color="gray.300">Get market intelligence dashboard and segment arbitrage opportunities</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 4 */}
-                <VStack spacing={6} p={8} bg="teal.50" borderRadius="xl">
+                <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
                   <Box w="16" h="16" bg="teal.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
                     <Text color="white" fontWeight="bold" fontSize="2xl">4</Text>
                   </Box>
                   <VStack spacing={3} textAlign="center">
-                    <Heading size="md" color="teal.700">Executive Deliverables</Heading>
-                    <Text fontSize="md" color="teal.600">Download board presentations, investment memos, and strategic recommendations</Text>
+                    <Heading size="md" color="white">Executive Deliverables</Heading>
+                    <Text fontSize="md" color="gray.300">Download board presentations, investment memos, and strategic recommendations</Text>
                   </VStack>
                 </VStack>
               </SimpleGrid>
             </VStack>
 
             {/* Unique Value Propositions */}
-            <Card shadow="lg" borderRadius="xl" bg="gradient-to-r from-purple.50 to-blue.50" border="1px solid" borderColor="purple.200" w="full" maxW="7xl">
-              <CardBody p={8}>
-                <VStack spacing={6}>
-                  <Heading size="lg" color="purple.700">What Makes KairosAI Unique</Heading>
+            <VStack spacing={6} w="full" maxW="7xl">
+              <Heading size="lg" color="white">What We Offer</Heading>
                   
                   <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} w="full">
                     {/* Left Column */}
                     <VStack spacing={4} align="start">
-                      <Box p={4} bg="white" borderRadius="lg" border="1px solid" borderColor="purple.200" w="full">
+                      <Box p={4} bg="gray.800" borderRadius="lg" w="full">
                         <HStack spacing={3} mb={2}>
-                          <Icon as={FiTarget} color="purple.500" boxSize={5} />
-                          <Text fontWeight="bold" color="purple.700">Autonomous AI Agents</Text>
+                          <Icon as={FiTarget} color="white" boxSize={5} />
+                          <Text fontWeight="bold" color="white">Autonomous AI Agents</Text>
                         </HStack>
-                        <Text fontSize="sm" color="purple.600">
+                        <Text fontSize="sm" color="gray.300">
                           Multiple specialized AI agents work simultaneously, analyzing market data, competitors, and opportunities around the clock.
                         </Text>
                       </Box>
                       
-                      <Box p={4} bg="white" borderRadius="lg" border="1px solid" borderColor="purple.200" w="full">
+                      <Box p={4} bg="gray.800" borderRadius="lg" w="full">
                         <HStack spacing={3} mb={2}>
-                          <Icon as={FiTrendingUp} color="purple.500" boxSize={5} />
-                          <Text fontWeight="bold" color="purple.700">Executive-Ready Outputs</Text>
+                          <Icon as={FiTrendingUp} color="white" boxSize={5} />
+                          <Text fontWeight="bold" color="white">Executive-Ready Outputs</Text>
                         </HStack>
-                        <Text fontSize="sm" color="purple.600">
+                        <Text fontSize="sm" color="gray.300">
                           Generate board presentations, investment memos, and strategic recommendations automatically - no manual report writing required.
                         </Text>
                       </Box>
@@ -748,30 +710,39 @@ const LandingPage = () => {
 
                     {/* Right Column */}
                     <VStack spacing={4} align="start">
-                      <Box p={4} bg="white" borderRadius="lg" border="1px solid" borderColor="purple.200" w="full">
+                      <Box p={4} bg="gray.800" borderRadius="lg" w="full">
                         <HStack spacing={3} mb={2}>
-                          <Icon as={FiBarChart} color="purple.500" boxSize={5} />
-                          <Text fontWeight="bold" color="purple.700">Segment Arbitrage Detection</Text>
+                          <Icon as={FiBarChart} color="white" boxSize={5} />
+                          <Text fontWeight="bold" color="white">Segment Arbitrage Detection</Text>
                         </HStack>
-                        <Text fontSize="sm" color="purple.600">
+                        <Text fontSize="sm" color="gray.300">
                           Discover hidden market opportunities and positioning gaps that competitors miss, maximizing your market entry value.
                         </Text>
                       </Box>
                       
-                      <Box p={4} bg="white" borderRadius="lg" border="1px solid" borderColor="purple.200" w="full">
+                      <Box p={4} bg="gray.800" borderRadius="lg" w="full">
                         <HStack spacing={3} mb={2}>
-                          <Icon as={FiUsers} color="purple.500" boxSize={5} />
-                          <Text fontWeight="bold" color="purple.700">Cross-Pacific Expertise</Text>
+                          <Icon as={FiUsers} color="white" boxSize={5} />
+                          <Text fontWeight="bold" color="white">Cross-Pacific Expertise</Text>
                         </HStack>
-                        <Text fontSize="sm" color="purple.600">
+                        <Text fontSize="sm" color="gray.300">
                           Built specifically for US-Asia market dynamics, understanding cultural nuances, regulatory requirements, and business practices.
                         </Text>
                   </Box>
                     </VStack>
                   </SimpleGrid>
-                </VStack>
-              </CardBody>
-            </Card>
+                  
+                  {/* Third Row - Chatbot Feature */}
+                  <Box p={4} bg="gray.800" borderRadius="lg" w="full" maxW="md" mx="auto">
+                    <HStack spacing={3} mb={2}>
+                      <Icon as={FiMessageCircle} color="white" boxSize={5} />
+                      <Text fontWeight="bold" color="white">24/7 AI Consultant</Text>
+                    </HStack>
+                    <Text fontSize="sm" color="gray.300">
+                      Get instant answers to market questions, strategic guidance, and real-time insights through our intelligent chatbot - like having a consultant available around the clock.
+                    </Text>
+                  </Box>
+            </VStack>
 
             {/* Call to Action */}
             <VStack spacing={4}>
