@@ -15,7 +15,7 @@ import {
   CardBody,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers, FiMessageCircle } from 'react-icons/fi';
+import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import AnalysisForm from '../../components/AnalysisForm';
@@ -630,172 +630,152 @@ const LandingPage = () => {
                 </SimpleGrid>
 
             {/* How It Works Workflow */}
-            <VStack spacing={8} w="full" mt={16}>
-              <Heading size="lg" color="white">KairosAI does it All. </Heading>
+            <VStack spacing={8} w="full" mt={32}>
+              <Heading size="3xl" color="white" fontWeight="normal">KairosAI does it All. </Heading>
               
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full" maxW="7xl">
                 {/* Step 1 */}
                 <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
                   <Box w="16" h="16" bg="purple.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                    <Text color="white" fontWeight="bold" fontSize="2xl">1</Text>
+                    <Icon as={FiEdit3} color="white" boxSize={8} />
                   </Box>
                   <VStack spacing={3} textAlign="center">
                     <Heading size="md" color="white">Input Company Info</Heading>
-                    <Text fontSize="md" color="gray.300">Share your company details, target market, and expansion goals</Text>
+                    <Text fontSize="md" color="gray.300">Simply provide your company details, industry, target markets, and expansion goals. Our intuitive form captures everything from brand positioning to competitive advantages, creating a comprehensive foundation for AI-powered analysis.</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 2 */}
                 <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
                   <Box w="16" h="16" bg="blue.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                    <Text color="white" fontWeight="bold" fontSize="2xl">2</Text>
+                    <Icon as={FiCpu} color="white" boxSize={8} />
                   </Box>
                   <VStack spacing={3} textAlign="center">
                     <Heading size="md" color="white">AI Agents Research</Heading>
-                    <Text fontSize="md" color="gray.300">Autonomous agents analyze market data, competitors, and opportunities 24/7</Text>
+                    <Text fontSize="md" color="gray.300">Multiple specialized autonomous AI agents work 24/7 to analyze market data, competitor strategies, regulatory requirements, and cross-Pacific business dynamics. They continuously research and synthesize information from thousands of sources to build comprehensive market intelligence.</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 3 */}
                 <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
                   <Box w="16" h="16" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                    <Text color="white" fontWeight="bold" fontSize="2xl">3</Text>
+                    <Icon as={FiZap} color="white" boxSize={8} />
                   </Box>
                   <VStack spacing={3} textAlign="center">
                     <Heading size="md" color="white">Generate Insights</Heading>
-                    <Text fontSize="md" color="gray.300">Get market intelligence dashboard and segment arbitrage opportunities</Text>
+                    <Text fontSize="md" color="gray.300">Access interactive market intelligence dashboards with real-time data visualization, segment arbitrage opportunities that reveal hidden market gaps, competitive positioning analysis, and strategic recommendations. Ask questions anytime through our 24/7 AI consultant chatbot for instant insights.</Text>
                   </VStack>
                 </VStack>
 
                 {/* Step 4 */}
                 <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
                   <Box w="16" h="16" bg="teal.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-                    <Text color="white" fontWeight="bold" fontSize="2xl">4</Text>
+                    <Icon as={FiFileText} color="white" boxSize={8} />
                   </Box>
                   <VStack spacing={3} textAlign="center">
                     <Heading size="md" color="white">Executive Deliverables</Heading>
-                    <Text fontSize="md" color="gray.300">Download board presentations, investment memos, and strategic recommendations</Text>
+                    <Text fontSize="md" color="gray.300">Download polished, board-ready documentations, comprehensive investment memos, strategic go-to-market recommendations, regulatory compliance analysis, and partnership opportunity briefs. Every deliverable is professionally formatted and ready to share with stakeholders, investors, and leadership teams.</Text>
                   </VStack>
                 </VStack>
               </SimpleGrid>
             </VStack>
 
             {/* Unique Value Propositions */}
-            <VStack spacing={6} w="full" maxW="7xl">
-              <Heading size="lg" color="white">What We Offer</Heading>
-                  
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} w="full">
-                    {/* Left Column */}
-                    <VStack spacing={4} align="start">
-                      <Box p={4} bg="gray.800" borderRadius="lg" w="full">
-                        <HStack spacing={3} mb={2}>
-                          <Icon as={FiTarget} color="white" boxSize={5} />
-                          <Text fontWeight="bold" color="white">Autonomous AI Agents</Text>
-                        </HStack>
-                        <Text fontSize="sm" color="gray.300">
-                          Multiple specialized AI agents work simultaneously, analyzing market data, competitors, and opportunities around the clock.
-                        </Text>
-                      </Box>
-                      
-                      <Box p={4} bg="gray.800" borderRadius="lg" w="full">
-                        <HStack spacing={3} mb={2}>
-                          <Icon as={FiTrendingUp} color="white" boxSize={5} />
-                          <Text fontWeight="bold" color="white">Executive-Ready Outputs</Text>
-                        </HStack>
-                        <Text fontSize="sm" color="gray.300">
-                          Generate board presentations, investment memos, and strategic recommendations automatically - no manual report writing required.
-                        </Text>
-                      </Box>
-                    </VStack>
-
-                    {/* Right Column */}
-                    <VStack spacing={4} align="start">
-                      <Box p={4} bg="gray.800" borderRadius="lg" w="full">
-                        <HStack spacing={3} mb={2}>
-                          <Icon as={FiBarChart} color="white" boxSize={5} />
-                          <Text fontWeight="bold" color="white">Segment Arbitrage Detection</Text>
-                        </HStack>
-                        <Text fontSize="sm" color="gray.300">
-                          Discover hidden market opportunities and positioning gaps that competitors miss, maximizing your market entry value.
-                        </Text>
-                      </Box>
-                      
-                      <Box p={4} bg="gray.800" borderRadius="lg" w="full">
-                        <HStack spacing={3} mb={2}>
-                          <Icon as={FiUsers} color="white" boxSize={5} />
-                          <Text fontWeight="bold" color="white">Cross-Pacific Expertise</Text>
-                        </HStack>
-                        <Text fontSize="sm" color="gray.300">
-                          Built specifically for US-Asia market dynamics, understanding cultural nuances, regulatory requirements, and business practices.
-                        </Text>
-                  </Box>
-                    </VStack>
-                  </SimpleGrid>
-                  
-                  {/* Third Row - Chatbot Feature */}
-                  <Box p={4} bg="gray.800" borderRadius="lg" w="full" maxW="md" mx="auto">
-                    <HStack spacing={3} mb={2}>
-                      <Icon as={FiMessageCircle} color="white" boxSize={5} />
-                      <Text fontWeight="bold" color="white">24/7 AI Consultant</Text>
-                    </HStack>
-                    <Text fontSize="sm" color="gray.300">
-                      Get instant answers to market questions, strategic guidance, and real-time insights through our intelligent chatbot - like having a consultant available around the clock.
-                    </Text>
-                  </Box>
+            <VStack spacing={0} w="full" maxW="7xl" mt={32}>
+              <Heading size="3xl" color="white" fontWeight="normal" fontSize="54px" mb={8}>What We Offer</Heading>
+              
+              <VStack spacing={0} w="full" divider={<Box h="1px" bg="gray.700" w="full" />}>
+                {/* Empty spacer for top divider */}
+                <Box py={0} w="full" />
+                
+                {/* Feature 1 - Autonomous AI Agents */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiTarget} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">Autonomous AI Agents</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Multiple specialized AI agents work simultaneously 24/7, analyzing market data, competitor strategies, regulatory requirements, and cross-Pacific business dynamics. They continuously research and synthesize information from thousands of sources to build comprehensive market intelligence tailored to your expansion goals.
+                  </Text>
+                </HStack>
+                
+                {/* Feature 2 - Executive-Ready Outputs */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiTrendingUp} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">Executive-Ready Outputs</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Generate polished, board-ready presentations, comprehensive investment memos, strategic go-to-market recommendations, regulatory compliance analysis, and partnership opportunity briefs automatically. Every deliverable is professionally formatted and ready to share with stakeholders, investors, and leadership teams—no manual report writing required.
+                  </Text>
+                </HStack>
+                
+                {/* Feature 3 - Segment Arbitrage Detection */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiBarChart} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">Segment Arbitrage Detection</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Discover hidden market opportunities and positioning gaps that competitors miss through advanced data analysis. Our AI identifies underserved segments, pricing advantages, and strategic entry points that maximize your market entry value and competitive positioning across US-Asia markets.
+                  </Text>
+                </HStack>
+                
+                {/* Feature 4 - Cross-Pacific Expertise */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiUsers} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">Cross-Pacific Expertise</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Built specifically for US-Asia market dynamics with deep understanding of cultural nuances, regulatory requirements, business practices, and local market conditions. Our platform bridges the gap between Western and Asian business ecosystems, providing insights that generic market research tools cannot deliver.
+                  </Text>
+                </HStack>
+                
+                {/* Feature 5 - 24/7 AI Consultant */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiMessageCircle} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">24/7 AI Consultant</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Get instant answers to market questions, strategic guidance, and real-time insights through our intelligent chatbot consultant. Ask questions anytime about market conditions, competitor movements, regulatory changes, or expansion strategies—like having an expert consultant available around the clock without the consulting fees.
+                  </Text>
+                </HStack>
+                
+                {/* Empty spacer for bottom divider */}
+                <Box py={0} w="full" />
+              </VStack>
             </VStack>
 
             {/* Call to Action */}
-            <VStack spacing={4}>
-              <Heading size="md" color="gray.700">Ready to Transform Your Market Entry Strategy?</Heading>
-              <HStack spacing={4}>
+            <VStack spacing={4} align="center" textAlign="center" w="full">
+              <Heading size="md" color="white">Ready to Transform Your Market Entry Strategy?</Heading>
                   <Button
-                  size="lg"
+                size="lg"
                     bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                  color="white"
+                color="white"
                     _hover={{
                       bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                transform: 'translateY(-2px)',
-                boxShadow: 'lg',
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'lg',
                     }}
-                  _active={{ transform: 'translateY(0)' }}
-                  px={8}
+                _active={{ transform: 'translateY(0)' }}
+                px={8}
                     py={4}
                     fontSize="md"
                     fontWeight="bold"
                     borderRadius="lg"
-              onClick={() => {
-                document.getElementById('analysis-form')?.scrollIntoView({
-                  behavior: 'smooth'
-                });
-              }}
+                onClick={() => {
+                  document.getElementById('analysis-form')?.scrollIntoView({
+                    behavior: 'smooth'
+                  });
+                }}
                     rightIcon={<FiArrowRight />}
                   >
-                  Start Your Free Analysis
+                Start Your Free Analysis
                   </Button>
-                
-                <Button
-                  size="lg"
-                  variant="outline"
-                  color="purple.600"
-                  borderColor="purple.300"
-                  _hover={{
-                    bg: 'purple.50',
-                    borderColor: 'purple.400',
-                    transform: 'translateY(-2px)',
-                  }}
-                  px={8}
-                  py={4}
-                  fontSize="md"
-                  fontWeight="semibold"
-                  borderRadius="lg"
-                  onClick={() => {
-                    navigate('/dashboard');
-                  }}
-                >
-                  View Sample Results
-                </Button>
-              </HStack>
-            </VStack>
+                </VStack>
           </VStack>
         </Container>
       </Box>
