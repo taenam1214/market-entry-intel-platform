@@ -13,9 +13,18 @@ import {
   Button,
   Card,
   CardBody,
+  Fade,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText } from 'react-icons/fi';
+import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import AnalysisForm from '../../components/AnalysisForm';
@@ -116,6 +125,7 @@ const DynamicConnectionLine = ({
 const LandingPage = () => {
   const { isAuthenticated, user } = useAuth();
   const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
+  const [showAnalysisForm, setShowAnalysisForm] = useState(false);
   const [activeConnections, setActiveConnections] = useState<Array<{
     fromX: string;
     fromY: string;
@@ -125,6 +135,7 @@ const LandingPage = () => {
     delay: number;
   }>>([]);
   const navigate = useNavigate();
+  const { isOpen: isSignupModalOpen, onOpen: onSignupModalOpen, onClose: onSignupModalClose } = useDisclosure();
 
   // City coordinates for dynamic connections
   const cities = [
@@ -204,6 +215,27 @@ const LandingPage = () => {
       setHasAnalysisHistory(!!analysisHistory);
     }
   }, [isAuthenticated, user]);
+
+  // Handle analysis button click
+  const handleAnalysisClick = () => {
+    if (!isAuthenticated) {
+      onSignupModalOpen();
+      } else {
+      setShowAnalysisForm(true);
+      setTimeout(() => {
+        document.getElementById('analysis-form')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 300);
+    }
+  };
+
+  // Handle signup navigation
+  const handleSignup = () => {
+    onSignupModalClose();
+    navigate('/register');
+  };
 
   // Show streamlined form for authenticated users without analysis history
   if (isAuthenticated && !hasAnalysisHistory) {
@@ -461,11 +493,7 @@ const LandingPage = () => {
               _focus={{
                 boxShadow: '0 0 0 3px rgba(255,255,255,0.3)',
               }}
-              onClick={() => {
-                document.getElementById('analysis-form')?.scrollIntoView({
-                  behavior: 'smooth'
-                });
-              }}
+              onClick={handleAnalysisClick}
               rightIcon={<FiArrowRight />}
             >
               Start Your Analysis
@@ -749,10 +777,10 @@ const LandingPage = () => {
             </VStack>
 
             {/* Call to Action */}
-            <VStack spacing={4} align="center" textAlign="center" w="full">
-              <Heading size="md" color="white">Ready to Transform Your Market Entry Strategy?</Heading>
+            <VStack spacing={8} align="center" textAlign="center" w="full" mt={16}>
+              <Heading size="md" color="white" fontSize="54px" fontWeight="normal">Ready to Transform Your Market Entry Strategy?</Heading>
                   <Button
-                size="lg"
+                size="xl"
                     bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                 color="white"
                     _hover={{
@@ -761,17 +789,14 @@ const LandingPage = () => {
                   boxShadow: 'lg',
                     }}
                 _active={{ transform: 'translateY(0)' }}
-                px={8}
-                    py={4}
-                    fontSize="md"
+                px={12}
+                    py={6}
+                    fontSize="lg"
                     fontWeight="bold"
                     borderRadius="lg"
-                onClick={() => {
-                  document.getElementById('analysis-form')?.scrollIntoView({
-                    behavior: 'smooth'
-                  });
-                }}
-                    rightIcon={<FiArrowRight />}
+                    border="none"
+                onClick={handleAnalysisClick}
+                    rightIcon={<FiArrowDown />}
                   >
                 Start Your Free Analysis
                   </Button>
@@ -781,7 +806,75 @@ const LandingPage = () => {
       </Box>
 
       {/* Form Section */}
-      <AnalysisForm />
+      {showAnalysisForm && (
+        <Fade in={showAnalysisForm} transition={{ enter: { duration: 0.6 } }}>
+          <Box id="analysis-form">
+            <AnalysisForm />
+          </Box>
+        </Fade>
+      )}
+
+      {/* Signup Modal */}
+      <Modal isOpen={isSignupModalOpen} onClose={onSignupModalClose} isCentered>
+        <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
+        <ModalContent bg="#140d28" color="white" borderRadius="xl" mx={4}>
+          <ModalHeader>
+            <VStack spacing={2} align="center" textAlign="center">
+              <Icon as={FiTarget} boxSize={8} color="purple.400" />
+              <Heading size="lg" color="white">Unlock Your Market Intelligence</Heading>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody pb={6}>
+            <VStack spacing={4} textAlign="center">
+              <Text fontSize="lg" color="gray.300" lineHeight="1.6">
+                Get instant access to our AI-powered market analysis platform. 
+                Create your free account to start exploring cross-Pacific expansion opportunities.
+              </Text>
+              <VStack spacing={2} align="start" w="full" bg="gray.800" p={4} borderRadius="lg">
+                <HStack spacing={3}>
+                  <Icon as={FiZap} color="green.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">Free market analysis in minutes</Text>
+                </HStack>
+                <HStack spacing={3}>
+                  <Icon as={FiTrendingUp} color="blue.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">Executive-ready insights and reports</Text>
+                </HStack>
+                <HStack spacing={3}>
+                  <Icon as={FiMessageCircle} color="purple.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">24/7 AI consultant access</Text>
+                </HStack>
+              </VStack>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <HStack spacing={3} w="full">
+              <Button 
+                variant="outline" 
+                color="white" 
+                borderColor="gray.600" 
+                _hover={{ bg: "gray.700" }}
+                onClick={onSignupModalClose}
+                flex={1}
+              >
+                Maybe Later
+              </Button>
+              <Button 
+                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                color="white"
+                _hover={{
+                  bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                }}
+                onClick={handleSignup}
+                flex={2}
+                rightIcon={<FiArrowRight />}
+              >
+                Create Free Account
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
