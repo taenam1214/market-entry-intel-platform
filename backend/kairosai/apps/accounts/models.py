@@ -29,6 +29,11 @@ class User(AbstractUser):
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Google OAuth fields
+    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    provider = models.CharField(max_length=50, blank=True, null=True)  # 'google', 'email', etc.
+    profile_picture = models.URLField(blank=True, null=True)
 
     objects = UserManager()
 

@@ -50,5 +50,27 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer for user profile"""
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'is_verified', 'created_at')
-        read_only_fields = ('id', 'is_verified', 'created_at')
+        fields = ('id', 'email', 'first_name', 'last_name', 'is_verified', 'created_at', 'provider', 'profile_picture')
+        read_only_fields = ('id', 'is_verified', 'created_at', 'provider', 'profile_picture')
+
+
+class GoogleAuthSerializer(serializers.Serializer):
+    """Serializer for Google OAuth authentication"""
+    access_token = serializers.CharField()
+    
+    def validate_access_token(self, value):
+        """Validate Google access token and extract user info"""
+        try:
+            from google.oauth2 import id_token
+            from google.auth.transport import requests
+            
+            # Verify the token
+            idinfo = id_token.verify_oauth2_token(value, requests.Request())
+            
+            # Check if the token is from Google
+            if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                raise serializers.ValidationError('Invalid token issuer')
+            
+            return idinfo
+        except ValueError as e:
+            raise serializers.ValidationError('Invalid Google access token')

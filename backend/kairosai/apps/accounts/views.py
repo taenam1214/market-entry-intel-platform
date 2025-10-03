@@ -4,7 +4,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login, logout
-from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer
+from django.conf import settings
+from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, GoogleAuthSerializer
 from .models import User
 
 
@@ -73,4 +74,63 @@ def update_profile(request):
             'message': 'Profile updated successfully',
             'user': serializer.data
         }, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def google_auth(request):
+    """Google OAuth authentication endpoint"""
+    serializer = GoogleAuthSerializer(data=request.data)
+    if serializer.is_valid():
+        try:
+            idinfo = serializer.validated_data['access_token']
+            
+            # Extract user information from Google token
+            google_id = idinfo['sub']
+            email = idinfo['email']
+            first_name = idinfo.get('given_name', '')
+            last_name = idinfo.get('family_name', '')
+            profile_picture = idinfo.get('picture', '')
+            
+            # Check if user exists by Google ID
+            try:
+                user = User.objects.get(google_id=google_id)
+            except User.DoesNotExist:
+                # Check if user exists by email
+                try:
+                    user = User.objects.get(email=email)
+                    # Update existing user with Google ID
+                    user.google_id = google_id
+                    user.provider = 'google'
+                    user.profile_picture = profile_picture
+                    user.save()
+                except User.DoesNotExist:
+                    # Create new user
+                    user = User.objects.create_user(
+                        email=email,
+                        first_name=first_name,
+                        last_name=last_name,
+                        google_id=google_id,
+                        provider='google',
+                        profile_picture=profile_picture,
+                        is_verified=True  # Google users are pre-verified
+                    )
+            
+            # Login the user
+            login(request, user)
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                'message': 'Google authentication successful',
+                'user': UserSerializer(user).data,
+                'token': token.key
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                'error': 'Google authentication failed',
+                'details': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

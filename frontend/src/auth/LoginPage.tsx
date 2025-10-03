@@ -20,6 +20,8 @@ import {
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from './AuthContext';
+import GoogleAuthButton from '../components/GoogleAuthButton';
+import type { GoogleUser } from '../types/googleAuth';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -72,6 +74,20 @@ const LoginPage: React.FC = () => {
     } catch (error: any) {
       setLocalError(error.message || 'Login failed');
     }
+  };
+
+  const handleGoogleSuccess = async (_user: GoogleUser) => {
+    try {
+      // The GoogleAuthButton already handles the backend authentication
+      // We just need to update the auth context and navigate
+      navigate('/dashboard');
+    } catch (error: any) {
+      setLocalError(error.message || 'Google authentication failed');
+    }
+  };
+
+  const handleGoogleError = (error: string) => {
+    setLocalError(error);
   };
 
   const displayError = localError || error;
@@ -188,6 +204,22 @@ const LoginPage: React.FC = () => {
                 >
                   Sign In
                 </Button>
+
+                {/* Divider */}
+                <HStack width="full">
+                  <Divider />
+                  <Text color="gray.500" fontSize="sm" px={2}>
+                    OR
+                  </Text>
+                  <Divider />
+                </HStack>
+
+                {/* Google OAuth Button */}
+                <GoogleAuthButton
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  isLoading={isLoading}
+                />
               </VStack>
             </form>
           </Box>
