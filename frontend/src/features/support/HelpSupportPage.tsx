@@ -134,25 +134,25 @@ const HelpSupportPage = () => {
       title: "Getting Started Guide",
       description: "Step-by-step guide to your first analysis",
       icon: FiBook,
-      type: "Guide"
+      type: "Coming Soon"
     },
     {
       title: "Video Tutorials",
       description: "Watch how to maximize KairosAI features",
       icon: FiVideo,
-      type: "Video"
+      type: "Coming Soon"
     },
     {
       title: "API Documentation",
       description: "Integrate KairosAI with your systems",
       icon: FiDownload,
-      type: "Technical"
+      type: "Coming Soon"
     },
     {
       title: "Best Practices",
       description: "Tips for successful market entry",
       icon: FiCheckCircle,
-      type: "Guide"
+      type: "Coming Soon"
     }
   ];
 
@@ -348,12 +348,7 @@ const HelpSupportPage = () => {
                       <HStack spacing={4} align="start">
                         <Icon as={resource.icon} boxSize={6} color="purple.500" mt={1} />
                         <VStack spacing={2} align="start" flex={1}>
-                          <HStack spacing={2} align="center">
-                            <Heading size="sm" color="gray.800">{resource.title}</Heading>
-                            <Badge colorScheme="purple" variant="subtle" size="sm">
-                              {resource.type}
-                            </Badge>
-                          </HStack>
+                          <Heading size="sm" color="gray.800">{resource.title}</Heading>
                           <Text fontSize="sm" color="gray.600">
                             {resource.description}
                           </Text>
@@ -361,10 +356,11 @@ const HelpSupportPage = () => {
                             size="sm"
                             variant="ghost"
                             rightIcon={<FiArrowRight />}
-                            color="purple.600"
-                            _hover={{ bg: "purple.50" }}
+                            color="gray.500"
+                            _hover={{ bg: "gray.50" }}
+                            isDisabled
                           >
-                            Learn More
+                            Coming Soon
                           </Button>
                         </VStack>
                       </HStack>
