@@ -4,6 +4,8 @@ import LandingPage from '../features/landing/LandingPage';
 import SegmentArbitragePage from '../features/arbitrage/SegmentArbitragePage';
 import ExecutiveDashboardPage from '../features/dashboard/ExecutiveDashboardPage';
 import ChatbotPage from '../features/chatbot/ChatbotPage';
+import SettingsPage from '../features/settings/SettingsPage';
+import HelpSupportPage from '../features/support/HelpSupportPage';
 import LoginPage from '../auth/LoginPage';
 import RegisterPage from '../auth/RegisterPage';
 
@@ -60,31 +62,7 @@ const ProfilePage = () => (
   </Box>
 );
 
-const SettingsPage = () => (
-  <Box py={16} bg="white" minH="100vh">
-    <Container maxW="4xl">
-      <VStack spacing={8} textAlign="center">
-        <Heading size="xl">Settings</Heading>
-        <Text fontSize="lg" color="gray.600">
-          Configure your KairosAI experience.
-        </Text>
-      </VStack>
-    </Container>
-  </Box>
-);
 
-const HelpPage = () => (
-  <Box py={16} bg="white" minH="100vh">
-    <Container maxW="4xl">
-      <VStack spacing={8} textAlign="center">
-        <Heading size="xl">Help & Support</Heading>
-        <Text fontSize="lg" color="gray.600">
-          Find answers to common questions and get support.
-        </Text>
-      </VStack>
-    </Container>
-  </Box>
-);
 
 const AppRoutes = () => (
   <Routes>
@@ -104,7 +82,7 @@ const AppRoutes = () => (
     <Route path="/chatbot" element={<ChatbotPage />} />
     <Route path="/profile" element={<ProfilePage />} />
     <Route path="/settings" element={<SettingsPage />} />
-    <Route path="/help" element={<HelpPage />} />
+    <Route path="/help" element={<HelpSupportPage />} />
     
     {/* Fallback */}
     <Route path="*" element={<Navigate to="/" replace />} />

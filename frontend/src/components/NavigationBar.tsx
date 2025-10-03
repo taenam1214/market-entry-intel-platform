@@ -54,19 +54,13 @@ const NavigationBar: React.FC = () => {
   const textColor = 'white';
 
   // Navigation items
-  const publicNavItems = [
-    { label: 'Home', path: '/' },
-    { label: 'About', path: '/about' },
-    { label: 'Pricing', path: '/pricing' },
-    { label: 'Contact', path: '/contact' },
-  ];
+  const publicNavItems: Array<{ label: string; path: string }> = [];
 
   const authenticatedNavItems = [
     { label: 'Home', path: '/' },
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Arbitrage', path: '/arbitrage' },
     { label: 'Chatbot', path: '/chatbot' },
-    { label: 'Contact', path: '/contact' },
     { label: 'Support', path: '/help' },
   ];
 
@@ -179,7 +173,7 @@ const NavigationBar: React.FC = () => {
                   }}
                 >
                   <VStack spacing={0} align="start">
-                    <Text fontSize="sm" fontWeight="semibold">{navigationUser?.name}</Text>
+                    <Text fontSize="sm" fontWeight="semibold" color="white">{navigationUser?.name}</Text>
                     <Text fontSize="xs" color="gray.500">{navigationUser?.email}</Text>
                   </VStack>
                 </MenuButton>
@@ -313,7 +307,7 @@ const NavigationBar: React.FC = () => {
                   <VStack spacing={3} align="stretch">
                     <VStack spacing={1} align="center" p={3} bg="gray.50" borderRadius="md">
                       <Avatar name={navigationUser?.name} src={navigationUser?.avatar} />
-                      <Text fontSize="sm" fontWeight="semibold">{navigationUser?.name}</Text>
+                      <Text fontSize="sm" fontWeight="semibold" color="black">{navigationUser?.name}</Text>
                       <Text fontSize="xs" color="gray.500">{navigationUser?.email}</Text>
                     </VStack>
                     
