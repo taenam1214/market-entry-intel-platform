@@ -68,8 +68,25 @@ def profile(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_profile(request):
-    """Update user profile"""
-    serializer = UserSerializer(request.user, data=request.data, partial=True)
+    """Update user profile with enhanced validation"""
+    user = request.user
+    data = request.data.copy()
+    
+    # Check if email is being changed
+    new_email = data.get('email')
+    if new_email and new_email != user.email:
+        # Check if email already exists
+        if User.objects.filter(email=new_email).exclude(id=user.id).exists():
+            return Response({
+                'error': 'Email already exists',
+                'details': 'This email address is already registered to another account'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # For email changes, we might want to require verification
+        # For now, we'll allow the change but mark as unverified
+        data['is_verified'] = False
+    
+    serializer = UserSerializer(user, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response({
@@ -177,4 +194,40 @@ def change_password(request):
     
     return Response({
         'message': 'Password changed successfully'
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_email(request):
+    """Change user email with additional validation"""
+    new_email = request.data.get('new_email')
+    current_password = request.data.get('current_password')
+    
+    if not new_email or not current_password:
+        return Response({
+            'error': 'New email and current password are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Verify current password
+    if not request.user.check_password(current_password):
+        return Response({
+            'error': 'Current password is incorrect'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check if email already exists
+    if User.objects.filter(email=new_email).exclude(id=request.user.id).exists():
+        return Response({
+            'error': 'Email already exists',
+            'details': 'This email address is already registered to another account'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Update email and mark as unverified
+    request.user.email = new_email
+    request.user.is_verified = False
+    request.user.save()
+    
+    return Response({
+        'message': 'Email changed successfully. Please verify your new email address.',
+        'user': UserSerializer(request.user).data
     }, status=status.HTTP_200_OK)

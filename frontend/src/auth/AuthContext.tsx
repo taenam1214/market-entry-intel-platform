@@ -6,6 +6,10 @@ interface User {
   email: string;
   first_name: string;
   last_name: string;
+  is_verified?: boolean;
+  created_at?: string;
+  provider?: string;
+  profile_picture?: string;
 }
 
 interface AuthContextType {
@@ -15,6 +19,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
+  setUser: (user: User | null) => void;
   error: string | null;
 }
 
@@ -107,6 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    setUser,
     error,
   };
 

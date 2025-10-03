@@ -43,13 +43,14 @@ const SettingsPage = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showEmailPassword, setShowEmailPassword] = useState(false);
   const { isOpen: isPasswordModalOpen, onOpen: onPasswordModalOpen, onClose: onPasswordModalClose } = useDisclosure();
+  const { isOpen: isEmailModalOpen, onOpen: onEmailModalOpen, onClose: onEmailModalClose } = useDisclosure();
 
-  // Profile form state
+  // Profile form state (for name changes only)
   const [profileForm, setProfileForm] = useState({
     first_name: '',
     last_name: '',
-    email: '',
   });
 
   // Password form state
@@ -59,13 +60,18 @@ const SettingsPage = () => {
     new_password_confirm: '',
   });
 
+  // Email form state
+  const [emailForm, setEmailForm] = useState({
+    new_email: '',
+    current_password: '',
+  });
+
   // Initialize form with user data
   useEffect(() => {
     if (user) {
       setProfileForm({
         first_name: user.first_name || '',
         last_name: user.last_name || '',
-        email: user.email || '',
       });
     }
   }, [user]);
@@ -76,6 +82,10 @@ const SettingsPage = () => {
 
   const handlePasswordInputChange = (field: string, value: string) => {
     setPasswordForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEmailInputChange = (field: string, value: string) => {
+    setEmailForm(prev => ({ ...prev, [field]: value }));
   };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
@@ -163,6 +173,52 @@ const SettingsPage = () => {
     }
   };
 
+  const handleEmailChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const authHeaders = authService.getAuthHeaders();
+      const response = await fetch('http://localhost:8000/api/v1/auth/change-email/', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify(emailForm),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update user context with new data
+        setUser(data.user);
+        toast({
+          title: 'Email Changed',
+          description: 'Your email has been changed successfully. Please verify your new email address.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        // Reset form and close modal
+        setEmailForm({
+          new_email: '',
+          current_password: '',
+        });
+        onEmailModalClose();
+      } else {
+        throw new Error(data.error || 'Failed to change email');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Email Change Failed',
+        description: error.message || 'An error occurred while changing your email.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getVerificationStatus = () => {
     return user?.is_verified ? 'Verified' : 'Unverified';
   };
@@ -228,23 +284,6 @@ const SettingsPage = () => {
                     </FormControl>
                   </HStack>
 
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Email Address</FormLabel>
-                    <Input
-                      type="email"
-                      placeholder="Enter your email address"
-                      value={profileForm.email}
-                      onChange={(e) => handleProfileInputChange('email', e.target.value)}
-                      size="md"
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.300"
-                      bg="white"
-                      color="gray.800"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    />
-                  </FormControl>
-
                   <HStack spacing={4} justify="space-between" align="center">
                     <VStack spacing={1} align="start">
                       <Text fontSize="sm" fontWeight="semibold" color="gray.700">Account Status</Text>
@@ -273,6 +312,40 @@ const SettingsPage = () => {
                   </HStack>
                 </VStack>
               </form>
+            </CardBody>
+          </Card>
+
+          {/* Email Settings */}
+          <Card>
+            <CardHeader>
+              <HStack spacing={3}>
+                <FiMail color="#667eea" size={24} />
+                <Heading size="md" color="gray.800">Email Settings</Heading>
+              </HStack>
+            </CardHeader>
+            <CardBody>
+              <VStack spacing={4} align="stretch">
+                <HStack spacing={4} justify="space-between" align="center">
+                  <VStack spacing={1} align="start">
+                    <Text fontSize="md" fontWeight="semibold" color="gray.800">Current Email</Text>
+                    <Text fontSize="sm" color="gray.600">{user?.email || 'N/A'}</Text>
+                  </VStack>
+                  <Button
+                    leftIcon={<FiEdit3 />}
+                    variant="outline"
+                    borderColor="gray.300"
+                    color="gray.700"
+                    _hover={{
+                      bg: 'gray.50',
+                      borderColor: 'purple.500',
+                      color: 'purple.600',
+                    }}
+                    onClick={onEmailModalOpen}
+                  >
+                    Change Email
+                  </Button>
+                </HStack>
+              </VStack>
             </CardBody>
           </Card>
 
@@ -359,6 +432,94 @@ const SettingsPage = () => {
             </CardBody>
           </Card>
         </VStack>
+
+        {/* Email Change Modal */}
+        <Modal isOpen={isEmailModalOpen} onClose={onEmailModalClose} isCentered>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>
+              <HStack spacing={3}>
+                <FiMail color="#667eea" size={20} />
+                <Text>Change Email Address</Text>
+              </HStack>
+            </ModalHeader>
+            <ModalCloseButton />
+            <form onSubmit={handleEmailChange}>
+              <ModalBody>
+                <VStack spacing={4}>
+                  <FormControl isRequired>
+                    <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">New Email Address</FormLabel>
+                    <Input
+                      type="email"
+                      placeholder="Enter your new email address"
+                      value={emailForm.new_email}
+                      onChange={(e) => handleEmailInputChange('new_email', e.target.value)}
+                      size="md"
+                      borderRadius="md"
+                      border="1px solid"
+                      borderColor="gray.300"
+                      bg="white"
+                      color="gray.800"
+                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    />
+                  </FormControl>
+
+                  <FormControl isRequired>
+                    <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Current Password</FormLabel>
+                    <InputGroup>
+                      <Input
+                        type={showEmailPassword ? 'text' : 'password'}
+                        placeholder="Enter your current password"
+                        value={emailForm.current_password}
+                        onChange={(e) => handleEmailInputChange('current_password', e.target.value)}
+                        size="md"
+                        borderRadius="md"
+                        border="1px solid"
+                        borderColor="gray.300"
+                        bg="white"
+                        color="gray.800"
+                        _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          aria-label={showEmailPassword ? 'Hide password' : 'Show password'}
+                          icon={showEmailPassword ? <FiEyeOff /> : <FiEye />}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowEmailPassword(!showEmailPassword)}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
+                  </FormControl>
+
+                  <Alert status="info" borderRadius="md">
+                    <AlertIcon />
+                    <AlertDescription fontSize="sm">
+                      Changing your email will require verification of the new address.
+                    </AlertDescription>
+                  </Alert>
+                </VStack>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="ghost" mr={3} onClick={onEmailModalClose}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                  color="white"
+                  _hover={{
+                    bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                  }}
+                  isLoading={loading}
+                  loadingText="Changing..."
+                >
+                  Change Email
+                </Button>
+              </ModalFooter>
+            </form>
+          </ModalContent>
+        </Modal>
 
         {/* Password Change Modal */}
         <Modal isOpen={isPasswordModalOpen} onClose={onPasswordModalClose} isCentered>
