@@ -86,11 +86,11 @@ const HelpSupportPage = () => {
     },
     {
       question: "How accurate is the market analysis?",
-      answer: "Our AI agents use real-time data from thousands of sources including financial reports, regulatory filings, news, and market research. While we provide comprehensive insights, we recommend validating critical decisions with additional research."
+      answer: "Our AI agents use real-time data from thousands of sources including financial reports, regulatory filings, news, and market research. Our platform delivers executive-ready, board-approved analysis with comprehensive insights that are accurate and actionable. All reports are professionally formatted and ready for immediate use in strategic decision-making."
     },
     {
       question: "Can I export the analysis reports?",
-      answer: "Yes! All analysis results can be exported as PDF reports, Excel files, or PowerPoint presentations. You can also access interactive dashboards and download executive-ready presentations."
+      answer: "Yes! All analysis results can be exported as editable text files, allowing you to customize and refine the content if needed."
     },
     {
       question: "Is my company data secure?",
@@ -106,7 +106,7 @@ const HelpSupportPage = () => {
     },
     {
       question: "What's the difference between KairosAI and traditional consulting?",
-      answer: "Traditional consulting takes 3-6 months and costs $50K-$200K. KairosAI delivers results in minutes at a fraction of the cost, with continuous monitoring and updates. Our AI agents work 24/7 and never sleep."
+      answer: "Traditional consulting takes 3-6 months and costs $50K-$200K, and even millions for some projects. KairosAI delivers results in minutes at a fraction of the cost, with continuous monitoring and updates. Our AI agents work 24/7 and never sleep."
     }
   ];
 
@@ -126,14 +126,6 @@ const HelpSupportPage = () => {
       contact: "Available 9 AM - 6 PM PST",
       responseTime: "Immediate",
       color: "green"
-    },
-    {
-      title: "Knowledge Base",
-      description: "Browse our comprehensive documentation",
-      icon: FiBook,
-      contact: "Self-service resources",
-      responseTime: "Instant",
-      color: "purple"
     }
   ];
 
@@ -185,7 +177,7 @@ const HelpSupportPage = () => {
               </HStack>
             </CardHeader>
             <CardBody>
-              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                 {supportChannels.map((channel, index) => (
                   <Card key={index} variant="outline" _hover={{ shadow: "md", transform: "translateY(-2px)" }} transition="all 0.2s">
                     <CardBody textAlign="center">
