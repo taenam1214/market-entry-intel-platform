@@ -134,17 +134,23 @@ const NavigationBar: React.FC = () => {
                   fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
                   border="none"
                   outline="none"
-                  transition="all 0.2s ease-in-out"
+                  bg="transparent"
                   _hover={{ 
-                    bg: 'rgba(255, 255, 255, 0.1)',
+                    bg: 'transparent',
                     border: 'none',
                     outline: 'none',
                     color: 'purple.400',
-                    transform: 'translateY(-1px)',
                   }}
                   _active={{ 
-                    transform: 'translateY(0)',
-                    transition: 'all 0.1s ease-in-out'
+                    bg: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                  }}
+                  _focus={{
+                    bg: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    boxShadow: 'none',
                   }}
                   onClick={() => handleNavigation(item.path)}
                 >
@@ -165,11 +171,22 @@ const NavigationBar: React.FC = () => {
                   leftIcon={<Avatar size="sm" name={navigationUser?.name} src={navigationUser?.avatar} />}
                   border="none"
                   outline="none"
+                  bg="transparent"
                   _hover={{ 
-                    bg: 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: 'blur(10px)',
+                    bg: 'rgba(255, 255, 255, 0.1)',
                     border: 'none',
                     outline: 'none',
+                  }}
+                  _active={{
+                    bg: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                  }}
+                  _focus={{
+                    bg: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    boxShadow: 'none',
                   }}
                 >
                   <VStack spacing={0} align="start">
@@ -283,17 +300,23 @@ const NavigationBar: React.FC = () => {
                   fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
                   border="none"
                   outline="none"
-                  transition="all 0.2s ease-in-out"
+                  bg="transparent"
                   _hover={{ 
                     border: 'none', 
                     outline: 'none',
-                    bg: 'rgba(102, 126, 234, 0.1)',
+                    bg: 'transparent',
                     color: 'purple.600',
-                    transform: 'translateX(4px)',
                   }}
                   _active={{
-                    transform: 'translateX(0)',
-                    transition: 'all 0.1s ease-in-out'
+                    bg: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                  }}
+                  _focus={{
+                    bg: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    boxShadow: 'none',
                   }}
                   onClick={() => handleNavigation(item.path)}
                 >

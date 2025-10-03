@@ -69,6 +69,7 @@ db.sqlite3-journal
 # Ignore specific problematic migration files
 backend/kairosai/apps/accounts/migrations/0003_alter_user_managers.py
 backend/kairosai/apps/companies/migrations/0001_initial.py
+backend/kairosai/apps/accounts/migrations/0004_merge_20251003_1613.py
 
 # Flask stuff:
 instance/

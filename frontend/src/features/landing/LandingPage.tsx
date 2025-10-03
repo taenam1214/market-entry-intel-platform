@@ -657,7 +657,7 @@ const LandingPage = () => {
                       
                       <Text fontSize="sm" color="gray.300" fontStyle="italic">
                         "Real-time intelligence that evolves with your market"
-                      </Text>
+                    </Text>
                     </VStack>
                   </Box>
                 </SimpleGrid>
@@ -841,7 +841,7 @@ const LandingPage = () => {
                     color="white"
                   >
                     Gateway to global opportunities.
-                  </Text>
+                </Text>
                 </HStack>
               </VStack>
 
@@ -870,7 +870,7 @@ const LandingPage = () => {
                       }}
                     >
                       <FaLinkedin size={28} color="#0077B5" />
-                    </Box>
+              </Box>
                     <Box
                       as="a"
                       href="#"
@@ -903,7 +903,7 @@ const LandingPage = () => {
              </HStack>
           </VStack>
         </Container>
-                  </Box>
+      </Box>
 
       {/* Signup Modal */}
       <Modal isOpen={isSignupModalOpen} onClose={onSignupModalClose} isCentered>
