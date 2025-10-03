@@ -388,12 +388,6 @@ We welcome contributions to enhance KairosAI's agentic capabilities:
 - Test AI workflows thoroughly
 - Document agentic behaviors and decision-making processes
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🎯 Recent Updates
-
 ### Navigation System Implementation (Latest)
 - **NavigationBar Component**: Comprehensive navigation component with authentication states
 - **Public Routes**: Home, About, Pricing, Contact pages with placeholder content
@@ -410,11 +404,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Unique Value Propositions**: Highlighted autonomous AI agents, executive-ready outputs, segment arbitrage detection, and cross-Pacific expertise
 - **Enhanced Call-to-Actions**: Added "Start Your Free Analysis" and "View Sample Results" buttons
 - **Responsive Design**: Optimized for all screen sizes with consistent styling
-
-## 📞 Support
-
-For questions about KairosAI's agentic capabilities or technical support, please open an issue in the GitHub repository.
-
----
-
 **KairosAI** - *Seizing the perfect moment for market success through autonomous intelligence*

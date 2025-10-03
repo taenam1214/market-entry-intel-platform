@@ -321,9 +321,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
   }
 
   return (
-    <Box py={8} bg="#140d28" w="100%">
+    <Box py={8} bg="white" w="100%">
       <Container maxW="100%" px={4}>
-        <Card shadow="lg" borderRadius="lg" overflow="hidden" maxW="7xl" mx="auto" bg="gray.800">
+        <Card shadow="lg" borderRadius="lg" overflow="hidden" maxW="7xl" mx="auto" bg="white">
           <Box bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" p={4} color="white">
             <VStack spacing={2} textAlign="center">
               <Heading size="lg">
@@ -335,12 +335,12 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
             </VStack>
           </Box>
 
-          <CardBody p={4} bg="gray.800" color="white">
+          <CardBody p={4} bg="white" color="gray.800">
             <form onSubmit={handleSubmit}>
               <VStack spacing={4} align="stretch">
                 {/* Customer Segment Selection */}
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Customer Segment</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Customer Segment</FormLabel>
                   <Select
                     placeholder="Select your company type"
                     value={formData.customerSegment}
@@ -348,9 +348,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     size="sm"
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                    borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                     _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                   >
                     {customerSegments.map((segment) => (
@@ -368,7 +368,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                 {/* Expansion Direction Selection */}
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Expansion Direction</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Expansion Direction</FormLabel>
                   <Select
                     placeholder="Select your expansion direction"
                     value={formData.expansionDirection}
@@ -376,9 +376,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     size="sm"
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                    borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                     _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                   >
                     {expansionDirections.map((direction) => (
@@ -397,7 +397,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={3}>
                   <GridItem>
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Company Name</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Company Name</FormLabel>
                       <Input
                         placeholder="Enter your company name"
                         value={formData.companyName}
@@ -405,9 +405,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                         size="sm"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                        borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                         _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                       />
                     </FormControl>
@@ -415,7 +415,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                   <GridItem>
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Industry</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Industry</FormLabel>
                       <Input
                         placeholder="e.g., Technology, Healthcare, Finance, Baked Goods"
                         value={formData.industry}
@@ -423,9 +423,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                         size="sm"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                        borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                         _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                       />
                     </FormControl>
@@ -433,7 +433,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                   <GridItem>
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Target Market</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Target Market</FormLabel>
                       <Select
                         placeholder="Select target market"
                         value={formData.targetMarket}
@@ -441,9 +441,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                         size="sm"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                        borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                         _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                       >
                         {targetMarkets.map((market) => (
@@ -457,7 +457,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                   <GridItem>
                     <FormControl>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Website</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Website</FormLabel>
                       <Input
                         placeholder="https://yourcompany.com"
                         value={formData.website}
@@ -465,9 +465,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                         size="sm"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                        borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                         _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                       />
                     </FormControl>
@@ -475,7 +475,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                 </Grid>
 
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Current Brand Positioning</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Current Brand Positioning</FormLabel>
                   <Textarea
                     placeholder="Describe how your brand is currently positioned in your home market..."
                     value={formData.currentPositioning}
@@ -484,15 +484,15 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     rows={2}
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                    borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                     _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                   />
                 </FormControl>
 
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Brand Description</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Brand Description</FormLabel>
                   <Textarea
                     placeholder="Describe your brand, products/services, and unique value proposition..."
                     value={formData.brandDescription}
@@ -501,15 +501,15 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     rows={3}
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                    borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                     _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                   />
                 </FormControl>
 
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Email Address</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Email Address</FormLabel>
                   <Input
                     type="email"
                     placeholder="your.email@company.com"
@@ -518,26 +518,26 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     size="sm"
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                    borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                     _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                   />
                 </FormControl>
 
                 {/* Additional Company Details Section */}
-                <Box p={4} bg="gray.700" borderRadius="lg" border="1px solid" borderColor="gray.600">
-                  <Heading size="sm" color="white" mb={3}>
+                <Box p={4} bg="gray.50" borderRadius="lg" border="1px solid" borderColor="gray.200">
+                  <Heading size="sm" color="gray.800" mb={3}>
                     Additional Company Details (Optional but Recommended)
                   </Heading>
-                  <Text fontSize="xs" color="gray.300" mb={4}>
+                  <Text fontSize="xs" color="gray.600" mb={4}>
                     These details help KairosAI generate more accurate and detailed analysis
                   </Text>
                   
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={3}>
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Company Size</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Company Size</FormLabel>
                         <Select
                           placeholder="Select company size"
                           value={formData.companySize}
@@ -545,9 +545,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         >
                           {companySizes.map((size) => (
@@ -561,7 +561,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Annual Revenue</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Annual Revenue</FormLabel>
                         <Select
                           placeholder="Select revenue range"
                           value={formData.annualRevenue}
@@ -569,9 +569,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         >
                           {revenueRanges.map((range) => (
@@ -585,7 +585,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Funding Stage</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Funding Stage</FormLabel>
                         <Select
                           placeholder="Select funding stage"
                           value={formData.fundingStage}
@@ -593,9 +593,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         >
                           {fundingStages.map((stage) => (
@@ -609,7 +609,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Current Markets</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Current Markets</FormLabel>
                         <Input
                           placeholder="e.g., US, China, South Korea"
                           value={formData.currentMarkets}
@@ -617,9 +617,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         />
                       </FormControl>
@@ -627,7 +627,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Key Products/Services</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Key Products/Services</FormLabel>
                         <Textarea
                           placeholder="Describe your main products or services..."
                           value={formData.keyProducts}
@@ -636,9 +636,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           rows={2}
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         />
                       </FormControl>
@@ -646,7 +646,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Competitive Advantage</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Competitive Advantage</FormLabel>
                         <Textarea
                           placeholder="What makes you unique vs competitors?"
                           value={formData.competitiveAdvantage}
@@ -655,9 +655,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           rows={2}
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         />
                       </FormControl>
@@ -665,7 +665,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Expansion Timeline</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Expansion Timeline</FormLabel>
                         <Select
                           placeholder="When do you plan to expand?"
                           value={formData.expansionTimeline}
@@ -673,9 +673,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         >
                           {expansionTimelines.map((timeline) => (
@@ -689,7 +689,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Budget Range</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Budget Range</FormLabel>
                         <Select
                           placeholder="Select budget range"
                           value={formData.budgetRange}
@@ -697,9 +697,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         >
                           {budgetRanges.map((range) => (
@@ -713,7 +713,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Regulatory Requirements</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Regulatory Requirements</FormLabel>
                         <Textarea
                           placeholder="Any specific regulatory requirements or compliance needs?"
                           value={formData.regulatoryRequirements}
@@ -722,9 +722,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           rows={2}
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         />
                       </FormControl>
@@ -732,7 +732,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Partnership Preferences</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Partnership Preferences</FormLabel>
                         <Textarea
                           placeholder="Preferred partnership types (distributors, JVs, etc.)"
                           value={formData.partnershipPreferences}
@@ -741,9 +741,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           rows={2}
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="gray.600"
-                    bg="gray.700"
-                    color="white"
+                          borderColor="gray.300"
+                    bg="white"
+                    color="gray.800"
                           _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
                         />
                       </FormControl>
@@ -774,8 +774,8 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
             </form>
 
             {/* Features Preview */}
-            <Box mt={4} p={3} bg="gray.700" borderRadius="lg">
-              <Text fontSize="sm" color="gray.300" textAlign="center" mb={2}>
+            <Box mt={4} p={3} bg="gray.50" borderRadius="lg">
+              <Text fontSize="sm" color="gray.600" textAlign="center" mb={2}>
                 KairosAI will autonomously deliver:
               </Text>
               <Flex justify="center" wrap="wrap" gap={2}>

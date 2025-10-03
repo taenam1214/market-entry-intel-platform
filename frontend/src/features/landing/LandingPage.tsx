@@ -13,12 +13,26 @@ import {
   Button,
   Card,
   CardBody,
+  Fade,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Divider,
+  Link,
+  Image,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText } from 'react-icons/fi';
+import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText, FiMail } from 'react-icons/fi';
+import { FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import AnalysisForm from '../../components/AnalysisForm';
+import KairosAILogo from '../../assets/KairosAI_logo.png';
 
 // Animation keyframes for Global Business Network
 const nodePulse = keyframes`
@@ -116,6 +130,7 @@ const DynamicConnectionLine = ({
 const LandingPage = () => {
   const { isAuthenticated, user } = useAuth();
   const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
+  const [showAnalysisForm, setShowAnalysisForm] = useState(false);
   const [activeConnections, setActiveConnections] = useState<Array<{
     fromX: string;
     fromY: string;
@@ -125,6 +140,7 @@ const LandingPage = () => {
     delay: number;
   }>>([]);
   const navigate = useNavigate();
+  const { isOpen: isSignupModalOpen, onOpen: onSignupModalOpen, onClose: onSignupModalClose } = useDisclosure();
 
   // City coordinates for dynamic connections
   const cities = [
@@ -204,6 +220,27 @@ const LandingPage = () => {
       setHasAnalysisHistory(!!analysisHistory);
     }
   }, [isAuthenticated, user]);
+
+  // Handle analysis button click
+  const handleAnalysisClick = () => {
+    if (!isAuthenticated) {
+      onSignupModalOpen();
+      } else {
+      setShowAnalysisForm(true);
+      setTimeout(() => {
+        document.getElementById('analysis-form')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 300);
+    }
+  };
+
+  // Handle signup navigation
+  const handleSignup = () => {
+    onSignupModalClose();
+    navigate('/register');
+  };
 
   // Show streamlined form for authenticated users without analysis history
   if (isAuthenticated && !hasAnalysisHistory) {
@@ -461,11 +498,7 @@ const LandingPage = () => {
               _focus={{
                 boxShadow: '0 0 0 3px rgba(255,255,255,0.3)',
               }}
-              onClick={() => {
-                document.getElementById('analysis-form')?.scrollIntoView({
-                  behavior: 'smooth'
-                });
-              }}
+              onClick={handleAnalysisClick}
               rightIcon={<FiArrowRight />}
             >
               Start Your Analysis
@@ -624,7 +657,7 @@ const LandingPage = () => {
                       
                       <Text fontSize="sm" color="gray.300" fontStyle="italic">
                         "Real-time intelligence that evolves with your market"
-                    </Text>
+                      </Text>
                     </VStack>
                   </Box>
                 </SimpleGrid>
@@ -696,7 +729,7 @@ const LandingPage = () => {
                   </HStack>
                   <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
                     Multiple specialized AI agents work simultaneously 24/7, analyzing market data, competitor strategies, regulatory requirements, and cross-Pacific business dynamics. They continuously research and synthesize information from thousands of sources to build comprehensive market intelligence tailored to your expansion goals.
-                  </Text>
+                    </Text>
                 </HStack>
                 
                 {/* Feature 2 - Executive-Ready Outputs */}
@@ -749,10 +782,10 @@ const LandingPage = () => {
             </VStack>
 
             {/* Call to Action */}
-            <VStack spacing={4} align="center" textAlign="center" w="full">
-              <Heading size="md" color="white">Ready to Transform Your Market Entry Strategy?</Heading>
+            <VStack spacing={8} align="center" textAlign="center" w="full" mt={16}>
+              <Heading size="md" color="white" fontSize="54px" fontWeight="normal">Ready to Transform Your Market Entry Strategy?</Heading>
                   <Button
-                size="lg"
+                size="xl"
                     bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                 color="white"
                     _hover={{
@@ -761,17 +794,14 @@ const LandingPage = () => {
                   boxShadow: 'lg',
                     }}
                 _active={{ transform: 'translateY(0)' }}
-                px={8}
-                    py={4}
-                    fontSize="md"
+                px={12}
+                    py={6}
+                    fontSize="lg"
                     fontWeight="bold"
                     borderRadius="lg"
-                onClick={() => {
-                  document.getElementById('analysis-form')?.scrollIntoView({
-                    behavior: 'smooth'
-                  });
-                }}
-                    rightIcon={<FiArrowRight />}
+                    border="none"
+                onClick={handleAnalysisClick}
+                    rightIcon={<FiArrowDown />}
                   >
                 Start Your Free Analysis
                   </Button>
@@ -781,7 +811,161 @@ const LandingPage = () => {
       </Box>
 
       {/* Form Section */}
-      <AnalysisForm />
+      {showAnalysisForm && (
+        <Fade in={showAnalysisForm} transition={{ enter: { duration: 0.6 } }}>
+          <Box id="analysis-form">
+            <AnalysisForm />
+          </Box>
+        </Fade>
+      )}
+
+      {/* Footer Section */}
+      <Box bg="black" pt={28} pb={6}>
+        <Container maxW="7xl">
+          <VStack spacing={8}>
+            {/* Main Footer Content */}
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full">
+              {/* Company Info */}
+              <VStack spacing={4} align="start">
+                <HStack spacing={3} align="center">
+                  <Image 
+                    src={KairosAILogo} 
+                    alt="KairosAI Logo" 
+                    h="128px" 
+                    w="auto"
+                    objectFit="contain"
+                    filter="brightness(0) invert(1)"
+                  />
+                  <Text
+                    fontSize="52px"
+                    color="white"
+                  >
+                    Gateway to global opportunities.
+                  </Text>
+                </HStack>
+              </VStack>
+
+              {/* Contact & Social Info */}
+              <VStack spacing={6} align="start" ml={16}>
+                {/* Contact Info */}
+                <VStack spacing={4} align="start">
+                  <Heading size="xl" color="white">Contact Us</Heading>
+                  <HStack spacing={2}>
+                    <Icon as={FiMail} color="white" boxSize={7} />
+                    <Text fontSize="md" color="white">support@kairosai.world</Text>
+                  </HStack>
+                </VStack>
+
+                {/* Social Links */}
+                <VStack spacing={4} align="start">
+                  <Heading size="xl" color="white">Follow Us</Heading>
+                  <HStack spacing={8}>
+                    <Box
+                      as="a"
+                      href="#"
+                      cursor="pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Future: window.open('https://linkedin.com/company/kairosai', '_blank');
+                      }}
+                    >
+                      <FaLinkedin size={28} color="#0077B5" />
+                    </Box>
+                    <Box
+                      as="a"
+                      href="#"
+                      cursor="pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Future: window.open('https://youtube.com/@kairosai', '_blank');
+                      }}
+                    >
+                      <FaYoutube size={28} color="#FF0000" />
+                    </Box>
+                  </HStack>
+                </VStack>
+              </VStack>
+            </SimpleGrid>
+
+             {/* Divider */}
+             <Divider borderColor="gray.700" mt={24} />
+
+             {/* Copyright */}
+             <HStack spacing={4} justify="space-between" w="full" flexWrap="wrap" mt={-4}>
+               <Text fontSize="sm" color="gray.400">
+                 © {new Date().getFullYear()} KairosAI. All rights reserved.
+               </Text>
+               <HStack spacing={6}>
+                 <Link fontSize="sm" color="gray.400" _hover={{ color: "white" }}>
+                   Privacy & Data Policy
+                 </Link>
+               </HStack>
+             </HStack>
+          </VStack>
+        </Container>
+                  </Box>
+
+      {/* Signup Modal */}
+      <Modal isOpen={isSignupModalOpen} onClose={onSignupModalClose} isCentered>
+        <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
+        <ModalContent bg="#140d28" color="white" borderRadius="xl" mx={4}>
+          <ModalHeader>
+            <VStack spacing={2} align="center" textAlign="center">
+              <Icon as={FiTarget} boxSize={8} color="purple.400" />
+              <Heading size="lg" color="white">Unlock Your Market Intelligence</Heading>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody pb={6}>
+            <VStack spacing={4} textAlign="center">
+              <Text fontSize="lg" color="gray.300" lineHeight="1.6">
+                Get instant access to our AI-powered market analysis platform. 
+                Create your free account to start exploring cross-Pacific expansion opportunities.
+              </Text>
+              <VStack spacing={2} align="start" w="full" bg="gray.800" p={4} borderRadius="lg">
+                <HStack spacing={3}>
+                  <Icon as={FiZap} color="green.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">Free market analysis in minutes</Text>
+                </HStack>
+                <HStack spacing={3}>
+                  <Icon as={FiTrendingUp} color="blue.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">Executive-ready insights and reports</Text>
+                </HStack>
+                <HStack spacing={3}>
+                  <Icon as={FiMessageCircle} color="purple.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">24/7 AI consultant access</Text>
+                </HStack>
+              </VStack>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <HStack spacing={3} w="full">
+                  <Button
+                variant="outline" 
+                color="white" 
+                borderColor="gray.600" 
+                _hover={{ bg: "gray.700" }}
+                onClick={onSignupModalClose}
+                flex={1}
+              >
+                Maybe Later
+              </Button>
+              <Button 
+                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                color="white"
+                    _hover={{
+                      bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                }}
+                onClick={handleSignup}
+                flex={2}
+                    rightIcon={<FiArrowRight />}
+                  >
+                Create Free Account
+                  </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
