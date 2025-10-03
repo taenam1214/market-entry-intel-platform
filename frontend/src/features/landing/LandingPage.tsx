@@ -6,415 +6,499 @@ import {
   Text,
   VStack,
   HStack,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  Select,
-  Button,
-  Card,
-  CardBody,
-  useToast,
-  Grid,
-  GridItem,
   Badge,
   Icon,
   Flex,
-  Spinner,
-  Center,
+  SimpleGrid,
+  Button,
+  Card,
+  CardBody,
+  Fade,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Divider,
+  Link,
+  Image,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight } from 'react-icons/fi';
+import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText, FiMail } from 'react-icons/fi';
+import { FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
+import AnalysisForm from '../../components/AnalysisForm';
+import KairosAILogo from '../../assets/KairosAI_logo.png';
 
-// Animation keyframes
-const float = keyframes`
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(180deg); }
+// Animation keyframes for Global Business Network
+const nodePulse = keyframes`
+  0% { opacity: 0; transform: scale(0.8); }
+  20% { opacity: 1; transform: scale(1); }
+  80% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.8); }
 `;
 
-const pulse = keyframes`
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.1); }
-`;
-
-const gradientShift = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
-
-const fadeIn = keyframes`
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-`;
-
-const scaleIn = keyframes`
-  0% { opacity: 0; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1); }
-`;
-
-const FloatingParticle = ({ delay, size, color, left, top }: {
-  delay: number;
-  size: number;
-  color: string;
-  left: string;
-  top: string;
+// Global Business Network Node Component
+const NetworkNode = ({ 
+  x, 
+  y, 
+  label, 
+  size = 8, 
+  delay = 0,
+  isMajor = false 
+}: {
+  x: string;
+  y: string;
+  label: string;
+  size?: number;
+  delay?: number;
+  isMajor?: boolean;
 }) => (
   <Box
     position="absolute"
-    left={left}
-    top={top}
+    left={x}
+    top={y}
     w={`${size}px`}
     h={`${size}px`}
-    bg={color}
-    borderRadius="full"
-    opacity="0.3"
-    animation={`${float} 6s ease-in-out infinite`}
+    bg={isMajor ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.95)"}
+    borderRadius="50%"
+    animation={`${nodePulse} 12s ease-in-out infinite`}
     style={{ animationDelay: `${delay}s` }}
+    boxShadow="0 0 12px rgba(255,255,255,0.8)"
+    _before={{
+      content: `"${label}"`,
+      position: "absolute",
+      top: "-30px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      fontSize: "12px",
+      color: "rgba(255,255,255,1)",
+      fontWeight: "bold",
+      whiteSpace: "nowrap",
+      textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+    }}
   />
 );
 
+// Dynamic Connection Line Component
+const DynamicConnectionLine = ({ 
+  fromX, 
+  fromY, 
+  toX, 
+  toY, 
+  opacity = 0.8,
+  delay = 0
+}: {
+  fromX: string;
+  fromY: string;
+  toX: string;
+  toY: string;
+  opacity?: number;
+  delay?: number;
+}) => (
+  <line
+    x1={fromX}
+    y1={fromY}
+    x2={toX}
+    y2={toY}
+    stroke={`rgba(255,255,255,${opacity})`}
+    strokeWidth="3"
+    strokeDasharray="10,10"
+    opacity={opacity}
+    filter="drop-shadow(0 0 4px rgba(255,255,255,0.5))"
+  >
+    <animate
+      attributeName="stroke-dashoffset"
+      values="0;20"
+      dur="3s"
+      repeatCount="indefinite"
+    />
+    <animate
+      attributeName="opacity"
+      values="0;1;1;0"
+      dur="12s"
+      repeatCount="indefinite"
+      begin={`${delay}s`}
+    />
+  </line>
+);
+
 const LandingPage = () => {
-  const [formData, setFormData] = useState({
-    companyName: '',
-    industry: '',
-    targetMarket: '',
-    currentPositioning: '',
-    brandDescription: '',
-    website: '',
-    email: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(300); // 5 minutes in seconds
-  const [timerExpired, setTimerExpired] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
+  const [showAnalysisForm, setShowAnalysisForm] = useState(false);
+  const [activeConnections, setActiveConnections] = useState<Array<{
+    fromX: string;
+    fromY: string;
+    toX: string;
+    toY: string;
+    opacity: number;
+    delay: number;
+  }>>([]);
   const navigate = useNavigate();
-  const toast = useToast();
+  const { isOpen: isSignupModalOpen, onOpen: onSignupModalOpen, onClose: onSignupModalClose } = useDisclosure();
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  // City coordinates for dynamic connections
+  const cities = [
+    { x: "15%", y: "35%", label: "NYC" },
+    { x: "85%", y: "25%", label: "Tokyo" },
+    { x: "20%", y: "60%", label: "London" },
+    { x: "80%", y: "40%", label: "Singapore" },
+    { x: "25%", y: "75%", label: "LA" },
+    { x: "75%", y: "65%", label: "Hong Kong" },
+    { x: "50%", y: "20%", label: "Seoul" },
+    { x: "40%", y: "80%", label: "Sydney" },
+    { x: "60%", y: "15%", label: "Shanghai" },
+    { x: "35%", y: "45%", label: "Frankfurt" },
+    { x: "65%", y: "55%", label: "Dubai" },
+    { x: "45%", y: "35%", label: "Toronto" },
+  ];
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (loading && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (loading && timer === 0) {
-      setTimerExpired(true);
-    }
-    return () => clearInterval(interval);
-  }, [loading, timer]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: 'Analysis Started!',
-      description: "We're analyzing your market entry opportunities. You'll be redirected to your dashboard shortly.",
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
-    setLoading(true);
-    setTimer(300);
-    setTimerExpired(false);
-    try {
-      const payload = {
-        company_name: formData.companyName,
-        industry: formData.industry,
-        target_market: formData.targetMarket,
-        website: formData.website,
-        current_positioning: formData.currentPositioning,
-        brand_description: formData.brandDescription,
-        email: formData.email,
-      };
-      const [marketRes, competitorRes, arbitrageRes] = await Promise.all([
-        fetch('http://localhost:8000/api/v1/market-analysis/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }),
-        fetch('http://localhost:8000/api/v1/competitor-analysis/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }),
-        fetch('http://localhost:8000/api/v1/segment-arbitrage/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-      ]);
-      if (!marketRes.ok) {
-        const errorData = await marketRes.json();
-        throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
-      }
-      const data = await marketRes.json();
-      localStorage.setItem('dashboardData', JSON.stringify(data));
-      if (competitorRes.ok) {
-        const competitorData = await competitorRes.json();
-        console.log('Competitor API response:', competitorData);
-        console.log('Competitor analysis data:', competitorData.competitor_analysis);
-        localStorage.setItem('competitorSummary', JSON.stringify(competitorData.competitor_analysis));
-      } else {
-        console.log('Competitor API failed:', competitorRes.status);
-        localStorage.setItem('competitorSummary', 'No competitor summary available.');
-      }
+  // Generate random connections
+  const generateRandomConnections = () => {
+    const numConnections = Math.floor(Math.random() * 2) + 1; // 1-2 connections
+    const connections = [];
+    const usedPairs = new Set(); // Prevent duplicate connections
+    
+    for (let i = 0; i < numConnections && connections.length < 2; i++) {
+      const fromCity = cities[Math.floor(Math.random() * cities.length)];
+      const toCity = cities[Math.floor(Math.random() * cities.length)];
       
-      if (arbitrageRes.ok) {
-        const arbitrageData = await arbitrageRes.json();
-        console.log('Arbitrage API response:', arbitrageData);
-        console.log('Arbitrage analysis data:', arbitrageData.segment_arbitrage);
-        localStorage.setItem('segmentArbitrage', JSON.stringify(arbitrageData.segment_arbitrage));
-      } else {
-        console.log('Arbitrage API failed:', arbitrageRes.status);
-        localStorage.setItem('segmentArbitrage', 'No arbitrage analysis available.');
+      // Don't connect a city to itself and avoid duplicates
+      const connectionKey = `${fromCity.label}-${toCity.label}`;
+      const reverseKey = `${toCity.label}-${fromCity.label}`;
+      
+      if (fromCity.label !== toCity.label && !usedPairs.has(connectionKey) && !usedPairs.has(reverseKey)) {
+        usedPairs.add(connectionKey);
+        connections.push({
+          fromX: fromCity.x,
+          fromY: fromCity.y,
+          toX: toCity.x,
+          toY: toCity.y,
+          opacity: Math.random() * 0.2 + 0.7, // 0.7 to 0.9 opacity (much brighter)
+          delay: Math.random() * 2, // 0 to 2 seconds delay
+        });
       }
-      setLoading(false);
-      navigate('/dashboard');
-    } catch (error: any) {
-      toast({
-        title: 'Analysis Failed',
-        description: error.message || 'An error occurred while analyzing the market.',
-        status: 'error',
-        duration: 6000,
-        isClosable: true,
+    }
+    
+    // Ensure we have at least 1 connection
+    if (connections.length < 1) {
+      connections.push({
+        fromX: "15%", fromY: "35%", toX: "85%", toY: "25%", opacity: 0.9, delay: 0
       });
-      setLoading(false);
+    }
+    
+    return connections;
+  };
+
+  // Update connections every 2-4 seconds
+  useEffect(() => {
+    const updateConnections = () => {
+      const newConnections = generateRandomConnections();
+      console.log('Generated connections:', newConnections); // Debug log
+      setActiveConnections(newConnections);
+    };
+
+    // Initial connections
+    updateConnections();
+
+    // Set up interval for random updates
+    const interval = setInterval(updateConnections, Math.random() * 2000 + 2000); // 2-4 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Check if user has analysis history
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Check localStorage for analysis history
+      const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
+      setHasAnalysisHistory(!!analysisHistory);
+    }
+  }, [isAuthenticated, user]);
+
+  // Handle analysis button click
+  const handleAnalysisClick = () => {
+    if (!isAuthenticated) {
+      onSignupModalOpen();
+      } else {
+      setShowAnalysisForm(true);
+      setTimeout(() => {
+        document.getElementById('analysis-form')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 300);
     }
   };
+
+  // Handle signup navigation
+  const handleSignup = () => {
+    onSignupModalClose();
+    navigate('/register');
+  };
+
+  // Show streamlined form for authenticated users without analysis history
+  if (isAuthenticated && !hasAnalysisHistory) {
+  return (
+      <Box minH="100vh" bg="white" py={8}>
+        <Container maxW="100%" px={4}>
+          <VStack spacing={8}>
+            {/* Welcome Header */}
+            <VStack spacing={4} textAlign="center">
+              <Heading size="xl" color="gray.800">
+                Welcome back, {user?.first_name}!
+              </Heading>
+              <Text fontSize="lg" color="gray.600" maxW="2xl">
+                Ready to start your market analysis? Let's gather some information about your expansion opportunity.
+            </Text>
+          </VStack>
+            <AnalysisForm 
+              showWelcomeMessage={true}
+              welcomeTitle="Start Your US-Asia Market Analysis"
+              welcomeSubtitle="Let KairosAI autonomously research and analyze your cross-Pacific expansion opportunities"
+              submitButtonText="Start KairosAI Analysis"
+              isStreamlined={true}
+            />
+          </VStack>
+        </Container>
+        </Box>
+    );
+  }
 
   return (
-    <Box minH="100vh" bg="gray.50" w="100%">
-      {loading && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          width="100vw"
-          height="100vh"
-          bg="rgba(255,255,255,0.8)"
-          zIndex={9999}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <VStack spacing={4}>
-            <Spinner size="xl" color="purple.500" thickness="4px" speed="0.7s" />
-            <Text fontSize="lg" color="purple.700" fontWeight="bold">Running Market Analysis...</Text>
-            <Text fontSize="md" color="gray.700">
-              Estimated time remaining: {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
-            </Text>
-            {timerExpired && (
-              <Text color="red.500" fontWeight="bold">This is taking longer than expected. Please wait or try again later.</Text>
-            )}
-          </VStack>
-        </Box>
-      )}
+    <Box minH="100vh" bg="#140d28" w="100%">
       {/* Hero Section - Full Viewport */}
       <Box
         h="100vh"
-        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        bg="#140d28"
         color="white"
         display="flex"
         alignItems="center"
         position="relative"
         overflow="hidden"
         w="100%"
-        sx={{
-          background: 'linear-gradient(-45deg, #667eea, #764ba2, #4facfe, #00f2fe)',
-          backgroundSize: '400% 400%',
-          animation: `${gradientShift} 15s ease infinite`,
-        }}
       >
-        {/* Animated Background Pattern */}
+        {/* Global Business Network Background */}
         <Box
           position="absolute"
           top="0"
           left="0"
           right="0"
           bottom="0"
-          opacity="0.1"
-          backgroundImage="radial-gradient(circle at 25% 25%, white 2px, transparent 2px), radial-gradient(circle at 75% 75%, white 2px, transparent 2px)"
-          backgroundSize="50px 50px"
-          animation={`${pulse} 4s ease-in-out infinite`}
-        />
+          opacity="0.4"
+        >
+          {/* Dynamic Connection Lines */}
+          <svg
+            width="100%"
+            height="100%"
+            style={{ position: 'absolute', top: 0, left: 0 }}
+          >
+            {activeConnections.map((connection, index) => (
+              <DynamicConnectionLine
+                key={`${connection.fromX}-${connection.fromY}-${connection.toX}-${connection.toY}-${index}`}
+                fromX={connection.fromX}
+                fromY={connection.fromY}
+                toX={connection.toX}
+                toY={connection.toY}
+                opacity={connection.opacity}
+                delay={connection.delay}
+              />
+            ))}
+          </svg>
 
-        {/* Floating Particles */}
-        <FloatingParticle delay={0} size={8} color="rgba(255,255,255,0.4)" left="10%" top="20%" />
-        <FloatingParticle delay={1} size={12} color="rgba(255,255,255,0.3)" left="85%" top="15%" />
-        <FloatingParticle delay={2} size={6} color="rgba(255,255,255,0.5)" left="20%" top="80%" />
-        <FloatingParticle delay={3} size={10} color="rgba(255,255,255,0.2)" left="75%" top="70%" />
-        <FloatingParticle delay={4} size={14} color="rgba(255,255,255,0.3)" left="50%" top="10%" />
-        <FloatingParticle delay={5} size={8} color="rgba(255,255,255,0.4)" left="15%" top="60%" />
+          {/* Major Business Hubs */}
+          <NetworkNode x="15%" y="35%" label="NYC" size={12} delay={0} isMajor={true} />
+          <NetworkNode x="85%" y="25%" label="Tokyo" size={12} delay={1} isMajor={true} />
+          <NetworkNode x="20%" y="60%" label="London" size={10} delay={2} isMajor={true} />
+          <NetworkNode x="80%" y="40%" label="Singapore" size={10} delay={3} isMajor={true} />
+          <NetworkNode x="25%" y="75%" label="LA" size={8} delay={4} />
+          <NetworkNode x="75%" y="65%" label="Hong Kong" size={8} delay={5} />
+          <NetworkNode x="50%" y="20%" label="Seoul" size={8} delay={6} />
+          <NetworkNode x="40%" y="80%" label="Sydney" size={8} delay={7} />
+          <NetworkNode x="60%" y="15%" label="Shanghai" size={8} delay={8} />
+          <NetworkNode x="35%" y="45%" label="Frankfurt" size={6} delay={9} />
+          <NetworkNode x="65%" y="55%" label="Dubai" size={6} delay={10} />
+          <NetworkNode x="45%" y="35%" label="Toronto" size={6} delay={11} />
+        </Box>
 
-        {/* Animated Geometric Shapes */}
+        {/* Subtle Grid Pattern */}
         <Box
           position="absolute"
-          top="5%"
-          right="10%"
-          w="100px"
-          h="100px"
-          border="2px solid rgba(255,255,255,0.1)"
-          borderRadius="50%"
-          animation={`${float} 8s ease-in-out infinite`}
-          style={{ animationDelay: '2s' }}
-        />
-        <Box
-          position="absolute"
-          bottom="15%"
-          left="5%"
-          w="80px"
-          h="80px"
-          border="2px solid rgba(255,255,255,0.1)"
-          transform="rotate(45deg)"
-          animation={`${float} 10s ease-in-out infinite`}
-          style={{ animationDelay: '1s' }}
-        />
-
-        {/* Animated Lines */}
-        <Box
-          position="absolute"
-          top="30%"
+          top="0"
           left="0"
-          w="100px"
-          h="2px"
-          bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)"
-          animation={`${pulse} 4s ease-in-out infinite`}
-          style={{ animationDelay: '0.5s' }}
-        />
-        <Box
-          position="absolute"
-          bottom="40%"
           right="0"
-          w="150px"
-          h="2px"
-          bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)"
-          animation={`${pulse} 4s ease-in-out infinite`}
-          style={{ animationDelay: '2.5s' }}
+          bottom="0"
+          opacity="0.05"
+          backgroundImage="linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)"
+          backgroundSize="50px 50px"
         />
 
         <Container maxW="100%" px={8} position="relative" zIndex={1}>
-          <VStack spacing={8} textAlign="center">
-            <VStack spacing={4}>
+          <VStack spacing={8} textAlign="center" align="center" maxW="7xl" mx="auto">
+            <VStack spacing={6} align="start" w="100%">
+              <VStack spacing={2} align="start" w="100%">
               <Heading 
-                size="xl" 
-                fontWeight="bold" 
-                lineHeight="1.2"
+                  fontSize="96px"
+                  fontWeight="extrabold" 
+                  lineHeight="0.9"
+                  letterSpacing="-0.02em"
+                  bg="linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)"
+                  bgClip="text"
+                  textShadow="0 2px 4px rgba(0,0,0,0.1)"
+                  fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                  textAlign="left"
+                  alignSelf="start"
               >
                 KairosAI
               </Heading>
+                <Box 
+                  w="360px" 
+                  h="3px" 
+                  bg="linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)"
+                  borderRadius="full"
+                />
+              </VStack>
+              
               <Text 
-                fontSize="md" 
-                opacity="0.8"
+                fontSize="80px" 
+                fontWeight="semibold"
+                opacity="0.95"
+                letterSpacing="0.01em"
+                textAlign="left"
+                maxW="7xl"
+                lineHeight="1.3"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                alignSelf="start"
+                color="white"
               >
-                Seizing the Perfect Moment for Market Success
+                Executive Intelligence for Cross-Pacific Expansion
               </Text>
+              
               <Text 
-                fontSize="lg" 
-                maxW="2xl" 
+                fontSize="24px" 
+                maxW="7xl" 
                 opacity="0.9"
+                lineHeight="1.6"
+                textAlign="left"
+                fontWeight="normal"
+                letterSpacing="0.005em"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+                alignSelf="start"
+                color="white"
               >
-                Agentic AI that autonomously analyzes market entry opportunities, 
-                competitive landscapes, and strategic positioning to help you identify 
-                and seize the perfect moment for market expansion.
+                Stop waiting 6 months and spending six figures on market research. 
+                KairosAI's autonomous AI agents deliver board-ready market intelligence, 
+                competitive analysis, and strategic positioning for US-Asia expansion in minutes.
               </Text>
             </VStack>
 
-            <HStack spacing={8} mt={6}>
-              <VStack spacing={3}>
+            <HStack spacing={0} mt={8} align="flex-start" justify="space-evenly" w="100%" maxW="7xl" mx="auto">
+              <VStack spacing={4} align="center" flex="0 0 auto">
                 <Box
-                  w="60px"
-                  h="60px"
+                  w="80px"
+                  h="80px"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.5)"
-                  borderRadius="full"
-                  backdropFilter="blur(10px)"
+                  bg="rgba(255,255,255,0.15)"
+                  borderRadius="2xl"
+                  backdropFilter="blur(15px)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.1)',
-                    transition: 'transform 0.3s ease',
-                    bg: 'rgba(255,255,255,0.1)',
+                    transition: 'all 0.3s ease',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(255,255,255,0.1)',
                   }}
                 >
-                  <Icon as={FiTarget} boxSize={6} opacity="0.8" />
+                  <Icon as={FiTarget} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Autonomous Intelligence</Text>
-                  <Text fontSize="sm" opacity="0.8">AI-driven market research</Text>
+                <VStack spacing={2} align="center" w="140px">
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Autonomous Intelligence</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">AI-driven market research</Text>
                 </VStack>
               </VStack>
 
-              <VStack spacing={3}>
+              <VStack spacing={4} align="center" flex="0 0 auto">
                 <Box
-                  w="60px"
-                  h="60px"
+                  w="80px"
+                  h="80px"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.5)"
-                  borderRadius="full"
-                  backdropFilter="blur(10px)"
+                  bg="rgba(255,255,255,0.15)"
+                  borderRadius="2xl"
+                  backdropFilter="blur(15px)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.1)',
-                    transition: 'transform 0.3s ease',
-                    bg: 'rgba(255,255,255,0.1)',
+                    transition: 'all 0.3s ease',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(255,255,255,0.1)',
                   }}
                 >
-                  <Icon as={FiTrendingUp} boxSize={6} opacity="0.8" />
+                  <Icon as={FiTrendingUp} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Perfect Timing</Text>
-                  <Text fontSize="sm" opacity="0.8">Seize market opportunities</Text>
+                <VStack spacing={2} align="center" w="140px">
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Perfect Timing</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Seize market opportunities</Text>
                 </VStack>
               </VStack>
 
-              <VStack spacing={3}>
+              <VStack spacing={4} align="center" flex="0 0 auto">
                 <Box
-                  w="60px"
-                  h="60px"
+                  w="80px"
+                  h="80px"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg="rgba(255,255,255,0.5)"
-                  borderRadius="full"
-                  backdropFilter="blur(10px)"
+                  bg="rgba(255,255,255,0.15)"
+                  borderRadius="2xl"
+                  backdropFilter="blur(15px)"
+                  border="1px solid rgba(255,255,255,0.2)"
                   _hover={{
-                    transform: 'scale(1.1)',
-                    transition: 'transform 0.3s ease',
-                    bg: 'rgba(255,255,255,0.1)',
+                    transition: 'all 0.3s ease',
+                    bg: 'rgba(255,255,255,0.25)',
+                    boxShadow: '0 8px 32px rgba(255,255,255,0.1)',
                   }}
                 >
-                  <Icon as={FiBarChart} boxSize={6} opacity="0.8" />
+                  <Icon as={FiBarChart} boxSize={8} color="white" />
                 </Box>
-                <VStack spacing={1}>
-                  <Text fontWeight="bold" fontSize="md">Strategic Positioning</Text>
-                  <Text fontSize="sm" opacity="0.8">Data-driven market entry</Text>
+                <VStack spacing={2} align="center" w="140px">
+                  <Text fontWeight="bold" fontSize="lg" color="white" letterSpacing="0.01em" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" textAlign="center">Strategic Positioning</Text>
+                  <Text fontSize="sm" opacity="0.85" color="white" textAlign="center" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Data-driven market entry</Text>
                 </VStack>
               </VStack>
             </HStack>
 
             <Button
-              size="md"
+              size="lg"
               bg="white"
               color="purple.600"
               _hover={{ 
-                bg: 'gray.100',
-                transform: 'translateY(-2px)',
-                boxShadow: 'lg',
+                bg: 'gray.50',
+                transform: 'translateY(-3px)',
+                boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
                 transition: 'all 0.3s ease',
               }}
-              px={6}
-              py={4}
-              fontSize="md"
-              fontWeight="bold"
-              onClick={() => {
-                document.getElementById('analysis-form')?.scrollIntoView({
-                  behavior: 'smooth'
-                });
+              _active={{ 
+                transform: 'translateY(-1px)',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
               }}
+              px={8}
+              py={5}
+              fontSize="lg"
+              fontWeight="bold"
+              borderRadius="xl"
+              letterSpacing="0.01em"
+              border="2px solid transparent"
+              _focus={{
+                boxShadow: '0 0 0 3px rgba(255,255,255,0.3)',
+              }}
+              onClick={handleAnalysisClick}
               rightIcon={<FiArrowRight />}
             >
               Start Your Analysis
@@ -423,187 +507,465 @@ const LandingPage = () => {
         </Container>
       </Box>
 
-      {/* Form Section */}
-      <Box id="analysis-form" py={8} bg="white" w="100%">
-        <Container maxW="100%" px={4}>
-          <Card shadow="lg" borderRadius="lg" overflow="hidden" maxW="800px" mx="auto">
-            <Box bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" p={4} color="white">
-              <VStack spacing={2} textAlign="center">
-                <Heading size="lg">
-                  Start Your Autonomous Market Analysis
-                </Heading>
-                <Text fontSize="md" opacity="0.9">
-                  Let KairosAI autonomously research and analyze your market entry opportunities
+      {/* Tagline Section with Gradient Transition */}
+      <Box 
+        py={16} 
+        w="100%"
+        bg="#140d28"
+      >
+        <Container maxW="100%" px={8}>
+          <VStack spacing={0} textAlign="left" align="start" maxW="7xl" mx="auto">
+            <Text 
+              fontSize="32px" 
+              fontWeight="normal" 
+              color="#667EEA" 
+              letterSpacing="0.01em"
+              fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+            >
+              AI intelligence for global expansion
+            </Text>
+            <VStack spacing={0} textAlign="left" align="start" mt={6}>
+              <Text 
+                fontSize="54px" 
+                color="white"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+              >
+                Traditional market research takes 6 months.
+              </Text>
+              <Text 
+                fontSize="54px" 
+                fontWeight="normal"
+                color="white"
+                fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+              >
+                Let KairosAI do it in minutes.
                 </Text>
               </VStack>
+          </VStack>
+        </Container>
             </Box>
 
-            <CardBody p={4}>
-              <form onSubmit={handleSubmit}>
-                <VStack spacing={4} align="stretch">
-                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={3}>
-                    <GridItem>
-                      <FormControl isRequired>
-                        <FormLabel fontWeight="semibold" fontSize="sm">Company Name</FormLabel>
-                        <Input
-                          placeholder="Enter your company name"
-                          value={formData.companyName}
-                          onChange={(e) => handleInputChange('companyName', e.target.value)}
-                          size="sm"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        />
-                      </FormControl>
-                    </GridItem>
+      {/* How KairosAI Works Section with Continued Gradient */}
+      <Box 
+        py={16} 
+        w="100%"
+        bg="#140d28"
+      >
+        <Container maxW="100%" px={8}>
+          <VStack spacing={12} textAlign="left" align="start" maxW="7xl" mx="auto">
+            {/* Problem vs Solution Comparison */}
+            <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8} w="full" maxW="7xl">
+                  {/* Traditional Approach */}
+                  <Box p={6} bg="gray.800" borderRadius="xl">
+                    <VStack spacing={4} align="start">
+                      <HStack spacing={3}>
+                        <Box w="8" h="8" bg="red.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                          <Icon as={FiTarget} color="white" boxSize={4} />
+                        </Box>
+                        <Heading size="md" color="white">Traditional Market Research</Heading>
+                      </HStack>
+                      
+                      <VStack spacing={3} align="start" w="full">
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Timeline</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="white" fontWeight="bold">3-6 months</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Cost</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="white" fontWeight="bold">$50K - $200K</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Output</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
+                            <VStack spacing={1} align="start">
+                              <Text fontSize="md" color="white" fontWeight="bold">Static PDF reports</Text>
+                              <Text fontSize="xs" color="gray.400">Generic templates, outdated data, limited insights</Text>
+                            </VStack>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Updates</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="red.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="white" fontWeight="bold">One-time analysis</Text>
+                          </HStack>
+                        </VStack>
+                      </VStack>
+                      
+                      <Text fontSize="sm" color="gray.300" fontStyle="italic">
+                        "By the time you get results, the market has already changed"
+                      </Text>
+                    </VStack>
+                  </Box>
 
-                    <GridItem>
-                      <FormControl isRequired>
-                        <FormLabel fontWeight="semibold" fontSize="sm">Industry</FormLabel>
-                        <Select
-                          placeholder="Select your industry"
-                          value={formData.industry}
-                          onChange={(e) => handleInputChange('industry', e.target.value)}
-                          size="sm"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        >
-                          <option value="technology">Technology</option>
-                          <option value="healthcare">Healthcare</option>
-                          <option value="finance">Finance</option>
-                          <option value="retail">Retail</option>
-                          <option value="manufacturing">Manufacturing</option>
-                          <option value="education">Education</option>
-                          <option value="other">Other</option>
-                        </Select>
-                      </FormControl>
-                    </GridItem>
+                  {/* KairosAI Approach */}
+                  <Box p={6} bg="gray.800" borderRadius="xl">
+                    <VStack spacing={4} align="start">
+                      <HStack spacing={3}>
+                        <Box w="8" h="8" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                          <Icon as={FiTrendingUp} color="white" boxSize={4} />
+                        </Box>
+                        <Heading size="md" color="white">KairosAI Platform</Heading>
+                      </HStack>
+                      
+                      <VStack spacing={3} align="start" w="full">
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Timeline</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="white" fontWeight="bold">5 minutes</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Cost</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="white" fontWeight="bold">Fraction of consultant fees</Text>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Output</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
+                            <VStack spacing={1} align="start">
+                              <Text fontSize="md" color="white" fontWeight="bold">Executive-ready deliverables</Text>
+                              <Text fontSize="xs" color="gray.400">Interactive dashboards, board presentations, investment memos, strategic recommendations</Text>
+                            </VStack>
+                          </HStack>
+                        </VStack>
+                        
+                        <VStack spacing={1} align="start">
+                          <Text fontSize="sm" color="gray.300" fontWeight="semibold">Updates</Text>
+                          <HStack spacing={2} align="start">
+                            <Box w="4px" h="4px" bg="green.500" borderRadius="full" mt={2} />
+                            <Text fontSize="md" color="white" fontWeight="bold">Continuous monitoring</Text>
+                          </HStack>
+                        </VStack>
+                      </VStack>
+                      
+                      <Text fontSize="sm" color="gray.300" fontStyle="italic">
+                        "Real-time intelligence that evolves with your market"
+                    </Text>
+                    </VStack>
+                  </Box>
+                </SimpleGrid>
 
-                    <GridItem>
-                      <FormControl isRequired>
-                        <FormLabel fontWeight="semibold" fontSize="sm">Target Market</FormLabel>
-                        <Input
-                          placeholder="e.g., US, Europe, Asia-Pacific"
-                          value={formData.targetMarket}
-                          onChange={(e) => handleInputChange('targetMarket', e.target.value)}
-                          size="sm"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        />
-                      </FormControl>
-                    </GridItem>
+            {/* How It Works Workflow */}
+            <VStack spacing={8} w="full" mt={32}>
+              <Heading size="3xl" color="white" fontWeight="normal">KairosAI does it All. </Heading>
+              
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full" maxW="7xl">
+                {/* Step 1 */}
+                <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
+                  <Box w="16" h="16" bg="purple.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                    <Icon as={FiEdit3} color="white" boxSize={8} />
+                  </Box>
+                  <VStack spacing={3} textAlign="center">
+                    <Heading size="md" color="white">Input Company Info</Heading>
+                    <Text fontSize="md" color="gray.300">Simply provide your company details, industry, target markets, and expansion goals. Our intuitive form captures everything from brand positioning to competitive advantages, creating a comprehensive foundation for AI-powered analysis.</Text>
+                  </VStack>
+                </VStack>
 
-                    <GridItem>
-                      <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm">Website</FormLabel>
-                        <Input
-                          placeholder="https://yourcompany.com"
-                          value={formData.website}
-                          onChange={(e) => handleInputChange('website', e.target.value)}
-                          size="sm"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                        />
-                      </FormControl>
-                    </GridItem>
-                  </Grid>
+                {/* Step 2 */}
+                <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
+                  <Box w="16" h="16" bg="blue.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                    <Icon as={FiCpu} color="white" boxSize={8} />
+                  </Box>
+                  <VStack spacing={3} textAlign="center">
+                    <Heading size="md" color="white">AI Agents Research</Heading>
+                    <Text fontSize="md" color="gray.300">Multiple specialized autonomous AI agents work 24/7 to analyze market data, competitor strategies, regulatory requirements, and cross-Pacific business dynamics. They continuously research and synthesize information from thousands of sources to build comprehensive market intelligence.</Text>
+                  </VStack>
+                </VStack>
 
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm">Current Brand Positioning</FormLabel>
-                    <Textarea
-                      placeholder="Describe how your brand is currently positioned in your home market..."
-                      value={formData.currentPositioning}
-                      onChange={(e) => handleInputChange('currentPositioning', e.target.value)}
-                      size="sm"
-                      rows={2}
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    />
-                  </FormControl>
+                {/* Step 3 */}
+                <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
+                  <Box w="16" h="16" bg="green.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                    <Icon as={FiZap} color="white" boxSize={8} />
+                  </Box>
+                  <VStack spacing={3} textAlign="center">
+                    <Heading size="md" color="white">Generate Insights</Heading>
+                    <Text fontSize="md" color="gray.300">Access interactive market intelligence dashboards with real-time data visualization, segment arbitrage opportunities that reveal hidden market gaps, competitive positioning analysis, and strategic recommendations. Ask questions anytime through our 24/7 AI consultant chatbot for instant insights.</Text>
+                  </VStack>
+                </VStack>
 
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm">Brand Description</FormLabel>
-                    <Textarea
-                      placeholder="Describe your brand, products/services, and unique value proposition..."
-                      value={formData.brandDescription}
-                      onChange={(e) => handleInputChange('brandDescription', e.target.value)}
-                      size="sm"
-                      rows={3}
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    />
-                  </FormControl>
+                {/* Step 4 */}
+                <VStack spacing={6} p={8} bg="gray.800" borderRadius="xl">
+                  <Box w="16" h="16" bg="teal.500" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
+                    <Icon as={FiFileText} color="white" boxSize={8} />
+                  </Box>
+                  <VStack spacing={3} textAlign="center">
+                    <Heading size="md" color="white">Executive Deliverables</Heading>
+                    <Text fontSize="md" color="gray.300">Download polished, board-ready documentations, comprehensive investment memos, strategic go-to-market recommendations, regulatory compliance analysis, and partnership opportunity briefs. Every deliverable is professionally formatted and ready to share with stakeholders, investors, and leadership teams.</Text>
+                  </VStack>
+                </VStack>
+              </SimpleGrid>
+            </VStack>
 
-                  <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm">Email Address</FormLabel>
-                    <Input
-                      type="email"
-                      placeholder="your.email@company.com"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      size="sm"
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-                    />
-                  </FormControl>
+            {/* Unique Value Propositions */}
+            <VStack spacing={0} w="full" maxW="7xl" mt={32}>
+              <Heading size="3xl" color="white" fontWeight="normal" fontSize="54px" mb={8}>What We Offer</Heading>
+              
+              <VStack spacing={0} w="full" divider={<Box h="1px" bg="gray.700" w="full" />}>
+                {/* Empty spacer for top divider */}
+                <Box py={0} w="full" />
+                
+                {/* Feature 1 - Autonomous AI Agents */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiTarget} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">Autonomous AI Agents</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Multiple specialized AI agents work simultaneously 24/7, analyzing market data, competitor strategies, regulatory requirements, and cross-Pacific business dynamics. They continuously research and synthesize information from thousands of sources to build comprehensive market intelligence tailored to your expansion goals.
+                    </Text>
+                </HStack>
+                
+                {/* Feature 2 - Executive-Ready Outputs */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiTrendingUp} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">Executive-Ready Outputs</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Generate polished, board-ready presentations, comprehensive investment memos, strategic go-to-market recommendations, regulatory compliance analysis, and partnership opportunity briefs automatically. Every deliverable is professionally formatted and ready to share with stakeholders, investors, and leadership teams—no manual report writing required.
+                  </Text>
+                </HStack>
+                
+                {/* Feature 3 - Segment Arbitrage Detection */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiBarChart} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">Segment Arbitrage Detection</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Discover hidden market opportunities and positioning gaps that competitors miss through advanced data analysis. Our AI identifies underserved segments, pricing advantages, and strategic entry points that maximize your market entry value and competitive positioning across US-Asia markets.
+                  </Text>
+                </HStack>
+                
+                {/* Feature 4 - Cross-Pacific Expertise */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiUsers} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">Cross-Pacific Expertise</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Built specifically for US-Asia market dynamics with deep understanding of cultural nuances, regulatory requirements, business practices, and local market conditions. Our platform bridges the gap between Western and Asian business ecosystems, providing insights that generic market research tools cannot deliver.
+                  </Text>
+                </HStack>
+                
+                {/* Feature 5 - 24/7 AI Consultant */}
+                <HStack spacing={20} align="start" py={10} w="full">
+                  <HStack spacing={4} minW="400px">
+                    <Icon as={FiMessageCircle} color="white" boxSize={8} />
+                    <Heading size="lg" color="white" fontSize="28px" fontWeight="normal">24/7 AI Consultant</Heading>
+                  </HStack>
+                  <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
+                    Get instant answers to market questions, strategic guidance, and real-time insights through our intelligent chatbot consultant. Ask questions anytime about market conditions, competitor movements, regulatory changes, or expansion strategies—like having an expert consultant available around the clock without the consulting fees.
+                  </Text>
+                </HStack>
+                
+                {/* Empty spacer for bottom divider */}
+                <Box py={0} w="full" />
+              </VStack>
+            </VStack>
 
+            {/* Call to Action */}
+            <VStack spacing={8} align="center" textAlign="center" w="full" mt={16}>
+              <Heading size="md" color="white" fontSize="54px" fontWeight="normal">Ready to Transform Your Market Entry Strategy?</Heading>
                   <Button
-                    type="submit"
-                    size="md"
+                size="xl"
                     bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                color="white"
                     _hover={{
                       bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                      transform: 'translateY(-1px)',
-                      boxShadow: 'md',
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'lg',
                     }}
-                    _active={{
-                      transform: 'translateY(0)',
-                    }}
-                    py={4}
-                    fontSize="md"
+                _active={{ transform: 'translateY(0)' }}
+                px={12}
+                    py={6}
+                    fontSize="lg"
                     fontWeight="bold"
                     borderRadius="lg"
-                    rightIcon={<FiArrowRight />}
+                    border="none"
+                onClick={handleAnalysisClick}
+                    rightIcon={<FiArrowDown />}
                   >
-                    Launch KairosAI Analysis
+                Start Your Free Analysis
                   </Button>
                 </VStack>
-              </form>
-
-              {/* Features Preview */}
-              <Box mt={4} p={3} bg="gray.50" borderRadius="lg">
-                <Text fontSize="sm" color="gray.600" textAlign="center" mb={2}>
-                  KairosAI will autonomously deliver:
-                </Text>
-                <Flex justify="center" wrap="wrap" gap={2}>
-                  <Badge colorScheme="green" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Autonomous Competitive Intelligence
-                  </Badge>
-                  <Badge colorScheme="blue" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Market Opportunity Detection
-                  </Badge>
-                  <Badge colorScheme="purple" px={2} py={1} borderRadius="full" fontSize="sm">
-                    Strategic Positioning Insights
-                  </Badge>
-                </Flex>
-              </Box>
-            </CardBody>
-          </Card>
+          </VStack>
         </Container>
       </Box>
+
+      {/* Form Section */}
+      {showAnalysisForm && (
+        <Fade in={showAnalysisForm} transition={{ enter: { duration: 0.6 } }}>
+          <Box id="analysis-form">
+            <AnalysisForm />
+          </Box>
+        </Fade>
+      )}
+
+      {/* Footer Section */}
+      <Box bg="black" pt={28} pb={6}>
+        <Container maxW="7xl">
+          <VStack spacing={8}>
+            {/* Main Footer Content */}
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full">
+              {/* Company Info */}
+              <VStack spacing={4} align="start">
+                <HStack spacing={3} align="center">
+                  <Image 
+                    src={KairosAILogo} 
+                    alt="KairosAI Logo" 
+                    h="128px" 
+                    w="auto"
+                    objectFit="contain"
+                    filter="brightness(0) invert(1)"
+                  />
+                  <Text
+                    fontSize="52px"
+                    color="white"
+                  >
+                    Gateway to global opportunities.
+                </Text>
+                </HStack>
+              </VStack>
+
+              {/* Contact & Social Info */}
+              <VStack spacing={6} align="start" ml={16}>
+                {/* Contact Info */}
+                <VStack spacing={4} align="start">
+                  <Heading size="xl" color="white">Contact Us</Heading>
+                  <HStack spacing={2}>
+                    <Icon as={FiMail} color="white" boxSize={7} />
+                    <Text fontSize="md" color="white">support@kairosai.world</Text>
+                  </HStack>
+                </VStack>
+
+                {/* Social Links */}
+                <VStack spacing={4} align="start">
+                  <Heading size="xl" color="white">Follow Us</Heading>
+                  <HStack spacing={8}>
+                    <Box
+                      as="a"
+                      href="#"
+                      cursor="pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Future: window.open('https://linkedin.com/company/kairosai', '_blank');
+                      }}
+                    >
+                      <FaLinkedin size={28} color="#0077B5" />
+              </Box>
+                    <Box
+                      as="a"
+                      href="#"
+                      cursor="pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Future: window.open('https://youtube.com/@kairosai', '_blank');
+                      }}
+                    >
+                      <FaYoutube size={28} color="#FF0000" />
+                    </Box>
+                  </HStack>
+                </VStack>
+              </VStack>
+            </SimpleGrid>
+
+             {/* Divider */}
+             <Divider borderColor="gray.700" mt={24} />
+
+             {/* Copyright */}
+             <HStack spacing={4} justify="space-between" w="full" flexWrap="wrap" mt={-4}>
+               <Text fontSize="sm" color="gray.400">
+                 © {new Date().getFullYear()} KairosAI. All rights reserved.
+               </Text>
+               <HStack spacing={6}>
+                 <Link fontSize="sm" color="gray.400" _hover={{ color: "white" }}>
+                   Privacy & Data Policy
+                 </Link>
+               </HStack>
+             </HStack>
+          </VStack>
+        </Container>
+      </Box>
+
+      {/* Signup Modal */}
+      <Modal isOpen={isSignupModalOpen} onClose={onSignupModalClose} isCentered>
+        <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
+        <ModalContent bg="#140d28" color="white" borderRadius="xl" mx={4}>
+          <ModalHeader>
+            <VStack spacing={2} align="center" textAlign="center">
+              <Icon as={FiTarget} boxSize={8} color="purple.400" />
+              <Heading size="lg" color="white">Unlock Your Market Intelligence</Heading>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody pb={6}>
+            <VStack spacing={4} textAlign="center">
+              <Text fontSize="lg" color="gray.300" lineHeight="1.6">
+                Get instant access to our AI-powered market analysis platform. 
+                Create your free account to start exploring cross-Pacific expansion opportunities.
+              </Text>
+              <VStack spacing={2} align="start" w="full" bg="gray.800" p={4} borderRadius="lg">
+                <HStack spacing={3}>
+                  <Icon as={FiZap} color="green.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">Free market analysis in minutes</Text>
+                </HStack>
+                <HStack spacing={3}>
+                  <Icon as={FiTrendingUp} color="blue.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">Executive-ready insights and reports</Text>
+                </HStack>
+                <HStack spacing={3}>
+                  <Icon as={FiMessageCircle} color="purple.400" boxSize={5} />
+                  <Text fontSize="sm" color="gray.300">24/7 AI consultant access</Text>
+                </HStack>
+              </VStack>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <HStack spacing={3} w="full">
+                  <Button
+                variant="outline" 
+                color="white" 
+                borderColor="gray.600" 
+                _hover={{ bg: "gray.700" }}
+                onClick={onSignupModalClose}
+                flex={1}
+              >
+                Maybe Later
+              </Button>
+              <Button 
+                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                color="white"
+                    _hover={{
+                      bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                }}
+                onClick={handleSignup}
+                flex={2}
+                    rightIcon={<FiArrowRight />}
+                  >
+                Create Free Account
+                  </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
