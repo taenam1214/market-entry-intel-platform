@@ -22,12 +22,17 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
+  Divider,
+  Link,
+  Image,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText } from 'react-icons/fi';
+import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText, FiMail } from 'react-icons/fi';
+import { FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import AnalysisForm from '../../components/AnalysisForm';
+import KairosAILogo from '../../assets/KairosAI_logo.png';
 
 // Animation keyframes for Global Business Network
 const nodePulse = keyframes`
@@ -652,7 +657,7 @@ const LandingPage = () => {
                       
                       <Text fontSize="sm" color="gray.300" fontStyle="italic">
                         "Real-time intelligence that evolves with your market"
-                    </Text>
+                      </Text>
                     </VStack>
                   </Box>
                 </SimpleGrid>
@@ -724,7 +729,7 @@ const LandingPage = () => {
                   </HStack>
                   <Text fontSize="xl" color="gray.300" lineHeight="1.9" flex={1}>
                     Multiple specialized AI agents work simultaneously 24/7, analyzing market data, competitor strategies, regulatory requirements, and cross-Pacific business dynamics. They continuously research and synthesize information from thousands of sources to build comprehensive market intelligence tailored to your expansion goals.
-                  </Text>
+                    </Text>
                 </HStack>
                 
                 {/* Feature 2 - Executive-Ready Outputs */}
@@ -814,6 +819,92 @@ const LandingPage = () => {
         </Fade>
       )}
 
+      {/* Footer Section */}
+      <Box bg="black" pt={28} pb={6}>
+        <Container maxW="7xl">
+          <VStack spacing={8}>
+            {/* Main Footer Content */}
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full">
+              {/* Company Info */}
+              <VStack spacing={4} align="start">
+                <HStack spacing={3} align="center">
+                  <Image 
+                    src={KairosAILogo} 
+                    alt="KairosAI Logo" 
+                    h="128px" 
+                    w="auto"
+                    objectFit="contain"
+                    filter="brightness(0) invert(1)"
+                  />
+                  <Text
+                    fontSize="52px"
+                    color="white"
+                  >
+                    Gateway to global opportunities.
+                  </Text>
+                </HStack>
+              </VStack>
+
+              {/* Contact & Social Info */}
+              <VStack spacing={6} align="start" ml={16}>
+                {/* Contact Info */}
+                <VStack spacing={4} align="start">
+                  <Heading size="xl" color="white">Contact Us</Heading>
+                  <HStack spacing={2}>
+                    <Icon as={FiMail} color="white" boxSize={7} />
+                    <Text fontSize="md" color="white">support@kairosai.world</Text>
+                  </HStack>
+                </VStack>
+
+                {/* Social Links */}
+                <VStack spacing={4} align="start">
+                  <Heading size="xl" color="white">Follow Us</Heading>
+                  <HStack spacing={8}>
+                    <Box
+                      as="a"
+                      href="#"
+                      cursor="pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Future: window.open('https://linkedin.com/company/kairosai', '_blank');
+                      }}
+                    >
+                      <FaLinkedin size={28} color="#0077B5" />
+                    </Box>
+                    <Box
+                      as="a"
+                      href="#"
+                      cursor="pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Future: window.open('https://youtube.com/@kairosai', '_blank');
+                      }}
+                    >
+                      <FaYoutube size={28} color="#FF0000" />
+                    </Box>
+                  </HStack>
+                </VStack>
+              </VStack>
+            </SimpleGrid>
+
+             {/* Divider */}
+             <Divider borderColor="gray.700" mt={24} />
+
+             {/* Copyright */}
+             <HStack spacing={4} justify="space-between" w="full" flexWrap="wrap" mt={-4}>
+               <Text fontSize="sm" color="gray.400">
+                 © {new Date().getFullYear()} KairosAI. All rights reserved.
+               </Text>
+               <HStack spacing={6}>
+                 <Link fontSize="sm" color="gray.400" _hover={{ color: "white" }}>
+                   Privacy & Data Policy
+                 </Link>
+               </HStack>
+             </HStack>
+          </VStack>
+        </Container>
+                  </Box>
+
       {/* Signup Modal */}
       <Modal isOpen={isSignupModalOpen} onClose={onSignupModalClose} isCentered>
         <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
@@ -849,7 +940,7 @@ const LandingPage = () => {
           </ModalBody>
           <ModalFooter>
             <HStack spacing={3} w="full">
-              <Button 
+                  <Button
                 variant="outline" 
                 color="white" 
                 borderColor="gray.600" 
@@ -860,17 +951,17 @@ const LandingPage = () => {
                 Maybe Later
               </Button>
               <Button 
-                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                 color="white"
-                _hover={{
-                  bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                    _hover={{
+                      bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                 }}
                 onClick={handleSignup}
                 flex={2}
-                rightIcon={<FiArrowRight />}
-              >
+                    rightIcon={<FiArrowRight />}
+                  >
                 Create Free Account
-              </Button>
+                  </Button>
             </HStack>
           </ModalFooter>
         </ModalContent>
