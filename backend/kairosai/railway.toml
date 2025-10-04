@@ -4,10 +4,13 @@ buildCommand = "chmod +x build.sh && ./build.sh"
 
 [deploy]
 startCommand = "DJANGO_SETTINGS_MODULE=kairosai.settings_production gunicorn kairosai.wsgi:application --bind 0.0.0.0:$PORT"
-healthcheckPath = "/"
+healthcheckPath = "/health/"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
 [deploy.healthcheck]
 enabled = true
+path = "/health/"
+timeout = 30
+interval = 10
