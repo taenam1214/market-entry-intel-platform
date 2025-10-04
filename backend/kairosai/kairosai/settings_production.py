@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = False
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='market-entry-intel-platform-production.up.railway.app').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='market-entry-intel-platform-production.up.railway.app,healthcheck.railway.app').split(',')
 
 # Application definition
 INSTALLED_APPS = [
