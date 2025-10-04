@@ -6,13 +6,9 @@ import {
   Text,
   VStack,
   HStack,
-  Badge,
   Icon,
-  Flex,
   SimpleGrid,
   Button,
-  Card,
-  CardBody,
   Fade,
   Modal,
   ModalOverlay,
@@ -864,7 +860,7 @@ const LandingPage = () => {
                       as="a"
                       href="#"
                       cursor="pointer"
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.preventDefault();
                         // Future: window.open('https://linkedin.com/company/kairosai', '_blank');
                       }}
@@ -875,7 +871,7 @@ const LandingPage = () => {
                       as="a"
                       href="#"
                       cursor="pointer"
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.preventDefault();
                         // Future: window.open('https://youtube.com/@kairosai', '_blank');
                       }}

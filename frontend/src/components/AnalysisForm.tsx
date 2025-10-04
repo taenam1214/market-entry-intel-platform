@@ -40,6 +40,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
   submitButtonText = "See KairosAI Analysis",
   isStreamlined = false,
 }) => {
+  // Suppress unused parameter warnings
+  void showWelcomeMessage;
+  void isStreamlined;
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     companyName: '',

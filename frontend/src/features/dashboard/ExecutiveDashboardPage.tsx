@@ -665,7 +665,7 @@ For questions or additional analysis, contact the Strategic Planning team.
     const expansionTimeline = dashboard?.expansion_timeline || 'Medium-term';
     const companySize = dashboard?.company_size || 'Medium';
     const annualRevenue = dashboard?.annual_revenue || 'TBD';
-    const direction = dashboard?.expansion_direction || 'global';
+    const _direction = dashboard?.expansion_direction || 'global';
     
     const currentDate = new Date().toLocaleDateString('en-US', { 
       year: 'numeric', 
