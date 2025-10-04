@@ -1,72 +1,45 @@
-import { Box, Container, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatNumber, Badge, Progress, Icon, Flex, SimpleGrid, Button, Spinner, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton } from '@chakra-ui/react';
+import { Box, Container, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatNumber, Badge, Progress, Icon, Flex, SimpleGrid, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton } from '@chakra-ui/react';
 import { FiTrendingUp, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiDownload, FiArrowRight } from 'react-icons/fi';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import React from 'react';
-import { useAuth } from '../../auth/AuthContext';
+import { useData } from '../../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
 
 const ExecutiveDashboardPage = () => {
-  const { user } = useAuth();
+  const { analysisData } = useData();
   const navigate = useNavigate();
-  const [dashboard, setDashboard] = useState<any>(null);
-  const [competitorSummary, setCompetitorSummary] = useState<any>(null);
-  const [loadingCompetitorSummary, setLoadingCompetitorSummary] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
-  const [competitorError, setCompetitorError] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<any>(null);
-  const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  
+  // Use data from centralized context
+  const dashboard = analysisData.dashboardData;
+  const competitorSummary = analysisData.competitorSummary;
+  const hasAnalysisHistory = analysisData.hasAnalysisHistory;
+  const isLoading = analysisData.isLoading;
 
-  useEffect(() => {
-    if (user) {
-      // Check for analysis history
-      const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
-      setHasAnalysisHistory(!!analysisHistory);
-      
-      // Only load dashboard data if user has analysis history
-      if (analysisHistory) {
-    const data = localStorage.getItem('dashboardData');
-    if (data) {
-      setDashboard(JSON.parse(data));
-    }
-    const competitor = localStorage.getItem('competitorSummary');
-    console.log('Raw competitor data from localStorage:', competitor);
-    if (competitor) {
-      try {
-        const parsedCompetitor = JSON.parse(competitor);
-        console.log('Parsed competitor data:', parsedCompetitor);
-        setCompetitorSummary(parsedCompetitor);
-      } catch (e) {
-        console.log('Failed to parse competitor data, using as string:', e);
-        setCompetitorSummary(competitor);
-      }
-    } else {
-      console.log('No competitor data found in localStorage');
-    }
-      }
-    }
-  }, [user]);
+  // Remove the useEffect since we're now using centralized data context
 
-  const fetchCompetitorSummary = async (companyInfo: any) => {
-    setLoadingCompetitorSummary(true);
-    setCompetitorError(null);
-    try {
-      const res = await fetch('http://localhost:8000/api/v1/competitor-analysis/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(companyInfo),
-      });
-      const data = await res.json();
-      if (data.competitor_analysis) {
-        setCompetitorSummary(data.competitor_analysis);
-      } else {
-        setCompetitorSummary('No competitor summary available.');
-      }
-    } catch (e) {
-      setCompetitorError('Failed to fetch competitor analysis.');
-    }
-    setLoadingCompetitorSummary(false);
-  };
+  // const fetchCompetitorSummary = async (companyInfo: any) => {
+  //   setLoadingCompetitorSummary(true);
+  //   setCompetitorError(null);
+  //   try {
+  //     const res = await fetch('http://localhost:8000/api/v1/competitor-analysis/', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(companyInfo),
+  //     });
+  //     const data = await res.json();
+  //     if (data.competitor_analysis) {
+  //       setCompetitorSummary(data.competitor_analysis);
+  //     } else {
+  //       setCompetitorSummary('No competitor summary available.');
+  //     }
+  //   } catch (e) {
+  //     setCompetitorError('Failed to fetch competitor analysis.');
+  //   }
+  //   setLoadingCompetitorSummary(false);
+  // };
 
   const handleMetricClick = (metric: any) => {
     setSelectedMetric(metric);
@@ -665,7 +638,6 @@ For questions or additional analysis, contact the Strategic Planning team.
     const expansionTimeline = dashboard?.expansion_timeline || 'Medium-term';
     const companySize = dashboard?.company_size || 'Medium';
     const annualRevenue = dashboard?.annual_revenue || 'TBD';
-    const direction = dashboard?.expansion_direction || 'global';
     
     const currentDate = new Date().toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -970,6 +942,27 @@ For questions or additional analysis, contact the Strategic Planning team.
     return formattedElements;
   };
 
+  // Show loading state while data is being loaded
+  if (isLoading) {
+    return (
+      <Box p={6} bg="gray.50" minH="100vh" w="100%">
+        <Container maxW="4xl" px={8}>
+          <VStack spacing={8} py={16} textAlign="center">
+            <VStack spacing={4}>
+              <Icon as={FiBarChart} boxSize={16} color="purple.400" />
+              <Heading size="xl" color="gray.700">
+                Loading Dashboard...
+              </Heading>
+              <Text fontSize="lg" color="gray.600" maxW="2xl">
+                Preparing your market intelligence dashboard.
+              </Text>
+            </VStack>
+          </VStack>
+        </Container>
+      </Box>
+    );
+  }
+
   // Show empty state for users without analysis history
   if (!hasAnalysisHistory || !dashboard) {
     return (
@@ -1038,8 +1031,6 @@ For questions or additional analysis, contact the Strategic Planning team.
 
   // Extract data from API response and calculate WTP metrics
   const customerSegment = dashboard?.customer_segment || 'business';
-  const marketScore = parseInt(dashboard?.dashboard?.market_opportunity_score) || 0;
-  const complexityScore = parseInt(dashboard?.dashboard?.entry_complexity_score) || 0;
   
   // WTP Analysis by Customer Segment
   const getWTPData = (segment: string) => {
@@ -1661,19 +1652,7 @@ For questions or additional analysis, contact the Strategic Planning team.
             <CardBody p={6}>
               <Heading size="md" mb={4} color="purple.700">Competitor Analysis</Heading>
               {(() => {
-                console.log('Rendering competitor section with:', {
-                  loadingCompetitorSummary,
-                  competitorError,
-                  competitorSummary,
-                  competitorSummaryType: typeof competitorSummary,
-                  isArray: Array.isArray(competitorSummary)
-                });
-                
-                if (loadingCompetitorSummary) {
-                  return <VStack py={8}><Spinner size="xl" /></VStack>;
-                } else if (competitorError) {
-                  return <Text color="red.500">{competitorError}</Text>;
-                } else if (competitorSummary && typeof competitorSummary === 'string') {
+                if (competitorSummary && typeof competitorSummary === 'string') {
                   return (
                     <Box whiteSpace="pre-wrap" color="gray.800" fontFamily="mono" fontSize="sm" p={2} bg="gray.50" borderRadius="md">
                       {competitorSummary}

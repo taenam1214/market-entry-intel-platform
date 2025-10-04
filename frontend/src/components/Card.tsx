@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Box, Heading } from '@chakra-ui/react';
 
 interface CardProps {

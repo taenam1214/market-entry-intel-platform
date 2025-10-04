@@ -22,6 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { FiSend, FiMessageCircle, FiUser, FiRefreshCw, FiMessageSquare, FiArrowRight, FiTarget } from 'react-icons/fi';
 import { useAuth } from '../../auth/AuthContext';
+import { useData } from '../../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
 import { chatbotService } from '../../services/chatbotService';
 import type { MarketReport, ChatConversation } from '../../services/chatbotService';
@@ -44,8 +45,12 @@ const ChatbotPage: React.FC = () => {
   const [isLoadingReports, setIsLoadingReports] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated } = useAuth();
+  const { analysisData } = useData();
   const navigate = useNavigate();
   const toast = useToast();
+  
+  // Use data from centralized context
+  const isDataLoading = analysisData.isLoading;
 
   // Color mode values
   const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -118,8 +123,8 @@ I can answer questions about your reports, suggest new markets to explore, help 
     scrollToBottom();
   }, [messages]);
 
-  // Show loading state while reports are being loaded
-  if (isLoadingReports) {
+  // Show loading state while data is being loaded
+  if (isDataLoading || isLoadingReports) {
     return (
       <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
         <Container maxW="6xl" py={8}>
