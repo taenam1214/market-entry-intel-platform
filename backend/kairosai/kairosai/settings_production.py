@@ -70,29 +70,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'kairosai.wsgi.application'
 
 # Database - Use PostgreSQL for production
-# Railway provides DATABASE_URL, but we can also use individual variables
 import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL'),
+        default=os.getenv('DATABASE_URL'),
         conn_max_age=600,
         conn_health_checks=True,
     )
 }
-
-# Fallback to individual variables if DATABASE_URL is not available
-if not DATABASES['default']:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('PGDATABASE'),
-            'USER': config('PGUSER'),
-            'PASSWORD': config('PGPASSWORD'),
-            'HOST': config('PGHOST'),
-            'PORT': config('PGPORT', default='5432'),
-        }
-    }
 
 # REST Framework
 REST_FRAMEWORK = {
