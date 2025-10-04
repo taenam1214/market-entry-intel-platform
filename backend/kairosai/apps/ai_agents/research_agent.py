@@ -54,6 +54,36 @@ Current Positioning: {company_info.get('current_positioning', 'Not specified')}
 Brand Description: {company_info.get('brand_description', 'Not specified')}
 Website: {company_info.get('website', 'Not specified')}
 """
+            
+            # Add additional company context if available
+            additional_context = []
+            if company_info.get('customer_segment'):
+                additional_context.append(f"Customer Segment: {company_info.get('customer_segment')}")
+            if company_info.get('expansion_direction'):
+                additional_context.append(f"Expansion Direction: {company_info.get('expansion_direction')}")
+            if company_info.get('company_size'):
+                additional_context.append(f"Company Size: {company_info.get('company_size')}")
+            if company_info.get('annual_revenue'):
+                additional_context.append(f"Annual Revenue: {company_info.get('annual_revenue')}")
+            if company_info.get('funding_stage'):
+                additional_context.append(f"Funding Stage: {company_info.get('funding_stage')}")
+            if company_info.get('current_markets'):
+                additional_context.append(f"Current Markets: {company_info.get('current_markets')}")
+            if company_info.get('key_products'):
+                additional_context.append(f"Key Products/Services: {company_info.get('key_products')}")
+            if company_info.get('competitive_advantage'):
+                additional_context.append(f"Competitive Advantage: {company_info.get('competitive_advantage')}")
+            if company_info.get('expansion_timeline'):
+                additional_context.append(f"Expansion Timeline: {company_info.get('expansion_timeline')}")
+            if company_info.get('budget_range'):
+                additional_context.append(f"Budget Range: {company_info.get('budget_range')}")
+            if company_info.get('regulatory_requirements'):
+                additional_context.append(f"Regulatory Requirements: {company_info.get('regulatory_requirements')}")
+            if company_info.get('partnership_preferences'):
+                additional_context.append(f"Partnership Preferences: {company_info.get('partnership_preferences')}")
+            
+            if additional_context:
+                base_context += "\nAdditional Company Context:\n" + "\n".join(additional_context) + "\n"
 
         prompt = f"""{base_context}
 

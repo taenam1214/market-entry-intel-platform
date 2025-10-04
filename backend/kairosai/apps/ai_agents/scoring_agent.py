@@ -179,6 +179,33 @@ Remember: Scores must be justified by specific data points from the research rep
             # Extract quantitative data for context
             extracted_data = self._extract_numbers_from_text(research_report)
             
+            # Build additional company context
+            additional_context = []
+            if company_info.get('customer_segment'):
+                additional_context.append(f"Customer Segment: {company_info.get('customer_segment')}")
+            if company_info.get('expansion_direction'):
+                additional_context.append(f"Expansion Direction: {company_info.get('expansion_direction')}")
+            if company_info.get('company_size'):
+                additional_context.append(f"Company Size: {company_info.get('company_size')}")
+            if company_info.get('annual_revenue'):
+                additional_context.append(f"Annual Revenue: {company_info.get('annual_revenue')}")
+            if company_info.get('funding_stage'):
+                additional_context.append(f"Funding Stage: {company_info.get('funding_stage')}")
+            if company_info.get('current_markets'):
+                additional_context.append(f"Current Markets: {company_info.get('current_markets')}")
+            if company_info.get('key_products'):
+                additional_context.append(f"Key Products/Services: {company_info.get('key_products')}")
+            if company_info.get('competitive_advantage'):
+                additional_context.append(f"Competitive Advantage: {company_info.get('competitive_advantage')}")
+            if company_info.get('expansion_timeline'):
+                additional_context.append(f"Expansion Timeline: {company_info.get('expansion_timeline')}")
+            if company_info.get('budget_range'):
+                additional_context.append(f"Budget Range: {company_info.get('budget_range')}")
+            if company_info.get('regulatory_requirements'):
+                additional_context.append(f"Regulatory Requirements: {company_info.get('regulatory_requirements')}")
+            if company_info.get('partnership_preferences'):
+                additional_context.append(f"Partnership Preferences: {company_info.get('partnership_preferences')}")
+            
             # Prepare the scoring request
             analysis_prompt = f"""
 {self.scoring_prompt}
@@ -192,6 +219,7 @@ Industry: {company_info.get('industry', 'Unknown')}
 Target Market: {company_info.get('target_market', 'Unknown')}
 Current Positioning: {company_info.get('current_positioning', 'Not specified')}
 Brand Description: {company_info.get('brand_description', 'Not specified')}
+{chr(10).join(additional_context) if additional_context else ''}
 
 ## EXTRACTED DATA POINTS:
 {json.dumps(extracted_data, indent=2)}

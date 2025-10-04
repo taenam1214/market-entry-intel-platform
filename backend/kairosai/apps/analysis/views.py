@@ -57,7 +57,20 @@ class MarketAnalysisAPIView(APIView):
                 'website': request.data.get('website', ''),
                 'current_positioning': request.data.get('current_positioning', ''),
                 'brand_description': request.data.get('brand_description', ''),
-                'email': request.data.get('email', '')
+                'email': request.data.get('email', ''),
+                # Additional optional fields from AnalysisForm
+                'customer_segment': request.data.get('customer_segment', ''),
+                'expansion_direction': request.data.get('expansion_direction', ''),
+                'company_size': request.data.get('company_size', ''),
+                'annual_revenue': request.data.get('annual_revenue', ''),
+                'funding_stage': request.data.get('funding_stage', ''),
+                'current_markets': request.data.get('current_markets', ''),
+                'key_products': request.data.get('key_products', ''),
+                'competitive_advantage': request.data.get('competitive_advantage', ''),
+                'expansion_timeline': request.data.get('expansion_timeline', ''),
+                'budget_range': request.data.get('budget_range', ''),
+                'regulatory_requirements': request.data.get('regulatory_requirements', ''),
+                'partnership_preferences': request.data.get('partnership_preferences', '')
             }
             
             # Import agents
@@ -200,6 +213,19 @@ Recommended Actions:
                         website=company_info.get('website', ''),
                         current_positioning=company_info.get('current_positioning', ''),
                         brand_description=company_info.get('brand_description', ''),
+                        # Additional optional fields
+                        customer_segment=company_info.get('customer_segment', ''),
+                        expansion_direction=company_info.get('expansion_direction', ''),
+                        company_size=company_info.get('company_size', ''),
+                        annual_revenue=company_info.get('annual_revenue', ''),
+                        funding_stage=company_info.get('funding_stage', ''),
+                        current_markets=company_info.get('current_markets', ''),
+                        key_products=company_info.get('key_products', ''),
+                        competitive_advantage=company_info.get('competitive_advantage', ''),
+                        expansion_timeline=company_info.get('expansion_timeline', ''),
+                        budget_range=company_info.get('budget_range', ''),
+                        regulatory_requirements=company_info.get('regulatory_requirements', ''),
+                        partnership_preferences=company_info.get('partnership_preferences', ''),
                         dashboard_data=response_data['dashboard'],
                         detailed_scores=scores,
                         research_report=research_report,
@@ -402,7 +428,20 @@ class DeepMarketAnalysisAPIView(APIView):
                 'website': request.data.get('website', ''),
                 'current_positioning': request.data.get('current_positioning', ''),
                 'brand_description': request.data.get('brand_description', ''),
-                'email': request.data.get('email', '')
+                'email': request.data.get('email', ''),
+                # Additional optional fields from AnalysisForm
+                'customer_segment': request.data.get('customer_segment', ''),
+                'expansion_direction': request.data.get('expansion_direction', ''),
+                'company_size': request.data.get('company_size', ''),
+                'annual_revenue': request.data.get('annual_revenue', ''),
+                'funding_stage': request.data.get('funding_stage', ''),
+                'current_markets': request.data.get('current_markets', ''),
+                'key_products': request.data.get('key_products', ''),
+                'competitive_advantage': request.data.get('competitive_advantage', ''),
+                'expansion_timeline': request.data.get('expansion_timeline', ''),
+                'budget_range': request.data.get('budget_range', ''),
+                'regulatory_requirements': request.data.get('regulatory_requirements', ''),
+                'partnership_preferences': request.data.get('partnership_preferences', '')
             }
             
             # Import agents
