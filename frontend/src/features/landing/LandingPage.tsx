@@ -6,13 +6,9 @@ import {
   Text,
   VStack,
   HStack,
-  Badge,
   Icon,
-  Flex,
   SimpleGrid,
   Button,
-  Card,
-  CardBody,
   Fade,
   Modal,
   ModalOverlay,
@@ -258,11 +254,9 @@ const LandingPage = () => {
             </Text>
           </VStack>
             <AnalysisForm 
-              showWelcomeMessage={true}
               welcomeTitle="Start Your US-Asia Market Analysis"
               welcomeSubtitle="Let KairosAI autonomously research and analyze your cross-Pacific expansion opportunities"
               submitButtonText="Start KairosAI Analysis"
-              isStreamlined={true}
             />
           </VStack>
         </Container>
@@ -864,7 +858,7 @@ const LandingPage = () => {
                       as="a"
                       href="#"
                       cursor="pointer"
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.preventDefault();
                         // Future: window.open('https://linkedin.com/company/kairosai', '_blank');
                       }}
@@ -875,7 +869,7 @@ const LandingPage = () => {
                       as="a"
                       href="#"
                       cursor="pointer"
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.preventDefault();
                         // Future: window.open('https://youtube.com/@kairosai', '_blank');
                       }}

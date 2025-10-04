@@ -21,7 +21,6 @@ import {
   AccordionPanel,
   AccordionIcon,
   Badge,
-  Divider,
   Link,
   Icon,
   SimpleGrid,
@@ -37,8 +36,6 @@ import {
   FiBook,
   FiVideo,
   FiDownload,
-  FiExternalLink,
-  FiClock,
   FiCheckCircle,
   FiArrowRight,
 } from 'react-icons/fi';
