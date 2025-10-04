@@ -8,4 +8,4 @@ echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
 echo "Build completed successfully!"
-echo "Note: Migrations will be run after deployment to ensure proper database connection."
+echo "Migrations will run during deployment with production settings."
