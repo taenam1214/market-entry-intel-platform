@@ -26,19 +26,15 @@ import { authService } from '../auth/authService';
 
 interface AnalysisFormProps {
   // Optional props for customization
-  showWelcomeMessage?: boolean;
   welcomeTitle?: string;
   welcomeSubtitle?: string;
   submitButtonText?: string;
-  isStreamlined?: boolean;
 }
 
 const AnalysisForm: React.FC<AnalysisFormProps> = ({
-  showWelcomeMessage = false,
   welcomeTitle = "Start Your US-Asia Market Analysis",
   welcomeSubtitle = "Let KairosAI autonomously research and analyze your cross-Pacific expansion opportunities",
   submitButtonText = "See KairosAI Analysis",
-  isStreamlined = false,
 }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({

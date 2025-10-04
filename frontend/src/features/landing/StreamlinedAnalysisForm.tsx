@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -9,19 +8,7 @@ import {
 import { useAuth } from '../../auth/AuthContext';
 import AnalysisForm from '../../components/AnalysisForm';
 
-interface StreamlinedAnalysisFormProps {
-  customerSegments: Array<{ value: string; label: string; description: string }>;
-  expansionDirections: Array<{ value: string; label: string; description: string }>;
-  targetMarkets: Array<{ value: string; label: string }>;
-  companySizes: Array<{ value: string; label: string }>;
-  revenueRanges: Array<{ value: string; label: string }>;
-  fundingStages: Array<{ value: string; label: string }>;
-  expansionTimelines: Array<{ value: string; label: string }>;
-  budgetRanges: Array<{ value: string; label: string }>;
-}
-
-const StreamlinedAnalysisForm: React.FC<StreamlinedAnalysisFormProps> = ({
-}) => {
+const StreamlinedAnalysisForm: React.FC = () => {
   const { user } = useAuth();
 
   return (
@@ -40,11 +27,9 @@ const StreamlinedAnalysisForm: React.FC<StreamlinedAnalysisFormProps> = ({
 
           {/* Use the shared AnalysisForm component */}
           <AnalysisForm 
-            showWelcomeMessage={true}
             welcomeTitle="Start Your US-Asia Market Analysis"
             welcomeSubtitle="Let KairosAI autonomously research and analyze your cross-Pacific expansion opportunities"
             submitButtonText="Start KairosAI Analysis"
-            isStreamlined={true}
           />
         </VStack>
       </Container>

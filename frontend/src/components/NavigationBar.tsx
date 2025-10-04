@@ -20,7 +20,6 @@ import {
   MenuItem,
   MenuDivider,
   Avatar,
-  useColorModeValue,
   Container,
   Modal,
   ModalOverlay,

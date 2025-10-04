@@ -47,7 +47,8 @@ const ExecutiveDashboardPage = () => {
     }
   }, [user]);
 
-  const _fetchCompetitorSummary = async (companyInfo: any) => {
+  // @ts-ignore
+  const fetchCompetitorSummary = async (companyInfo: any) => {
     setLoadingCompetitorSummary(true);
     setCompetitorError(null);
     try {
@@ -77,6 +78,7 @@ const ExecutiveDashboardPage = () => {
   const generateExecutiveSummary = () => {
     const companyName = dashboard?.company_name || 'Your Company';
     const segment = dashboard?.customer_segment || 'business';
+    // @ts-ignore
     const direction = dashboard?.expansion_direction || 'global';
     const targetMarket = dashboard?.target_market || 'target market';
     const industry = dashboard?.industry || 'Technology';
@@ -457,6 +459,7 @@ For questions or additional analysis, contact the Strategic Planning team.
     const companySize = dashboard?.company_size || 'Medium';
     const annualRevenue = dashboard?.annual_revenue || 'TBD';
     const fundingStage = dashboard?.funding_stage || 'Growth stage';
+    // @ts-ignore
     const direction = dashboard?.expansion_direction || 'global';
     
     const currentDate = new Date().toLocaleDateString('en-US', { 
@@ -665,7 +668,8 @@ For questions or additional analysis, contact the Strategic Planning team.
     const expansionTimeline = dashboard?.expansion_timeline || 'Medium-term';
     const companySize = dashboard?.company_size || 'Medium';
     const annualRevenue = dashboard?.annual_revenue || 'TBD';
-    const _direction = dashboard?.expansion_direction || 'global';
+    // @ts-ignore
+    const direction = dashboard?.expansion_direction || 'global';
     
     const currentDate = new Date().toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -1038,8 +1042,10 @@ For questions or additional analysis, contact the Strategic Planning team.
 
   // Extract data from API response and calculate WTP metrics
   const customerSegment = dashboard?.customer_segment || 'business';
-  const _marketScore = parseInt(dashboard?.dashboard?.market_opportunity_score) || 0;
-  const _complexityScore = parseInt(dashboard?.dashboard?.entry_complexity_score) || 0;
+  // @ts-ignore
+  const marketScore = parseInt(dashboard?.dashboard?.market_opportunity_score) || 0;
+  // @ts-ignore
+  const complexityScore = parseInt(dashboard?.dashboard?.entry_complexity_score) || 0;
   
   // WTP Analysis by Customer Segment
   const getWTPData = (segment: string) => {
@@ -1183,14 +1189,14 @@ For questions or additional analysis, contact the Strategic Planning team.
                     </Text>
                     <Text fontSize="md" opacity="0.9">→</Text>
                     <Text fontSize="lg" fontWeight="bold">
-                      {dashboard?.expansion_direction ? 
+                      {dashboard?.expansiondirection ? 
                         (() => {
                           const directions: { [key: string]: string } = {
                             'us-to-asia': 'US to Asia',
                             'asia-to-us': 'Asia to US',
                             'both': 'Multi-Market Expansion'
                           };
-                          return directions[dashboard.expansion_direction] || 'Global Expansion';
+                          return directions[dashboard.expansiondirection] || 'Global Expansion';
                         })() : 'Global Expansion'
                       }
                     </Text>
