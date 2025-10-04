@@ -1,0 +1,13 @@
+[build]
+builder = "nixpacks"
+buildCommand = "cd backend/kairosai && chmod +x build.sh && ./build.sh"
+
+[deploy]
+startCommand = "cd backend/kairosai && DJANGO_SETTINGS_MODULE=kairosai.settings_production gunicorn kairosai.wsgi:application --bind 0.0.0.0:$PORT"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+[deploy.healthcheck]
+enabled = true
