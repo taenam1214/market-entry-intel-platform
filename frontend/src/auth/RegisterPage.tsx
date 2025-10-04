@@ -125,8 +125,8 @@ const RegisterPage: React.FC = () => {
   const displayError = localError || error;
 
   return (
-    <Box minH="100vh" bg="gray.50" py={12}>
-      <Container maxW="lg">
+    <Box minH="100vh" bg="#140d28" py={12}>
+      <Container maxW="xl">
         <VStack spacing={8} align="stretch">
           {/* Header */}
           <VStack spacing={4} textAlign="center">
@@ -135,26 +135,34 @@ const RegisterPage: React.FC = () => {
               leftIcon={<FiArrowLeft />}
               onClick={() => navigate('/')}
               alignSelf="flex-start"
-              color="purple.600"
+              color="white"
+              _hover={{ bg: 'rgba(255,255,255,0.1)' }}
             >
               Back to Home
             </Button>
             
             <Heading 
               size="xl" 
-              color={textColor}
+              color="white"
               fontWeight="bold"
               fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
             >
               Join KairosAI
             </Heading>
-            <Text color="gray.600" fontSize="lg">
+            <Text color="rgba(255,255,255,0.8)" fontSize="lg">
               Create your account to start your market intelligence journey
             </Text>
           </VStack>
 
           {/* Registration Form */}
-          <Box bg={bg} p={8} borderRadius="xl" shadow="lg" border="1px" borderColor={borderColor}>
+          <Box 
+            bg="rgba(255,255,255,0.05)" 
+            p={8} 
+            borderRadius="xl" 
+            backdropFilter="blur(20px)"
+            border="1px solid rgba(255,255,255,0.1)"
+            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
+          >
             <form onSubmit={handleSubmit}>
               <VStack spacing={6}>
                 {/* Error Alert */}
@@ -165,52 +173,65 @@ const RegisterPage: React.FC = () => {
                   </Alert>
                 )}
 
-                {/* Name Fields */}
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
-                  <FormControl isRequired>
-                    <FormLabel color={textColor} fontWeight="medium">
-                      First Name
-                    </FormLabel>
-                    <Input
-                      name="first_name"
-                      type="text"
-                      value={formData.first_name}
-                      onChange={handleInputChange}
-                      placeholder="Enter your first name"
-                      size="lg"
-                      borderRadius="lg"
-                      borderColor={borderColor}
-                      _focus={{
-                        borderColor: 'purple.500',
-                        boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)',
-                      }}
-                    />
-                  </FormControl>
+                {/* First Name Field */}
+                <FormControl isRequired>
+                  <FormLabel color="white" fontWeight="medium">
+                    First Name
+                  </FormLabel>
+                  <Input
+                    name="first_name"
+                    type="text"
+                    value={formData.first_name}
+                    onChange={handleInputChange}
+                    placeholder="Enter your first name"
+                    size="lg"
+                    borderRadius="lg"
+                    bg="rgba(255,255,255,0.1)"
+                    borderColor="rgba(255,255,255,0.2)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{
+                      borderColor: '#667eea',
+                      boxShadow: '0 0 0 1px #667eea',
+                      bg: 'rgba(255,255,255,0.15)',
+                    }}
+                    _hover={{
+                      borderColor: 'rgba(255,255,255,0.3)',
+                    }}
+                  />
+                </FormControl>
 
-                  <FormControl isRequired>
-                    <FormLabel color={textColor} fontWeight="medium">
-                      Last Name
-                    </FormLabel>
-                    <Input
-                      name="last_name"
-                      type="text"
-                      value={formData.last_name}
-                      onChange={handleInputChange}
-                      placeholder="Enter your last name"
-                      size="lg"
-                      borderRadius="lg"
-                      borderColor={borderColor}
-                      _focus={{
-                        borderColor: 'purple.500',
-                        boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)',
-                      }}
-                    />
-                  </FormControl>
-                </SimpleGrid>
+                {/* Last Name Field */}
+                <FormControl isRequired>
+                  <FormLabel color="white" fontWeight="medium">
+                    Last Name
+                  </FormLabel>
+                  <Input
+                    name="last_name"
+                    type="text"
+                    value={formData.last_name}
+                    onChange={handleInputChange}
+                    placeholder="Enter your last name"
+                    size="lg"
+                    borderRadius="lg"
+                    bg="rgba(255,255,255,0.1)"
+                    borderColor="rgba(255,255,255,0.2)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{
+                      borderColor: '#667eea',
+                      boxShadow: '0 0 0 1px #667eea',
+                      bg: 'rgba(255,255,255,0.15)',
+                    }}
+                    _hover={{
+                      borderColor: 'rgba(255,255,255,0.3)',
+                    }}
+                  />
+                </FormControl>
 
                 {/* Email Field */}
                 <FormControl isRequired>
-                  <FormLabel color={textColor} fontWeight="medium">
+                  <FormLabel color="white" fontWeight="medium">
                     Email Address
                   </FormLabel>
                   <Input
@@ -221,83 +242,104 @@ const RegisterPage: React.FC = () => {
                     placeholder="Enter your email address"
                     size="lg"
                     borderRadius="lg"
-                    borderColor={borderColor}
+                    bg="rgba(255,255,255,0.1)"
+                    borderColor="rgba(255,255,255,0.2)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
                     _focus={{
-                      borderColor: 'purple.500',
-                      boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)',
+                      borderColor: '#667eea',
+                      boxShadow: '0 0 0 1px #667eea',
+                      bg: 'rgba(255,255,255,0.15)',
+                    }}
+                    _hover={{
+                      borderColor: 'rgba(255,255,255,0.3)',
                     }}
                   />
                 </FormControl>
 
-                {/* Password Fields */}
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
-                  <FormControl isRequired>
-                    <FormLabel color={textColor} fontWeight="medium">
-                      Password
-                    </FormLabel>
-                    <HStack>
-                      <Input
-                        name="password"
-                        type={showPassword ? 'text' : 'password'}
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        placeholder="Create a password"
-                        size="lg"
-                        borderRadius="lg"
-                        borderColor={borderColor}
-                        _focus={{
-                          borderColor: 'purple.500',
-                          boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)',
-                        }}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="lg"
-                        onClick={() => setShowPassword(!showPassword)}
-                        color="gray.500"
-                        _hover={{ color: 'purple.600' }}
-                      >
-                        {showPassword ? <FiEyeOff /> : <FiEye />}
-                      </Button>
-                    </HStack>
-                  </FormControl>
+                {/* Password Field */}
+                <FormControl isRequired>
+                  <FormLabel color="white" fontWeight="medium">
+                    Password
+                  </FormLabel>
+                  <HStack>
+                    <Input
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="Create a password"
+                      size="lg"
+                      borderRadius="lg"
+                      bg="rgba(255,255,255,0.1)"
+                      borderColor="rgba(255,255,255,0.2)"
+                      color="white"
+                      _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                      _focus={{
+                        borderColor: '#667eea',
+                        boxShadow: '0 0 0 1px #667eea',
+                        bg: 'rgba(255,255,255,0.15)',
+                      }}
+                      _hover={{
+                        borderColor: 'rgba(255,255,255,0.3)',
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={() => setShowPassword(!showPassword)}
+                      color="rgba(255,255,255,0.7)"
+                      _hover={{ color: '#667eea', bg: 'rgba(255,255,255,0.1)' }}
+                    >
+                      {showPassword ? <FiEyeOff /> : <FiEye />}
+                    </Button>
+                  </HStack>
+                </FormControl>
 
-                  <FormControl isRequired>
-                    <FormLabel color={textColor} fontWeight="medium">
-                      Confirm Password
-                    </FormLabel>
-                    <HStack>
-                      <Input
-                        name="confirmPassword"
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        placeholder="Confirm your password"
-                        size="lg"
-                        borderRadius="lg"
-                        borderColor={borderColor}
-                        _focus={{
-                          borderColor: 'purple.500',
-                          boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)',
-                        }}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="lg"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        color="gray.500"
-                        _hover={{ color: 'purple.600' }}
-                      >
-                        {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
-                      </Button>
-                    </HStack>
-                  </FormControl>
-                </SimpleGrid>
+                {/* Confirm Password Field */}
+                <FormControl isRequired>
+                  <FormLabel color="white" fontWeight="medium">
+                    Confirm Password
+                  </FormLabel>
+                  <HStack>
+                    <Input
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      placeholder="Confirm your password"
+                      size="lg"
+                      borderRadius="lg"
+                      bg="rgba(255,255,255,0.1)"
+                      borderColor="rgba(255,255,255,0.2)"
+                      color="white"
+                      _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                      _focus={{
+                        borderColor: '#667eea',
+                        boxShadow: '0 0 0 1px #667eea',
+                        bg: 'rgba(255,255,255,0.15)',
+                      }}
+                      _hover={{
+                        borderColor: 'rgba(255,255,255,0.3)',
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      color="rgba(255,255,255,0.7)"
+                      _hover={{ color: '#667eea', bg: 'rgba(255,255,255,0.1)' }}
+                    >
+                      {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                    </Button>
+                  </HStack>
+                </FormControl>
 
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  colorScheme="purple"
+                  bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                  color="white"
                   size="lg"
                   width="full"
                   isLoading={isLoading}
@@ -306,20 +348,22 @@ const RegisterPage: React.FC = () => {
                   borderRadius="lg"
                   fontWeight="semibold"
                   _hover={{
-                    transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)',
                   }}
+                  _active={{ transform: 'translateY(0)' }}
                 >
                   Create Account
                 </Button>
 
                 {/* Divider */}
                 <HStack width="full">
-                  <Divider />
-                  <Text color="gray.500" fontSize="sm" px={2}>
+                  <Divider borderColor="rgba(255,255,255,0.2)" />
+                  <Text color="rgba(255,255,255,0.6)" fontSize="sm" px={2}>
                     OR
                   </Text>
-                  <Divider />
+                  <Divider borderColor="rgba(255,255,255,0.2)" />
                 </HStack>
 
                 {/* Google OAuth Button */}
@@ -334,11 +378,11 @@ const RegisterPage: React.FC = () => {
 
           {/* Footer */}
           <VStack spacing={4}>
-            <Divider />
-            <Text color="gray.600" textAlign="center">
+            <Divider borderColor="rgba(255,255,255,0.2)" />
+            <Text color="rgba(255,255,255,0.8)" textAlign="center">
               Already have an account?{' '}
               <Link to="/login">
-                <Text as="span" color="purple.600" fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
+                <Text as="span" color="#667eea" fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
                   Sign in here
                 </Text>
               </Link>

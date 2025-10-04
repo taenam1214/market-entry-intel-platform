@@ -93,8 +93,8 @@ const LoginPage: React.FC = () => {
   const displayError = localError || error;
 
   return (
-    <Box minH="100vh" bg="gray.50" py={12}>
-      <Container maxW="md">
+    <Box minH="100vh" bg="#140d28" py={12}>
+      <Container maxW="xl">
         <VStack spacing={8} align="stretch">
           {/* Header */}
           <VStack spacing={4} textAlign="center">
@@ -103,26 +103,34 @@ const LoginPage: React.FC = () => {
               leftIcon={<FiArrowLeft />}
               onClick={() => navigate('/')}
               alignSelf="flex-start"
-              color="purple.600"
+              color="white"
+              _hover={{ bg: 'rgba(255,255,255,0.1)' }}
             >
               Back to Home
             </Button>
             
             <Heading 
               size="xl" 
-              color={textColor}
+              color="white"
               fontWeight="bold"
               fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
             >
               Welcome Back
             </Heading>
-            <Text color="gray.600" fontSize="lg">
+            <Text color="rgba(255,255,255,0.8)" fontSize="lg">
               Sign in to your KairosAI account
             </Text>
           </VStack>
 
           {/* Login Form */}
-          <Box bg={bg} p={8} borderRadius="xl" shadow="lg" border="1px" borderColor={borderColor}>
+          <Box 
+            bg="rgba(255,255,255,0.05)" 
+            p={8} 
+            borderRadius="xl" 
+            backdropFilter="blur(20px)"
+            border="1px solid rgba(255,255,255,0.1)"
+            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
+          >
             <form onSubmit={handleSubmit}>
               <VStack spacing={6}>
                 {/* Error Alert */}
@@ -135,7 +143,7 @@ const LoginPage: React.FC = () => {
 
                 {/* Email Field */}
                 <FormControl isRequired>
-                  <FormLabel color={textColor} fontWeight="medium">
+                  <FormLabel color="white" fontWeight="medium">
                     Email Address
                   </FormLabel>
                   <Input
@@ -146,17 +154,24 @@ const LoginPage: React.FC = () => {
                     placeholder="Enter your email address"
                     size="lg"
                     borderRadius="lg"
-                    borderColor={borderColor}
+                    bg="rgba(255,255,255,0.1)"
+                    borderColor="rgba(255,255,255,0.2)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
                     _focus={{
-                      borderColor: 'purple.500',
-                      boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)',
+                      borderColor: '#667eea',
+                      boxShadow: '0 0 0 1px #667eea',
+                      bg: 'rgba(255,255,255,0.15)',
+                    }}
+                    _hover={{
+                      borderColor: 'rgba(255,255,255,0.3)',
                     }}
                   />
                 </FormControl>
 
                 {/* Password Field */}
                 <FormControl isRequired>
-                  <FormLabel color={textColor} fontWeight="medium">
+                  <FormLabel color="white" fontWeight="medium">
                     Password
                   </FormLabel>
                   <HStack>
@@ -168,18 +183,25 @@ const LoginPage: React.FC = () => {
                       placeholder="Enter your password"
                       size="lg"
                       borderRadius="lg"
-                      borderColor={borderColor}
+                      bg="rgba(255,255,255,0.1)"
+                      borderColor="rgba(255,255,255,0.2)"
+                      color="white"
+                      _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
                       _focus={{
-                        borderColor: 'purple.500',
-                        boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)',
+                        borderColor: '#667eea',
+                        boxShadow: '0 0 0 1px #667eea',
+                        bg: 'rgba(255,255,255,0.15)',
+                      }}
+                      _hover={{
+                        borderColor: 'rgba(255,255,255,0.3)',
                       }}
                     />
                     <Button
                       variant="ghost"
                       size="lg"
                       onClick={() => setShowPassword(!showPassword)}
-                      color="gray.500"
-                      _hover={{ color: 'purple.600' }}
+                      color="rgba(255,255,255,0.7)"
+                      _hover={{ color: '#667eea', bg: 'rgba(255,255,255,0.1)' }}
                     >
                       {showPassword ? <FiEyeOff /> : <FiEye />}
                     </Button>
@@ -189,7 +211,8 @@ const LoginPage: React.FC = () => {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  colorScheme="purple"
+                  bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                  color="white"
                   size="lg"
                   width="full"
                   isLoading={isLoading}
@@ -198,20 +221,22 @@ const LoginPage: React.FC = () => {
                   borderRadius="lg"
                   fontWeight="semibold"
                   _hover={{
-                    transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)',
                   }}
+                  _active={{ transform: 'translateY(0)' }}
                 >
                   Sign In
                 </Button>
 
                 {/* Divider */}
                 <HStack width="full">
-                  <Divider />
-                  <Text color="gray.500" fontSize="sm" px={2}>
+                  <Divider borderColor="rgba(255,255,255,0.2)" />
+                  <Text color="rgba(255,255,255,0.6)" fontSize="sm" px={2}>
                     OR
                   </Text>
-                  <Divider />
+                  <Divider borderColor="rgba(255,255,255,0.2)" />
                 </HStack>
 
                 {/* Google OAuth Button */}
@@ -226,11 +251,11 @@ const LoginPage: React.FC = () => {
 
           {/* Footer */}
           <VStack spacing={4}>
-            <Divider />
-            <Text color="gray.600" textAlign="center">
+            <Divider borderColor="rgba(255,255,255,0.2)" />
+            <Text color="rgba(255,255,255,0.8)" textAlign="center">
               Don't have an account?{' '}
               <Link to="/register">
-                <Text as="span" color="purple.600" fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
+                <Text as="span" color="#667eea" fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
                   Sign up here
                 </Text>
               </Link>
