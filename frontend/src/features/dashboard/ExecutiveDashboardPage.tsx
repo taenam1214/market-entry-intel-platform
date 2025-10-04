@@ -47,7 +47,7 @@ const ExecutiveDashboardPage = () => {
     }
   }, [user]);
 
-  const fetchCompetitorSummary = async (companyInfo: any) => {
+  const _fetchCompetitorSummary = async (companyInfo: any) => {
     setLoadingCompetitorSummary(true);
     setCompetitorError(null);
     try {
@@ -665,7 +665,7 @@ For questions or additional analysis, contact the Strategic Planning team.
     const expansionTimeline = dashboard?.expansion_timeline || 'Medium-term';
     const companySize = dashboard?.company_size || 'Medium';
     const annualRevenue = dashboard?.annual_revenue || 'TBD';
-    const direction = dashboard?.expansion_direction || 'global';
+    const _direction = dashboard?.expansion_direction || 'global';
     
     const currentDate = new Date().toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -1038,8 +1038,8 @@ For questions or additional analysis, contact the Strategic Planning team.
 
   // Extract data from API response and calculate WTP metrics
   const customerSegment = dashboard?.customer_segment || 'business';
-  const marketScore = parseInt(dashboard?.dashboard?.market_opportunity_score) || 0;
-  const complexityScore = parseInt(dashboard?.dashboard?.entry_complexity_score) || 0;
+  const _marketScore = parseInt(dashboard?.dashboard?.market_opportunity_score) || 0;
+  const _complexityScore = parseInt(dashboard?.dashboard?.entry_complexity_score) || 0;
   
   // WTP Analysis by Customer Segment
   const getWTPData = (segment: string) => {

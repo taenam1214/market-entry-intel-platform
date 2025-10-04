@@ -21,14 +21,6 @@ interface StreamlinedAnalysisFormProps {
 }
 
 const StreamlinedAnalysisForm: React.FC<StreamlinedAnalysisFormProps> = ({
-  customerSegments,
-  expansionDirections,
-  targetMarkets,
-  companySizes,
-  revenueRanges,
-  fundingStages,
-  expansionTimelines,
-  budgetRanges,
 }) => {
   const { user } = useAuth();
 
