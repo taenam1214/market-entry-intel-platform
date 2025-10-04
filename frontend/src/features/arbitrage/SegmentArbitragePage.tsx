@@ -1,5 +1,5 @@
-import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Badge, SimpleGrid, Spinner, Flex, Divider, Icon, Grid, GridItem, Button } from '@chakra-ui/react';
-import { FiTarget, FiTrendingUp, FiUsers, FiZap, FiArrowRight, FiBarChart } from 'react-icons/fi';
+import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Badge, Spinner, Icon, Grid, Button } from '@chakra-ui/react';
+import { FiTarget, FiTrendingUp, FiUsers, FiZap, FiArrowRight } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
