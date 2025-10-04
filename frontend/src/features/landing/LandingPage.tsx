@@ -27,6 +27,7 @@ import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers,
 import { FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
+import { useData } from '../../contexts/DataContext';
 import AnalysisForm from '../../components/AnalysisForm';
 import KairosAILogo from '../../assets/KairosAI_logo.png';
 
@@ -125,7 +126,8 @@ const DynamicConnectionLine = ({
 
 const LandingPage = () => {
   const { isAuthenticated, user } = useAuth();
-  const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
+  const { analysisData } = useData();
+  const hasAnalysisHistory = analysisData.hasAnalysisHistory;
   const [showAnalysisForm, setShowAnalysisForm] = useState(false);
   const [activeConnections, setActiveConnections] = useState<Array<{
     fromX: string;
@@ -208,14 +210,7 @@ const LandingPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Check if user has analysis history
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      // Check localStorage for analysis history
-      const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
-      setHasAnalysisHistory(!!analysisHistory);
-    }
-  }, [isAuthenticated, user]);
+  // Remove the useEffect since we're now using centralized data context
 
   // Handle analysis button click
   const handleAnalysisClick = () => {

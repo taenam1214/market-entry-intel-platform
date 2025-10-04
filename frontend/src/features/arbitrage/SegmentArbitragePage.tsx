@@ -1,44 +1,20 @@
 import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Badge, Spinner, Icon, Grid, Button } from '@chakra-ui/react';
 import { FiTarget, FiTrendingUp, FiUsers, FiZap, FiArrowRight } from 'react-icons/fi';
-import { useEffect, useState } from 'react';
-import { useAuth } from '../../auth/AuthContext';
+import { useData } from '../../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
 
 const SegmentArbitragePage = () => {
-  const { user } = useAuth();
+  const { analysisData } = useData();
   const navigate = useNavigate();
-  const [arbitrageData, setArbitrageData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [hasAnalysisHistory, setHasAnalysisHistory] = useState(false);
+  
+  // Use data from centralized context
+  const arbitrageData = analysisData.arbitrageData;
+  const hasAnalysisHistory = analysisData.hasAnalysisHistory;
+  const isLoading = analysisData.isLoading;
 
-  useEffect(() => {
-    if (user) {
-      // Check for analysis history
-      const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
-      setHasAnalysisHistory(!!analysisHistory);
-      
-      // Only load arbitrage data if user has analysis history
-      if (analysisHistory) {
-        const arbitrage = localStorage.getItem('segmentArbitrage');
-        console.log('Raw arbitrage data from localStorage:', arbitrage);
-        if (arbitrage) {
-          try {
-            const parsedArbitrage = JSON.parse(arbitrage);
-            console.log('Parsed arbitrage data:', parsedArbitrage);
-            setArbitrageData(parsedArbitrage);
-          } catch (e) {
-            console.log('Failed to parse arbitrage data, using as string:', e);
-            setArbitrageData(arbitrage);
-          }
-        } else {
-          console.log('No arbitrage data found in localStorage');
-        }
-      }
-    }
-    setLoading(false);
-  }, [user]);
+  // Remove the useEffect since we're now using centralized data context
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box p={6} w="100%">
         <Container maxW="100%" px={8}>
