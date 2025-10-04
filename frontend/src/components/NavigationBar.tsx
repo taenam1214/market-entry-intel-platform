@@ -30,7 +30,7 @@ import {
   ModalCloseButton,
   Image,
 } from '@chakra-ui/react';
-import { FiMenu, FiUser, FiLogOut, FiSettings, FiHelpCircle, FiChevronDown } from 'react-icons/fi';
+import { FiMenu, FiLogOut, FiSettings, FiHelpCircle, FiChevronDown } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import KairosAILogo from '../assets/KairosAI_logo.png';
@@ -194,9 +194,6 @@ const NavigationBar: React.FC = () => {
                   </VStack>
                 </MenuButton>
                 <MenuList>
-                  <MenuItem icon={<FiUser />} onClick={() => handleNavigation('/profile')}>
-                    Profile
-                  </MenuItem>
                   <MenuItem icon={<FiSettings />} onClick={() => handleNavigation('/settings')}>
                     Settings
                   </MenuItem>
@@ -333,17 +330,6 @@ const NavigationBar: React.FC = () => {
                       <Text fontSize="xs" color="gray.500">{navigationUser?.email}</Text>
                     </VStack>
                     
-                    <Button
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      border="none"
-                      outline="none"
-                      _hover={{ border: 'none', outline: 'none' }}
-                      leftIcon={<FiUser />}
-                      onClick={() => handleNavigation('/profile')}
-                    >
-                      Profile
-                    </Button>
                     <Button
                       variant="ghost"
                       justifyContent="flex-start"
