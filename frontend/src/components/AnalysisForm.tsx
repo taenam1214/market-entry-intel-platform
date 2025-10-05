@@ -247,9 +247,12 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
       }
       const data = await marketRes.json();
-      localStorage.setItem('dashboardData', JSON.stringify(data));
+      // Parse competitor and arbitrage data
+      let competitorData = null;
+      let arbitrageData = null;
+      
       if (competitorRes.ok) {
-        const competitorData = await competitorRes.json();
+        competitorData = await competitorRes.json();
         console.log('Competitor API response:', competitorData);
         console.log('Competitor analysis data:', competitorData.competitor_analysis);
         localStorage.setItem('competitorSummary', JSON.stringify(competitorData.competitor_analysis));
@@ -259,7 +262,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
       }
       
       if (arbitrageRes.ok) {
-        const arbitrageData = await arbitrageRes.json();
+        arbitrageData = await arbitrageRes.json();
         console.log('Arbitrage API response:', arbitrageData);
         console.log('Arbitrage analysis data:', arbitrageData.segment_arbitrage);
         localStorage.setItem('segmentArbitrage', JSON.stringify(arbitrageData.segment_arbitrage));
@@ -268,9 +271,18 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         localStorage.setItem('segmentArbitrage', 'No arbitrage analysis available.');
       }
       
-      // Store analysis data in localStorage for authenticated users
+      // Store all data globally (for backward compatibility)
+      localStorage.setItem('dashboardData', JSON.stringify(data));
+      
+      // Store analysis data in localStorage for authenticated users (user-specific)
       if (user) {
-        localStorage.setItem(`analysis_${user.id}`, JSON.stringify(formData));
+        const analysisData = {
+          formData: formData,
+          dashboardData: data,
+          competitorSummary: competitorData?.competitor_analysis || null,
+          arbitrageData: arbitrageData?.segment_arbitrage || null
+        };
+        localStorage.setItem(`analysis_${user.id}`, JSON.stringify(analysisData));
       }
       
       setLoading(false);

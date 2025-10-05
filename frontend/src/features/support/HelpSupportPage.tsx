@@ -154,18 +154,9 @@ const HelpSupportPage = () => {
   ];
 
   return (
-    <Box py={8} bg="#140d28" minH="100vh">
-      <Container maxW="6xl">
-        <VStack spacing={12} align="stretch" py={16}>
-          {/* Header */}
-          <VStack spacing={4} textAlign="center">
-            <Icon as={FiHelpCircle} boxSize={16} color="purple.400" />
-            <Heading size="xl" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Help & Support</Heading>
-            <Text fontSize="lg" color="rgba(255,255,255,0.8)" maxW="3xl">
-              Get the help you need to make the most of KairosAI. Find answers, contact our team, or explore our resources.
-            </Text>
-          </VStack>
-
+    <Box p={6} bg="#140d28" minH="100vh" w="100%">
+      <Container maxW="100%" px={8}>
+        <VStack spacing={12} align="stretch" maxW="7xl" mx="auto">
           {/* Support Channels */}
           <Card 
             bg="rgba(255,255,255,0.05)" 

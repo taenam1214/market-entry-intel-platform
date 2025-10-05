@@ -6,7 +6,6 @@ import {
   HStack,
   Text,
   IconButton,
-  useColorModeValue,
   Flex,
   Avatar,
   Badge,
@@ -68,41 +67,48 @@ const ChatbotPage: React.FC = () => {
       }
 
       try {
-        // Check if we have analysis data in localStorage (same as DataContext)
-        const dashboardDataStr = localStorage.getItem('dashboardData');
-        const hasAnalysisHistory = dashboardDataStr !== null;
+        // Check if we have analysis data in localStorage (user-specific, same as DataContext)
+        const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
+        const hasAnalysisHistory = analysisHistory !== null;
         
-        if (hasAnalysisHistory && dashboardDataStr) {
-          const dashboardData = JSON.parse(dashboardDataStr);
+        if (hasAnalysisHistory && analysisHistory) {
+          const analysisData = JSON.parse(analysisHistory);
+          const dashboardData = analysisData.dashboardData;
           
-          // Create a mock report object from localStorage data
-          const mockReport = {
-            id: 1,
-            analysis_id: dashboardData.analysis_id || 'local-analysis',
-            analysis_type: 'standard',
-            status: 'completed',
-            company_name: dashboardData.company_info?.company_name || 'Your Company',
-            industry: dashboardData.company_info?.industry || 'Your Industry',
-            target_market: dashboardData.company_info?.target_market || 'Target Market',
-            executive_summary: dashboardData.executive_summary || 'Market analysis completed',
-            created_at: new Date().toISOString(),
-            completed_at: new Date().toISOString(),
-          };
-          
-          setAvailableReports([mockReport]);
-          
-          // Only add welcome message if there are reports and no existing messages
-          if (messages.length === 0) {
-            setMessages([
-              {
-                id: '1',
-                type: 'assistant',
-                content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to your market analysis reports and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
+          // Check if dashboardData exists and has the required fields
+          if (dashboardData && dashboardData.company_info) {
+            // Create a mock report object from user-specific localStorage data
+            const mockReport = {
+              id: 1,
+              analysis_id: dashboardData.analysis_id || `user-${user.id}-analysis`,
+              analysis_type: 'standard',
+              status: 'completed',
+              company_name: dashboardData.company_info?.company_name || 'Your Company',
+              industry: dashboardData.company_info?.industry || 'Your Industry',
+              target_market: dashboardData.company_info?.target_market || 'Target Market',
+              executive_summary: dashboardData.executive_summary || 'Market analysis completed',
+              created_at: new Date().toISOString(),
+              completed_at: new Date().toISOString(),
+            };
+            
+            setAvailableReports([mockReport]);
+            
+            // Only add welcome message if there are reports and no existing messages
+            if (messages.length === 0) {
+              setMessages([
+                {
+                  id: '1',
+                  type: 'assistant',
+                  content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to your market analysis reports and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
 
 I can answer questions about your reports, suggest new markets to explore, help with strategic positioning, assess risks, and provide strategic recommendations. What would you like to discuss?`,
-                timestamp: new Date(),
-              },
-            ]);
+                  timestamp: new Date(),
+                },
+              ]);
+            }
+          } else {
+            // Analysis history exists but no valid dashboard data
+            setAvailableReports([]);
           }
         } else {
           setAvailableReports([]);
@@ -116,7 +122,7 @@ I can answer questions about your reports, suggest new markets to explore, help 
     };
 
     loadData();
-  }, [user, isAuthenticated, messages.length]);
+  }, [user?.id, isAuthenticated, messages.length]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -297,15 +303,15 @@ What would you like to know about your reports?`,
   };
 
   return (
-    <Box minH="100vh" bg="#140d28">
-      <Container maxW="6xl" py={8}>
-        <VStack spacing={6} align="stretch">
+    <Box p={6} bg="#140d28" minH="100vh" w="100%">
+      <Container maxW="100%" px={8}>
+        <VStack spacing={6} align="stretch" maxW="7xl" mx="auto">
           {/* Header */}
           <Box>
-            <Heading size="lg" mb={2} color="white">
+            <Heading size="xl" mb={2} color="white">
               AI Market Intelligence Assistant
             </Heading>
-            <Text color="rgba(255,255,255,0.8)">
+            <Text fontSize="lg" color="rgba(255,255,255,0.8)">
               Chat with your AI assistant about your market analysis reports
             </Text>
           </Box>

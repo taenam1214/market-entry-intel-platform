@@ -97,7 +97,7 @@ const SegmentArbitragePage = () => {
   return (
     <Box p={6} bg="#140d28" minH="100vh" w="100%">
       <Container maxW="100%" px={8}>
-        <VStack spacing={8} align="stretch">
+        <VStack spacing={8} align="stretch" maxW="7xl" mx="auto">
           {/* Header Section */}
           <Box>
             <Heading size="xl" mb={2} color="white">
