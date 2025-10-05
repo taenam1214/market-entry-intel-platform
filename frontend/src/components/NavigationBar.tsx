@@ -194,14 +194,14 @@ const NavigationBar: React.FC = () => {
                   </VStack>
                 </MenuButton>
                 <MenuList>
-                  <MenuItem icon={<FiSettings />} onClick={() => handleNavigation('/settings')}>
+                  <MenuItem icon={<FiSettings />} onClick={() => handleNavigation('/settings')} _focus={{ boxShadow: 'none', outline: 'none' }} _hover={{ bg: 'gray.100', borderColor: 'transparent' }}>
                     Settings
                   </MenuItem>
-                  <MenuItem icon={<FiHelpCircle />} onClick={() => handleNavigation('/help')}>
+                  <MenuItem icon={<FiHelpCircle />} onClick={() => handleNavigation('/help')} _focus={{ boxShadow: 'none', outline: 'none' }} _hover={{ bg: 'gray.100', borderColor: 'transparent' }}>
                     Help & Support
                   </MenuItem>
                   <MenuDivider />
-                  <MenuItem icon={<FiLogOut />} onClick={handleLogout} color="red.500">
+                  <MenuItem icon={<FiLogOut />} onClick={handleLogout} color="red.500" _focus={{ boxShadow: 'none', outline: 'none' }} _hover={{ bg: 'gray.100', borderColor: 'transparent' }}>
                     Logout
                   </MenuItem>
                 </MenuList>
@@ -214,6 +214,7 @@ const NavigationBar: React.FC = () => {
                   color={textColor}
                   border="none"
                   outline="none"
+                  _focus={{ boxShadow: 'none', outline: 'none' }}
                   _hover={{ 
                     bg: 'rgba(255, 255, 255, 0.1)',
                     border: 'none',
@@ -228,6 +229,7 @@ const NavigationBar: React.FC = () => {
                   color="white"
                   border="none"
                   outline="none"
+                  _focus={{ boxShadow: 'none', outline: 'none' }}
                   _hover={{
                     bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                     transform: 'translateY(-1px)',
@@ -335,7 +337,9 @@ const NavigationBar: React.FC = () => {
                       justifyContent="flex-start"
                       border="none"
                       outline="none"
-                      _hover={{ border: 'none', outline: 'none' }}
+                      _hover={{ border: 'none', outline: 'none', bg: 'gray.100' }}
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
                       leftIcon={<FiSettings />}
                       onClick={() => handleNavigation('/settings')}
                     >
@@ -346,7 +350,8 @@ const NavigationBar: React.FC = () => {
                       justifyContent="flex-start"
                       border="none"
                       outline="none"
-                      _hover={{ border: 'none', outline: 'none' }}
+                      _hover={{ border: 'none', outline: 'none', bg: 'gray.100' }}
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
                       leftIcon={<FiHelpCircle />}
                       onClick={() => handleNavigation('/help')}
                     >
@@ -357,7 +362,8 @@ const NavigationBar: React.FC = () => {
                       justifyContent="flex-start"
                       border="none"
                       outline="none"
-                      _hover={{ border: 'none', outline: 'none' }}
+                      _hover={{ border: 'none', outline: 'none', bg: 'gray.100' }}
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
                       leftIcon={<FiLogOut />}
                       color="red.500"
                       onClick={handleLogout}
@@ -371,7 +377,8 @@ const NavigationBar: React.FC = () => {
                       variant="outline"
                       border="none"
                       outline="none"
-                      _hover={{ border: 'none', outline: 'none' }}
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
+                      _hover={{ border: 'none', outline: 'none', bg: 'gray.100' }}
                       onClick={handleLogin}
                     >
                       Login
@@ -381,6 +388,7 @@ const NavigationBar: React.FC = () => {
                       color="white"
                       border="none"
                       outline="none"
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
                       _hover={{
                         bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                         border: 'none',

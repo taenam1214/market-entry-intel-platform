@@ -6,7 +6,6 @@ import {
   HStack,
   Text,
   IconButton,
-  useColorModeValue,
   Flex,
   Avatar,
   Badge,
@@ -52,14 +51,14 @@ const ChatbotPage: React.FC = () => {
   // Use data from centralized context
   const isDataLoading = analysisData.isLoading;
 
-  // Color mode values
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const userBg = useColorModeValue('blue.50', 'blue.900');
-  const assistantBg = useColorModeValue('gray.50', 'gray.700');
+  // Fixed dark theme colors (consistent with other pages)
+  const borderColor = 'rgba(255,255,255,0.2)';
+  const userBg = 'rgba(102, 126, 234, 0.2)';
+  const assistantBg = 'rgba(255,255,255,0.1)';
 
-  // Load data from API
+  // Load data from localStorage (same as other pages)
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = () => {
       // Don't try to load data if user is not authenticated
       if (!user || !isAuthenticated) {
         setAvailableReports([]);
@@ -68,69 +67,84 @@ const ChatbotPage: React.FC = () => {
       }
 
       try {
-        // Load market reports
-        const reportsResponse = await chatbotService.getMarketReports();
-        setAvailableReports(reportsResponse.reports);
+        // Check if we have analysis data in localStorage (user-specific, same as DataContext)
+        const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
+        const hasAnalysisHistory = analysisHistory !== null;
         
-        // Only add welcome message if there are reports and no existing messages
-        if (reportsResponse.reports.length > 0 && messages.length === 0) {
-          setMessages([
-            {
-              id: '1',
-              type: 'assistant',
-              content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to your market analysis reports and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
+        if (hasAnalysisHistory && analysisHistory) {
+          const analysisData = JSON.parse(analysisHistory);
+          const dashboardData = analysisData.dashboardData;
+          
+          // Check if dashboardData exists and has the required fields
+          if (dashboardData && dashboardData.company_info) {
+            // Create a mock report object from user-specific localStorage data
+            const mockReport = {
+              id: 1,
+              analysis_id: dashboardData.analysis_id || `user-${user.id}-analysis`,
+              analysis_type: 'standard',
+              status: 'completed',
+              company_name: dashboardData.company_info?.company_name || 'Your Company',
+              industry: dashboardData.company_info?.industry || 'Your Industry',
+              target_market: dashboardData.company_info?.target_market || 'Target Market',
+              executive_summary: dashboardData.executive_summary || 'Market analysis completed',
+              created_at: new Date().toISOString(),
+              completed_at: new Date().toISOString(),
+            };
+            
+            setAvailableReports([mockReport]);
+            
+            // Only add welcome message if there are reports and no existing messages
+            if (messages.length === 0) {
+              setMessages([
+                {
+                  id: '1',
+                  type: 'assistant',
+                  content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to your market analysis reports and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
 
 I can answer questions about your reports, suggest new markets to explore, help with strategic positioning, assess risks, and provide strategic recommendations. What would you like to discuss?`,
-              timestamp: new Date(),
-            },
-          ]);
+                  timestamp: new Date(),
+                },
+              ]);
+            }
+          } else {
+            // Analysis history exists but no valid dashboard data
+            setAvailableReports([]);
+          }
+        } else {
+          setAvailableReports([]);
         }
       } catch (error) {
         console.error('Error loading data:', error);
-        // Set empty reports array to show empty state
         setAvailableReports([]);
-        
-        // Only show error toast for actual server errors, not for authentication or empty results
-        if (error instanceof Error && 
-            !error.message.includes('401') && 
-            !error.message.includes('403') && 
-            !error.message.includes('404') &&
-            !error.message.includes('Failed to fetch') &&
-            !error.message.includes('HTTP error! status: 401') &&
-            !error.message.includes('HTTP error! status: 403') &&
-            !error.message.includes('Invalid token')) {
-          toast({
-            title: 'Error',
-            description: 'Failed to load market reports. Please try again.',
-            status: 'error',
-            duration: 3000,
-            isClosable: true,
-          });
-        }
       } finally {
         setIsLoadingReports(false);
       }
     };
 
     loadData();
-  }, [user, isAuthenticated, toast]);
+  }, [user?.id, isAuthenticated, messages.length]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Only scroll to bottom when new messages are added (not on initial load)
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // Only scroll if there are messages and we're not on initial load
+    // Skip scrolling if we just have the initial welcome message
+    if (messages.length > 1 && !isLoadingReports) {
+      scrollToBottom();
+    }
+  }, [messages.length, isLoadingReports]);
 
   // Show loading state while data is being loaded
   if (isDataLoading || isLoadingReports) {
     return (
-      <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
+      <Box minH="100vh" bg="#140d28">
         <Container maxW="6xl" py={8}>
           <VStack spacing={6} align="center" py={16}>
-            <Spinner size="xl" color="purple.500" />
-            <Text fontSize="lg" color="gray.600">
+            <Spinner size="xl" color="purple.400" />
+            <Text fontSize="lg" color="rgba(255,255,255,0.8)">
               Loading your market reports...
             </Text>
           </VStack>
@@ -142,45 +156,45 @@ I can answer questions about your reports, suggest new markets to explore, help 
   // Show empty state if no reports available
   if (availableReports.length === 0) {
     return (
-      <Box p={6} bg="gray.50" minH="100vh" w="100%">
+      <Box p={6} bg="#140d28" minH="100vh" w="100%">
         <Container maxW="4xl" px={8}>
           <VStack spacing={8} py={16} textAlign="center">
             <VStack spacing={4}>
               <Icon as={FiMessageSquare} boxSize={16} color="purple.400" />
-              <Heading size="xl" color="gray.700">
+              <Heading size="xl" color="white">
                 AI Market Intelligence Assistant
               </Heading>
-              <Text fontSize="lg" color="gray.600" maxW="2xl">
+              <Text fontSize="lg" color="rgba(255,255,255,0.8)" maxW="2xl">
                 Chat with your AI strategic business advisor about your market analysis reports. 
                 Get comprehensive business strategy advice, explore new markets, assess risks, 
                 and receive strategic recommendations for your business expansion.
               </Text>
             </VStack>
 
-            <VStack spacing={4} bg="white" p={8} borderRadius="xl" shadow="md" maxW="md" w="full">
-              <Icon as={FiTarget} boxSize={8} color="purple.500" />
-              <Heading size="md" color="gray.800">
+            <VStack spacing={4} bg="rgba(255,255,255,0.05)" p={8} borderRadius="xl" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)" maxW="md" w="full">
+              <Icon as={FiTarget} boxSize={8} color="purple.400" />
+              <Heading size="md" color="white">
                 Ready to Get Started?
               </Heading>
-              <Text fontSize="md" color="gray.600" textAlign="center">
+              <Text fontSize="md" color="rgba(255,255,255,0.8)" textAlign="center">
                 Start your first market analysis to unlock:
               </Text>
               <VStack spacing={2} align="start" w="full">
                 <HStack>
                   <Badge colorScheme="green" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm">Strategic Business Advisory & Planning</Text>
+                  <Text fontSize="sm" color="white">Strategic Business Advisory & Planning</Text>
                 </HStack>
                 <HStack>
                   <Badge colorScheme="blue" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm">Market Expansion & Country Recommendations</Text>
+                  <Text fontSize="sm" color="white">Market Expansion & Country Recommendations</Text>
                 </HStack>
                 <HStack>
                   <Badge colorScheme="purple" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm">Competitive Analysis & Risk Assessment</Text>
+                  <Text fontSize="sm" color="white">Competitive Analysis & Risk Assessment</Text>
                 </HStack>
                 <HStack>
                   <Badge colorScheme="orange" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm">AI-Powered Strategic Intelligence</Text>
+                  <Text fontSize="sm" color="white">AI-Powered Strategic Intelligence</Text>
                 </HStack>
               </VStack>
               <Button 
@@ -190,12 +204,13 @@ I can answer questions about your reports, suggest new markets to explore, help 
                 onClick={() => navigate('/')}
                 w="full"
                 mt={4}
+                _focus={{ boxShadow: 'none', outline: 'none' }}
               >
                 Start Your Analysis
               </Button>
             </VStack>
 
-            <Text fontSize="sm" color="gray.500" maxW="lg">
+            <Text fontSize="sm" color="rgba(255,255,255,0.8)" maxW="lg">
               Once you generate your first market analysis report, you'll be able to chat with our AI assistant 
               to get deeper insights and ask questions about your market opportunities.
             </Text>
@@ -288,15 +303,15 @@ What would you like to know about your reports?`,
   };
 
   return (
-    <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
-      <Container maxW="6xl" py={8}>
-        <VStack spacing={6} align="stretch">
+    <Box p={6} bg="#140d28" minH="100vh" w="100%">
+      <Container maxW="100%" px={8}>
+        <VStack spacing={6} align="stretch" maxW="7xl" mx="auto">
           {/* Header */}
           <Box>
-            <Heading size="lg" mb={2}>
+            <Heading size="xl" mb={2} color="white">
               AI Market Intelligence Assistant
             </Heading>
-            <Text color="gray.600">
+            <Text fontSize="lg" color="rgba(255,255,255,0.8)">
               Chat with your AI assistant about your market analysis reports
             </Text>
           </Box>
@@ -304,9 +319,9 @@ What would you like to know about your reports?`,
           <Flex gap={6} direction={{ base: 'column', lg: 'row' }}>
             {/* Available Reports Sidebar */}
             <Box w={{ base: '100%', lg: '300px' }}>
-              <Card>
+              <Card bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
                 <CardHeader>
-                  <Heading size="sm">Available Reports</Heading>
+                  <Heading size="sm" color="white">Available Reports</Heading>
                 </CardHeader>
                 <CardBody>
                   <VStack spacing={3} align="stretch">
@@ -318,20 +333,20 @@ What would you like to know about your reports?`,
                         borderColor={borderColor}
                         borderRadius="md"
                         cursor="pointer"
-                        bg={selectedReport?.id === report.id ? 'blue.50' : 'transparent'}
-                        _hover={{ bg: 'gray.50' }}
+                        bg={selectedReport?.id === report.id ? 'rgba(102, 126, 234, 0.2)' : 'transparent'}
+                        _hover={{ bg: 'rgba(255,255,255,0.1)' }}
                         onClick={() => setSelectedReport(report)}
                       >
-                        <Text fontSize="sm" fontWeight="semibold" mb={1}>
+                        <Text fontSize="sm" fontWeight="semibold" mb={1} color="white">
                           {report.company_name} - {report.target_market}
                         </Text>
-                        <Text fontSize="xs" color="gray.600" mb={2}>
+                        <Text fontSize="xs" color="rgba(255,255,255,0.8)" mb={2}>
                           {report.executive_summary ? 
                             `${report.executive_summary.substring(0, 100)}...` : 
                             'No summary available'
                           }
                         </Text>
-                        <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color="rgba(255,255,255,0.6)">
                           {report.created_at ? new Date(report.created_at).toLocaleDateString() : 'Date not available'}
                         </Text>
                       </Box>
@@ -343,12 +358,12 @@ What would you like to know about your reports?`,
 
             {/* Chat Interface */}
             <Box flex={1}>
-              <Card h="600px" display="flex" flexDirection="column">
+              <Card h="600px" display="flex" flexDirection="column" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
                 <CardHeader>
                   <HStack justify="space-between">
                     <HStack>
-                      <Avatar icon={<FiMessageCircle />} size="sm" />
-                      <Text fontWeight="semibold">Market Intelligence Assistant</Text>
+                      <Avatar icon={<FiMessageCircle />} size="sm" bg="purple.400" />
+                      <Text fontWeight="semibold" color="white">Market Intelligence Assistant</Text>
                     </HStack>
                     <IconButton
                       icon={<FiRefreshCw />}
@@ -356,6 +371,9 @@ What would you like to know about your reports?`,
                       variant="ghost"
                       onClick={clearChat}
                       aria-label="Clear chat"
+                      color="white"
+                      _hover={{ bg: 'rgba(255,255,255,0.1)' }}
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
                     />
                   </HStack>
                 </CardHeader>
@@ -381,14 +399,14 @@ What would you like to know about your reports?`,
                                 ml={message.type === 'user' ? 'auto' : 0}
                                 mr={message.type === 'user' ? 0 : 'auto'}
                               >
-                                <Text fontSize="sm" whiteSpace="pre-wrap">
+                                <Text fontSize="sm" whiteSpace="pre-wrap" color={message.type === 'user' ? 'white' : 'white'}>
                                   {message.content}
                                 </Text>
-                                {message.sources && message.sources.length > 0 && (
-                                  <Box mt={2}>
-                                    <Text fontSize="xs" color="gray.600" mb={1}>
-                                      Sources:
-                                    </Text>
+                                  {message.sources && message.sources.length > 0 && (
+                                    <Box mt={2}>
+                                      <Text fontSize="xs" color="rgba(255,255,255,0.8)" mb={1}>
+                                        Sources:
+                                      </Text>
                                     {message.sources.map((source, index) => (
                                       <Badge key={index} size="sm" colorScheme="blue" mr={1} mb={1}>
                                         {source}
@@ -397,9 +415,9 @@ What would you like to know about your reports?`,
                                   </Box>
                                 )}
                               </Box>
-                              <Text fontSize="xs" color="gray.500" mt={1} ml={3}>
-                                {message.timestamp.toLocaleTimeString()}
-                              </Text>
+                                <Text fontSize="xs" color="rgba(255,255,255,0.6)" mt={1} ml={3}>
+                                  {message.timestamp.toLocaleTimeString()}
+                                </Text>
                             </Box>
                           </HStack>
                         </Box>
@@ -409,8 +427,8 @@ What would you like to know about your reports?`,
                           <Avatar size="sm" icon={<FiMessageCircle />} bg="purple.500" />
                           <Box p={3} borderRadius="lg" bg={assistantBg}>
                             <HStack>
-                              <Spinner size="sm" />
-                              <Text fontSize="sm">Analyzing your question...</Text>
+                              <Spinner size="sm" color="purple.400" />
+                              <Text fontSize="sm" color="white">Analyzing your question...</Text>
                             </HStack>
                           </Box>
                         </HStack>
@@ -430,13 +448,28 @@ What would you like to know about your reports?`,
                         resize="none"
                         rows={2}
                         disabled={isLoading}
+                        bg="rgba(255,255,255,0.1)"
+                        borderColor="rgba(255,255,255,0.2)"
+                        color="white"
+                        _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                        _focus={{ 
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          bg: 'rgba(255,255,255,0.1)',
+                          boxShadow: 'none'
+                        }}
+                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       />
                       <IconButton
                         icon={<FiSend />}
-                        colorScheme="blue"
+                        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        color="white"
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isLoading}
                         aria-label="Send message"
+                        _hover={{
+                          bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                        }}
+                        _focus={{ boxShadow: 'none', outline: 'none' }}
                       />
                     </HStack>
                   </Box>

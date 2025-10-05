@@ -247,9 +247,12 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
       }
       const data = await marketRes.json();
-      localStorage.setItem('dashboardData', JSON.stringify(data));
+      // Parse competitor and arbitrage data
+      let competitorData = null;
+      let arbitrageData = null;
+      
       if (competitorRes.ok) {
-        const competitorData = await competitorRes.json();
+        competitorData = await competitorRes.json();
         console.log('Competitor API response:', competitorData);
         console.log('Competitor analysis data:', competitorData.competitor_analysis);
         localStorage.setItem('competitorSummary', JSON.stringify(competitorData.competitor_analysis));
@@ -259,7 +262,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
       }
       
       if (arbitrageRes.ok) {
-        const arbitrageData = await arbitrageRes.json();
+        arbitrageData = await arbitrageRes.json();
         console.log('Arbitrage API response:', arbitrageData);
         console.log('Arbitrage analysis data:', arbitrageData.segment_arbitrage);
         localStorage.setItem('segmentArbitrage', JSON.stringify(arbitrageData.segment_arbitrage));
@@ -268,9 +271,18 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         localStorage.setItem('segmentArbitrage', 'No arbitrage analysis available.');
       }
       
-      // Store analysis data in localStorage for authenticated users
+      // Store all data globally (for backward compatibility)
+      localStorage.setItem('dashboardData', JSON.stringify(data));
+      
+      // Store analysis data in localStorage for authenticated users (user-specific)
       if (user) {
-        localStorage.setItem(`analysis_${user.id}`, JSON.stringify(formData));
+        const analysisData = {
+          formData: formData,
+          dashboardData: data,
+          competitorSummary: competitorData?.competitor_analysis || null,
+          arbitrageData: arbitrageData?.segment_arbitrage || null
+        };
+        localStorage.setItem(`analysis_${user.id}`, JSON.stringify(analysisData));
       }
       
       setLoading(false);
@@ -305,7 +317,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         <VStack spacing={4}>
           <Spinner size="xl" color="purple.500" thickness="4px" speed="0.7s" />
           <Text fontSize="lg" color="purple.700" fontWeight="bold">Running Market Analysis...</Text>
-          <Text fontSize="md" color="gray.700">
+          <Text fontSize="md" color="white">
             Estimated time remaining: {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
           </Text>
           {timerExpired && (
@@ -317,9 +329,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
   }
 
   return (
-    <Box py={8} bg="white" w="100%">
+    <Box py={8} bg="#140d28" w="100%">
       <Container maxW="100%" px={4}>
-        <Card shadow="lg" borderRadius="lg" overflow="hidden" maxW="7xl" mx="auto" bg="white">
+        <Card shadow="lg" borderRadius="lg" overflow="hidden" maxW="7xl" mx="auto" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
           <Box bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" p={4} color="white">
             <VStack spacing={2} textAlign="center">
               <Heading size="lg">
@@ -331,12 +343,12 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
             </VStack>
           </Box>
 
-          <CardBody p={4} bg="white" color="gray.800">
+          <CardBody p={4} bg="rgba(255,255,255,0.05)" color="white">
             <form onSubmit={handleSubmit}>
               <VStack spacing={4} align="stretch">
                 {/* Customer Segment Selection */}
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Customer Segment</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Customer Segment</FormLabel>
                   <Select
                     placeholder="Select your company type"
                     value={formData.customerSegment}
@@ -344,10 +356,16 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     size="sm"
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                    _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                   >
                     {customerSegments.map((segment) => (
                       <option key={segment.value} value={segment.value}>
@@ -364,7 +382,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                 {/* Expansion Direction Selection */}
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Expansion Direction</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Expansion Direction</FormLabel>
                   <Select
                     placeholder="Select your expansion direction"
                     value={formData.expansionDirection}
@@ -372,10 +390,16 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     size="sm"
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                    _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                   >
                     {expansionDirections.map((direction) => (
                       <option key={direction.value} value={direction.value}>
@@ -393,7 +417,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={3}>
                   <GridItem>
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Company Name</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Company Name</FormLabel>
                       <Input
                         placeholder="Enter your company name"
                         value={formData.companyName}
@@ -401,17 +425,23 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                         size="sm"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                        _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                        borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                        _focus={{ 
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          bg: 'rgba(255,255,255,0.1)',
+                          boxShadow: 'none'
+                        }}
+                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       />
                     </FormControl>
                   </GridItem>
 
                   <GridItem>
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Industry</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Industry</FormLabel>
                       <Input
                         placeholder="e.g., Technology, Healthcare, Finance, Baked Goods"
                         value={formData.industry}
@@ -419,17 +449,23 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                         size="sm"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                        _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                        borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                        _focus={{ 
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          bg: 'rgba(255,255,255,0.1)',
+                          boxShadow: 'none'
+                        }}
+                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       />
                     </FormControl>
                   </GridItem>
 
                   <GridItem>
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Target Market</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Target Market</FormLabel>
                       <Select
                         placeholder="Select target market"
                         value={formData.targetMarket}
@@ -437,10 +473,16 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                         size="sm"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                        _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                        borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                        _focus={{ 
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          bg: 'rgba(255,255,255,0.1)',
+                          boxShadow: 'none'
+                        }}
+                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       >
                         {targetMarkets.map((market) => (
                           <option key={market.value} value={market.value}>
@@ -453,7 +495,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                   <GridItem>
                     <FormControl>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Website</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Website</FormLabel>
                       <Input
                         placeholder="https://yourcompany.com"
                         value={formData.website}
@@ -461,17 +503,23 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                         size="sm"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                        _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                        borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                        _focus={{ 
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          bg: 'rgba(255,255,255,0.1)',
+                          boxShadow: 'none'
+                        }}
+                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       />
                     </FormControl>
                   </GridItem>
                 </Grid>
 
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Current Brand Positioning</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Current Brand Positioning</FormLabel>
                   <Textarea
                     placeholder="Describe how your brand is currently positioned in your home market..."
                     value={formData.currentPositioning}
@@ -480,15 +528,21 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     rows={2}
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                    _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                   />
                 </FormControl>
 
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Brand Description</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Brand Description</FormLabel>
                   <Textarea
                     placeholder="Describe your brand, products/services, and unique value proposition..."
                     value={formData.brandDescription}
@@ -497,15 +551,21 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     rows={3}
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                    _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                   />
                 </FormControl>
 
                 <FormControl isRequired>
-                  <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Email Address</FormLabel>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Email Address</FormLabel>
                   <Input
                     type="email"
                     placeholder="your.email@company.com"
@@ -514,37 +574,49 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     size="sm"
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                    _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                   />
                 </FormControl>
 
                 {/* Additional Company Details Section */}
-                <Box p={4} bg="gray.50" borderRadius="lg" border="1px solid" borderColor="gray.200">
-                  <Heading size="sm" color="gray.800" mb={3}>
+                <Box p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)">
+                  <Heading size="sm" color="white" mb={3}>
                     Additional Company Details (Optional but Recommended)
                   </Heading>
-                  <Text fontSize="xs" color="gray.600" mb={4}>
+                  <Text fontSize="xs" color="rgba(255,255,255,0.8)" mb={4}>
                     These details help KairosAI generate more accurate and detailed analysis
                   </Text>
                   
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={3}>
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Company Size</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Company Size</FormLabel>
                         <Select
                           placeholder="Select company size"
                           value={formData.companySize}
                           onChange={(e) => handleInputChange('companySize', e.target.value)}
                           size="sm"
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         >
                           {companySizes.map((size) => (
                             <option key={size.value} value={size.value}>
@@ -557,18 +629,24 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Annual Revenue</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Annual Revenue</FormLabel>
                         <Select
                           placeholder="Select revenue range"
                           value={formData.annualRevenue}
                           onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
                           size="sm"
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         >
                           {revenueRanges.map((range) => (
                             <option key={range.value} value={range.value}>
@@ -581,18 +659,24 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Funding Stage</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Funding Stage</FormLabel>
                         <Select
                           placeholder="Select funding stage"
                           value={formData.fundingStage}
                           onChange={(e) => handleInputChange('fundingStage', e.target.value)}
                           size="sm"
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         >
                           {fundingStages.map((stage) => (
                             <option key={stage.value} value={stage.value}>
@@ -605,25 +689,31 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Current Markets</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Current Markets</FormLabel>
                         <Input
                           placeholder="e.g., US, China, South Korea"
                           value={formData.currentMarkets}
                           onChange={(e) => handleInputChange('currentMarkets', e.target.value)}
                           size="sm"
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         />
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Key Products/Services</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Key Products/Services</FormLabel>
                         <Textarea
                           placeholder="Describe your main products or services..."
                           value={formData.keyProducts}
@@ -631,18 +721,24 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           rows={2}
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         />
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Competitive Advantage</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Competitive Advantage</FormLabel>
                         <Textarea
                           placeholder="What makes you unique vs competitors?"
                           value={formData.competitiveAdvantage}
@@ -650,29 +746,41 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           rows={2}
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         />
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Expansion Timeline</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Expansion Timeline</FormLabel>
                         <Select
                           placeholder="When do you plan to expand?"
                           value={formData.expansionTimeline}
                           onChange={(e) => handleInputChange('expansionTimeline', e.target.value)}
                           size="sm"
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         >
                           {expansionTimelines.map((timeline) => (
                             <option key={timeline.value} value={timeline.value}>
@@ -685,18 +793,24 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Budget Range</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Budget Range</FormLabel>
                         <Select
                           placeholder="Select budget range"
                           value={formData.budgetRange}
                           onChange={(e) => handleInputChange('budgetRange', e.target.value)}
                           size="sm"
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         >
                           {budgetRanges.map((range) => (
                             <option key={range.value} value={range.value}>
@@ -709,7 +823,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Regulatory Requirements</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Regulatory Requirements</FormLabel>
                         <Textarea
                           placeholder="Any specific regulatory requirements or compliance needs?"
                           value={formData.regulatoryRequirements}
@@ -717,18 +831,24 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           rows={2}
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         />
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Partnership Preferences</FormLabel>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white">Partnership Preferences</FormLabel>
                         <Textarea
                           placeholder="Preferred partnership types (distributors, JVs, etc.)"
                           value={formData.partnershipPreferences}
@@ -736,11 +856,17 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                           size="sm"
                           rows={2}
                           borderRadius="md"
-                          border="1px solid"
-                          borderColor="gray.300"
-                    bg="white"
-                    color="gray.800"
-                          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                    border="1px solid"
+                    borderColor="rgba(255,255,255,0.2)"
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                    _focus={{ 
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none'
+                    }}
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                         />
                       </FormControl>
                     </GridItem>
@@ -751,6 +877,8 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                   type="submit"
                   size="md"
                   bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                  border="none"
+                  _focus={{ boxShadow: 'none', outline: 'none' }}
                   _hover={{
                     bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                     transform: 'translateY(-1px)',
@@ -770,8 +898,8 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
             </form>
 
             {/* Features Preview */}
-            <Box mt={4} p={3} bg="gray.50" borderRadius="lg">
-              <Text fontSize="sm" color="gray.600" textAlign="center" mb={2}>
+            <Box mt={4} p={3} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid rgba(255,255,255,0.1)">
+              <Text fontSize="sm" color="rgba(255,255,255,0.8)" textAlign="center" mb={2}>
                 KairosAI will autonomously deliver:
               </Text>
               <Flex justify="center" wrap="wrap" gap={2}>
