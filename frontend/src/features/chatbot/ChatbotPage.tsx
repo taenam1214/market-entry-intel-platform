@@ -190,6 +190,7 @@ I can answer questions about your reports, suggest new markets to explore, help 
                 onClick={() => navigate('/')}
                 w="full"
                 mt={4}
+                _focus={{ boxShadow: 'none', outline: 'none' }}
               >
                 Start Your Analysis
               </Button>

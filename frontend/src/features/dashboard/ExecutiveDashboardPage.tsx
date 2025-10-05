@@ -1014,6 +1014,7 @@ For questions or additional analysis, contact the Strategic Planning team.
                 onClick={() => navigate('/')}
                 w="full"
                 mt={4}
+                _focus={{ boxShadow: 'none', outline: 'none' }}
               >
                 Start Your Analysis
               </Button>
