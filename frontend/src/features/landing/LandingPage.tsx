@@ -23,7 +23,7 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText, FiMail } from 'react-icons/fi';
+import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers, FiMessageCircle, FiEdit3, FiCpu, FiZap, FiFileText, FiMail, FiHome } from 'react-icons/fi';
 import { FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
@@ -236,15 +236,16 @@ const LandingPage = () => {
   // Show streamlined form for authenticated users without analysis history
   if (isAuthenticated && !hasAnalysisHistory) {
   return (
-      <Box minH="100vh" bg="white" py={8}>
+      <Box minH="100vh" bg="#140d28" py={8}>
         <Container maxW="100%" px={4}>
-          <VStack spacing={8}>
+          <VStack spacing={8} py={16}>
             {/* Welcome Header */}
             <VStack spacing={4} textAlign="center">
-              <Heading size="xl" color="gray.800">
+              <Icon as={FiHome} boxSize={16} color="purple.400" />
+              <Heading size="xl" color="white">
                 Welcome back, {user?.first_name}!
               </Heading>
-              <Text fontSize="lg" color="gray.600" maxW="2xl">
+              <Text fontSize="lg" color="rgba(255,255,255,0.8)" maxW="2xl">
                 Ready to start your market analysis? Let's gather some information about your expansion opportunity.
             </Text>
           </VStack>

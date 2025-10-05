@@ -136,6 +136,7 @@ const RegisterPage: React.FC = () => {
               onClick={() => navigate('/')}
               alignSelf="flex-start"
               color="white"
+              _focus={{ boxShadow: 'none', outline: 'none' }}
               _hover={{ bg: 'rgba(255,255,255,0.1)' }}
             >
               Back to Home
@@ -191,9 +192,9 @@ const RegisterPage: React.FC = () => {
                     color="white"
                     _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
                     _focus={{
-                      borderColor: '#667eea',
-                      boxShadow: '0 0 0 1px #667eea',
-                      bg: 'rgba(255,255,255,0.15)',
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none',
                     }}
                     _hover={{
                       borderColor: 'rgba(255,255,255,0.3)',
@@ -219,9 +220,9 @@ const RegisterPage: React.FC = () => {
                     color="white"
                     _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
                     _focus={{
-                      borderColor: '#667eea',
-                      boxShadow: '0 0 0 1px #667eea',
-                      bg: 'rgba(255,255,255,0.15)',
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none',
                     }}
                     _hover={{
                       borderColor: 'rgba(255,255,255,0.3)',
@@ -247,9 +248,9 @@ const RegisterPage: React.FC = () => {
                     color="white"
                     _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
                     _focus={{
-                      borderColor: '#667eea',
-                      boxShadow: '0 0 0 1px #667eea',
-                      bg: 'rgba(255,255,255,0.15)',
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      bg: 'rgba(255,255,255,0.1)',
+                      boxShadow: 'none',
                     }}
                     _hover={{
                       borderColor: 'rgba(255,255,255,0.3)',
@@ -276,9 +277,9 @@ const RegisterPage: React.FC = () => {
                       color="white"
                       _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
                       _focus={{
-                        borderColor: '#667eea',
-                        boxShadow: '0 0 0 1px #667eea',
-                        bg: 'rgba(255,255,255,0.15)',
+                        borderColor: 'rgba(255,255,255,0.2)',
+                        bg: 'rgba(255,255,255,0.1)',
+                        boxShadow: 'none',
                       }}
                       _hover={{
                         borderColor: 'rgba(255,255,255,0.3)',
@@ -289,6 +290,7 @@ const RegisterPage: React.FC = () => {
                       size="lg"
                       onClick={() => setShowPassword(!showPassword)}
                       color="rgba(255,255,255,0.7)"
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
                       _hover={{ color: '#667eea', bg: 'rgba(255,255,255,0.1)' }}
                     >
                       {showPassword ? <FiEyeOff /> : <FiEye />}
@@ -315,9 +317,9 @@ const RegisterPage: React.FC = () => {
                       color="white"
                       _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
                       _focus={{
-                        borderColor: '#667eea',
-                        boxShadow: '0 0 0 1px #667eea',
-                        bg: 'rgba(255,255,255,0.15)',
+                        borderColor: 'rgba(255,255,255,0.2)',
+                        bg: 'rgba(255,255,255,0.1)',
+                        boxShadow: 'none',
                       }}
                       _hover={{
                         borderColor: 'rgba(255,255,255,0.3)',
@@ -328,6 +330,7 @@ const RegisterPage: React.FC = () => {
                       size="lg"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       color="rgba(255,255,255,0.7)"
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
                       _hover={{ color: '#667eea', bg: 'rgba(255,255,255,0.1)' }}
                     >
                       {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
@@ -347,6 +350,8 @@ const RegisterPage: React.FC = () => {
                   spinner={<Spinner size="sm" />}
                   borderRadius="lg"
                   fontWeight="semibold"
+                  border="none"
+                  _focus={{ boxShadow: 'none', outline: 'none' }}
                   _hover={{
                     bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                     transform: 'translateY(-2px)',
