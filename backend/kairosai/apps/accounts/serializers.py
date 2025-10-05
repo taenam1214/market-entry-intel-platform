@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .models import User
+from .models import User, EmailVerification
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -74,3 +74,28 @@ class GoogleAuthSerializer(serializers.Serializer):
             return idinfo
         except ValueError as e:
             raise serializers.ValidationError('Invalid Google access token')
+
+
+class EmailVerificationSerializer(serializers.Serializer):
+    """Serializer for email verification"""
+    email = serializers.EmailField()
+    verification_type = serializers.ChoiceField(
+        choices=['signup', 'password_reset', 'email_change'],
+        default='signup'
+    )
+
+
+class VerifyCodeSerializer(serializers.Serializer):
+    """Serializer for verifying email verification code"""
+    email = serializers.EmailField()
+    code = serializers.CharField(max_length=6, min_length=6)
+    verification_type = serializers.ChoiceField(
+        choices=['signup', 'password_reset', 'email_change'],
+        default='signup'
+    )
+
+    def validate_code(self, value):
+        """Validate that code contains only digits"""
+        if not value.isdigit():
+            raise serializers.ValidationError('Verification code must contain only digits')
+        return value

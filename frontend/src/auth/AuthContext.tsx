@@ -87,10 +87,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(null);
       
       const response = await authService.register(userData);
-      setUser(response.user);
       
-      // Store token for future requests
-      localStorage.setItem('authToken', response.token);
+      // Check if email verification is required
+      if (response.email_verification_required) {
+        // Don't set user or token yet, redirect to verification page
+        return {
+          user: response.user,
+          email_verification_required: true,
+          email_send_failed: response.email_send_failed || false
+        };
+      } else {
+        // Email verification not required (e.g., Google OAuth)
+        setUser(response.user);
+        if (response.token) {
+          localStorage.setItem('authToken', response.token);
+        }
+        return { user: response.user };
+      }
     } catch (error: any) {
       setError(error.message || 'Registration failed');
       throw error;

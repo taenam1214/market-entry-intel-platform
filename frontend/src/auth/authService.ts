@@ -18,13 +18,20 @@ interface RegisterData {
 }
 
 interface RegisterResponse {
-  token: string;
+  message: string;
   user: {
     id: number;
     email: string;
     first_name: string;
     last_name: string;
+    is_verified: boolean;
+    created_at: string;
+    provider?: string;
+    profile_picture?: string;
   };
+  email_verification_required?: boolean;
+  email_send_failed?: boolean;
+  token?: string; // Only present if no email verification required
 }
 
 interface User {
@@ -94,6 +101,61 @@ class AuthService {
 
       const data = await response.json();
       return data;
+    } catch (error: any) {
+      if (error.message) {
+        throw error;
+      }
+      throw new Error('Network error. Please check your connection.');
+    }
+  }
+
+  async sendVerificationEmail(email: string, verificationType: string = 'signup'): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/send-verification-email/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          verification_type: verificationType,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send verification email');
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      if (error.message) {
+        throw error;
+      }
+      throw new Error('Network error. Please check your connection.');
+    }
+  }
+
+  async verifyEmailCode(email: string, code: string, verificationType: string = 'signup'): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-email-code/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          code: code,
+          verification_type: verificationType,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Verification failed');
+      }
+
+      return await response.json();
     } catch (error: any) {
       if (error.message) {
         throw error;

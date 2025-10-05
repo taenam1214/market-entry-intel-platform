@@ -8,6 +8,7 @@ import SettingsPage from '../features/settings/SettingsPage';
 import HelpSupportPage from '../features/support/HelpSupportPage';
 import LoginPage from '../auth/LoginPage';
 import RegisterPage from '../auth/RegisterPage';
+import EmailVerificationPage from '../auth/EmailVerificationPage';
 
 // Placeholder components for new routes
 const AboutPage = () => (
@@ -75,6 +76,7 @@ const AppRoutes = () => (
     {/* Authentication Routes */}
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
+    <Route path="/verify-email" element={<EmailVerificationPage />} />
     
     {/* Protected Routes */}
     <Route path="/dashboard" element={<ExecutiveDashboardPage />} />

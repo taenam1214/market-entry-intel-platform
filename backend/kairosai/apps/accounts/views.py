@@ -7,8 +7,9 @@ from django.contrib.auth import login, logout
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, GoogleAuthSerializer
-from .models import User
+from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, GoogleAuthSerializer, EmailVerificationSerializer, VerifyCodeSerializer
+from .models import User, EmailVerification
+from .email_service import email_service
 
 
 @api_view(['POST'])
@@ -18,12 +19,33 @@ def signup(request):
     serializer = UserRegistrationSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'message': 'User created successfully',
-            'user': UserSerializer(user).data,
-            'token': token.key
-        }, status=status.HTTP_201_CREATED)
+        
+        # Create verification code and send email
+        verification = EmailVerification.objects.create(
+            user=user,
+            verification_type='signup'
+        )
+        
+        # Send verification email
+        email_sent = email_service.send_verification_email(
+            user, verification.code, 'signup'
+        )
+        
+        if email_sent:
+            return Response({
+                'message': 'User created successfully. Please check your email for verification code.',
+                'user': UserSerializer(user).data,
+                'email_verification_required': True
+            }, status=status.HTTP_201_CREATED)
+        else:
+            # If email fails, still create user but mark as unverified
+            return Response({
+                'message': 'User created successfully, but verification email failed to send. Please try resending verification.',
+                'user': UserSerializer(user).data,
+                'email_verification_required': True,
+                'email_send_failed': True
+            }, status=status.HTTP_201_CREATED)
+    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -151,6 +173,136 @@ def google_auth(request):
                 'error': 'Google authentication failed',
                 'details': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def send_verification_email(request):
+    """Send email verification code"""
+    serializer = EmailVerificationSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        verification_type = serializer.validated_data['verification_type']
+        
+        try:
+            # Get or create user
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({
+                    'error': 'User not found'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Check if user is already verified for signup
+            if verification_type == 'signup' and user.is_verified:
+                return Response({
+                    'error': 'Email is already verified'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Invalidate any existing unused verification codes for this user and type
+            EmailVerification.objects.filter(
+                user=user, 
+                verification_type=verification_type, 
+                is_used=False
+            ).update(is_used=True)
+            
+            # Create new verification code
+            verification = EmailVerification.objects.create(
+                user=user,
+                verification_type=verification_type
+            )
+            
+            # Send email
+            success = email_service.send_verification_email(
+                user, verification.code, verification_type
+            )
+            
+            if success:
+                return Response({
+                    'message': 'Verification email sent successfully',
+                    'email': email
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'error': 'Failed to send verification email'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+        except Exception as e:
+            return Response({
+                'error': 'Failed to send verification email',
+                'details': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_email_code(request):
+    """Verify email verification code"""
+    serializer = VerifyCodeSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        code = serializer.validated_data['code']
+        verification_type = serializer.validated_data['verification_type']
+        
+        try:
+            user = User.objects.get(email=email)
+            
+            # Find valid verification code
+            verification = EmailVerification.objects.filter(
+                user=user,
+                code=code,
+                verification_type=verification_type,
+                is_used=False
+            ).first()
+            
+            if not verification:
+                return Response({
+                    'error': 'Invalid verification code'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if verification.is_expired():
+                return Response({
+                    'error': 'Verification code has expired'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Mark code as used
+            verification.mark_as_used()
+            
+            # Handle verification based on type
+            if verification_type == 'signup':
+                user.is_verified = True
+                user.save()
+                return Response({
+                    'message': 'Email verified successfully',
+                    'user': UserSerializer(user).data
+                }, status=status.HTTP_200_OK)
+            
+            elif verification_type == 'password_reset':
+                # For password reset, we just verify the code is valid
+                # The actual password reset would be handled in a separate endpoint
+                return Response({
+                    'message': 'Email verified for password reset',
+                    'verified': True
+                }, status=status.HTTP_200_OK)
+            
+            elif verification_type == 'email_change':
+                # For email change, we just verify the code is valid
+                return Response({
+                    'message': 'Email verified for email change',
+                    'verified': True
+                }, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response({
+                'error': 'User not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                'error': 'Verification failed',
+                'details': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

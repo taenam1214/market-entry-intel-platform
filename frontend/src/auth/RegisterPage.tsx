@@ -17,7 +17,6 @@ import {
   Spinner,
   Divider,
   useColorModeValue,
-  SimpleGrid,
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from './AuthContext';
@@ -95,14 +94,28 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      await register({
+      const result = await register({
         email: formData.email,
         password: formData.password,
         first_name: formData.first_name,
         last_name: formData.last_name,
       });
-      // Navigate to dashboard on successful registration
-      navigate('/dashboard');
+      
+      // Check if email verification is required
+      if (result && result.email_verification_required) {
+        // Navigate to email verification page
+        navigate('/verify-email', {
+          state: {
+            email: formData.email,
+            user: result.user,
+            email_verification_required: true,
+            email_send_failed: result.email_send_failed
+          }
+        });
+      } else {
+        // Navigate to dashboard on successful registration (e.g., Google OAuth)
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       setLocalError(error.message || 'Registration failed');
     }
