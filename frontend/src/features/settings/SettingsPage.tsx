@@ -227,23 +227,28 @@ const SettingsPage = () => {
   };
 
   return (
-    <Box py={8} bg="white" minH="100vh">
+    <Box py={8} bg="#140d28" minH="100vh">
       <Container maxW="4xl">
         <VStack spacing={8} align="stretch">
           {/* Header */}
           <VStack spacing={4} textAlign="center">
-            <Heading size="xl" color="gray.800">Account Settings</Heading>
-            <Text fontSize="lg" color="gray.600">
+            <Heading size="xl" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Account Settings</Heading>
+            <Text fontSize="lg" color="rgba(255,255,255,0.8)">
               Manage your account information and security preferences.
             </Text>
           </VStack>
 
           {/* Profile Information */}
-          <Card>
+          <Card 
+            bg="rgba(255,255,255,0.05)" 
+            border="1px solid rgba(255,255,255,0.1)"
+            backdropFilter="blur(20px)"
+            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
+          >
             <CardHeader>
               <HStack spacing={3}>
                 <FiUser color="#667eea" size={24} />
-                <Heading size="md" color="gray.800">Profile Information</Heading>
+                <Heading size="md" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Profile Information</Heading>
               </HStack>
             </CardHeader>
             <CardBody>
@@ -251,7 +256,7 @@ const SettingsPage = () => {
                 <VStack spacing={4} align="stretch">
                   <HStack spacing={4}>
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">First Name</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">First Name</FormLabel>
                       <Input
                         placeholder="Enter your first name"
                         value={profileForm.first_name}
@@ -259,15 +264,21 @@ const SettingsPage = () => {
                         size="md"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.300"
-                        bg="white"
-                        color="gray.800"
-                        _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                        borderColor="rgba(255,255,255,0.2)"
+                        bg="rgba(255,255,255,0.1)"
+                        color="white"
+                        _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                        _focus={{ 
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          bg: 'rgba(255,255,255,0.1)',
+                          boxShadow: 'none'
+                        }}
+                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       />
                     </FormControl>
 
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="gray.700">Last Name</FormLabel>
+                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Last Name</FormLabel>
                       <Input
                         placeholder="Enter your last name"
                         value={profileForm.last_name}
@@ -275,17 +286,23 @@ const SettingsPage = () => {
                         size="md"
                         borderRadius="md"
                         border="1px solid"
-                        borderColor="gray.300"
-                        bg="white"
-                        color="gray.800"
-                        _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                        borderColor="rgba(255,255,255,0.2)"
+                        bg="rgba(255,255,255,0.1)"
+                        color="white"
+                        _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                        _focus={{ 
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          bg: 'rgba(255,255,255,0.1)',
+                          boxShadow: 'none'
+                        }}
+                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       />
                     </FormControl>
                   </HStack>
 
                   <HStack spacing={4} justify="space-between" align="center">
                     <VStack spacing={1} align="start">
-                      <Text fontSize="sm" fontWeight="semibold" color="gray.700">Account Status</Text>
+                      <Text fontSize="sm" fontWeight="semibold" color="white">Account Status</Text>
                       <Badge colorScheme={getVerificationColor()} variant="subtle" px={3} py={1} borderRadius="full">
                         {getVerificationStatus()}
                       </Badge>
@@ -296,6 +313,8 @@ const SettingsPage = () => {
                       leftIcon={<FiSave />}
                       bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                       color="white"
+                      border="none"
+                      _focus={{ boxShadow: 'none', outline: 'none' }}
                       _hover={{
                         bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                         transform: 'translateY(-1px)',
@@ -315,29 +334,35 @@ const SettingsPage = () => {
           </Card>
 
           {/* Email Settings */}
-          <Card>
+          <Card 
+            bg="rgba(255,255,255,0.05)" 
+            border="1px solid rgba(255,255,255,0.1)"
+            backdropFilter="blur(20px)"
+            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
+          >
             <CardHeader>
               <HStack spacing={3}>
                 <FiMail color="#667eea" size={24} />
-                <Heading size="md" color="gray.800">Email Settings</Heading>
+                <Heading size="md" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Email Settings</Heading>
               </HStack>
             </CardHeader>
             <CardBody>
               <VStack spacing={4} align="stretch">
                 <HStack spacing={4} justify="space-between" align="center">
                   <VStack spacing={1} align="start">
-                    <Text fontSize="md" fontWeight="semibold" color="gray.800">Current Email</Text>
-                    <Text fontSize="sm" color="gray.600">{user?.email || 'N/A'}</Text>
+                    <Text fontSize="md" fontWeight="semibold" color="white">Current Email</Text>
+                    <Text fontSize="sm" color="rgba(255,255,255,0.8)">{user?.email || 'N/A'}</Text>
                   </VStack>
                   <Button
                     leftIcon={<FiEdit3 />}
                     variant="outline"
-                    borderColor="gray.300"
-                    color="gray.700"
+                    borderColor="rgba(255,255,255,0.2)"
+                    color="white"
+                    _focus={{ boxShadow: 'none', outline: 'none' }}
                     _hover={{
-                      bg: 'gray.50',
-                      borderColor: 'purple.500',
-                      color: 'purple.600',
+                      bg: 'rgba(255,255,255,0.1)',
+                      borderColor: '#667eea',
+                      color: '#667eea',
                     }}
                     onClick={onEmailModalOpen}
                   >
@@ -349,29 +374,35 @@ const SettingsPage = () => {
           </Card>
 
           {/* Security Settings */}
-          <Card>
+          <Card 
+            bg="rgba(255,255,255,0.05)" 
+            border="1px solid rgba(255,255,255,0.1)"
+            backdropFilter="blur(20px)"
+            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
+          >
             <CardHeader>
               <HStack spacing={3}>
                 <FiShield color="#667eea" size={24} />
-                <Heading size="md" color="gray.800">Security Settings</Heading>
+                <Heading size="md" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Security Settings</Heading>
               </HStack>
             </CardHeader>
             <CardBody>
               <VStack spacing={4} align="stretch">
                 <HStack spacing={4} justify="space-between" align="center">
                   <VStack spacing={1} align="start">
-                    <Text fontSize="md" fontWeight="semibold" color="gray.800">Password</Text>
-                    <Text fontSize="sm" color="gray.600">Change your account password</Text>
+                    <Text fontSize="md" fontWeight="semibold" color="white">Password</Text>
+                    <Text fontSize="sm" color="rgba(255,255,255,0.8)">Change your account password</Text>
                   </VStack>
                   <Button
                     leftIcon={<FiLock />}
                     variant="outline"
-                    borderColor="gray.300"
-                    color="gray.700"
+                    borderColor="rgba(255,255,255,0.2)"
+                    color="white"
+                    _focus={{ boxShadow: 'none', outline: 'none' }}
                     _hover={{
-                      bg: 'gray.50',
-                      borderColor: 'purple.500',
-                      color: 'purple.600',
+                      bg: 'rgba(255,255,255,0.1)',
+                      borderColor: '#667eea',
+                      color: '#667eea',
                     }}
                     onClick={onPasswordModalOpen}
                   >
@@ -395,19 +426,24 @@ const SettingsPage = () => {
           </Card>
 
           {/* Account Information */}
-          <Card>
+          <Card 
+            bg="rgba(255,255,255,0.05)" 
+            border="1px solid rgba(255,255,255,0.1)"
+            backdropFilter="blur(20px)"
+            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
+          >
             <CardHeader>
               <HStack spacing={3}>
                 <FiMail color="#667eea" size={24} />
-                <Heading size="md" color="gray.800">Account Information</Heading>
+                <Heading size="md" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Account Information</Heading>
               </HStack>
             </CardHeader>
             <CardBody>
               <VStack spacing={4} align="stretch">
                 <HStack spacing={4} justify="space-between" align="center">
                   <VStack spacing={1} align="start">
-                    <Text fontSize="md" fontWeight="semibold" color="gray.800">Member Since</Text>
-                    <Text fontSize="sm" color="gray.600">
+                    <Text fontSize="md" fontWeight="semibold" color="white">Member Since</Text>
+                    <Text fontSize="sm" color="rgba(255,255,255,0.8)">
                       {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
@@ -485,6 +521,7 @@ const SettingsPage = () => {
                           icon={showEmailPassword ? <FiEyeOff /> : <FiEye />}
                           variant="ghost"
                           size="sm"
+                          _focus={{ boxShadow: 'none', outline: 'none' }}
                           onClick={() => setShowEmailPassword(!showEmailPassword)}
                         />
                       </InputRightElement>
@@ -500,13 +537,15 @@ const SettingsPage = () => {
                 </VStack>
               </ModalBody>
               <ModalFooter>
-                <Button variant="ghost" mr={3} onClick={onEmailModalClose}>
+                <Button variant="ghost" mr={3} onClick={onEmailModalClose} _focus={{ boxShadow: 'none', outline: 'none' }}>
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                   color="white"
+                  border="none"
+                  _focus={{ boxShadow: 'none', outline: 'none' }}
                   _hover={{
                     bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                   }}
@@ -556,6 +595,7 @@ const SettingsPage = () => {
                           icon={showCurrentPassword ? <FiEyeOff /> : <FiEye />}
                           variant="ghost"
                           size="sm"
+                          _focus={{ boxShadow: 'none', outline: 'none' }}
                           onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                         />
                       </InputRightElement>
@@ -584,6 +624,7 @@ const SettingsPage = () => {
                           icon={showNewPassword ? <FiEyeOff /> : <FiEye />}
                           variant="ghost"
                           size="sm"
+                          _focus={{ boxShadow: 'none', outline: 'none' }}
                           onClick={() => setShowNewPassword(!showNewPassword)}
                         />
                       </InputRightElement>
@@ -612,6 +653,7 @@ const SettingsPage = () => {
                           icon={showConfirmPassword ? <FiEyeOff /> : <FiEye />}
                           variant="ghost"
                           size="sm"
+                          _focus={{ boxShadow: 'none', outline: 'none' }}
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         />
                       </InputRightElement>
@@ -630,13 +672,15 @@ const SettingsPage = () => {
                 </VStack>
               </ModalBody>
               <ModalFooter>
-                <Button variant="ghost" mr={3} onClick={onPasswordModalClose}>
+                <Button variant="ghost" mr={3} onClick={onPasswordModalClose} _focus={{ boxShadow: 'none', outline: 'none' }}>
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                   color="white"
+                  border="none"
+                  _focus={{ boxShadow: 'none', outline: 'none' }}
                   _hover={{
                     bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                   }}
