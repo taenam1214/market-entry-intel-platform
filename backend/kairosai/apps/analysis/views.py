@@ -29,6 +29,12 @@ class MarketAnalysisRequestSerializer:
         if data.get('website') and not data['website'].startswith(('http://', 'https://')):
             errors['website'] = 'Please enter a valid URL starting with http:// or https://'
         
+        # Validate cycles parameter
+        cycles = data.get('cycles', '3')
+        valid_cycles = ['3', '5', '7', '10']
+        if cycles not in valid_cycles:
+            errors['cycles'] = f'Cycles must be one of: {", ".join(valid_cycles)}'
+        
         return errors
 
 class MarketAnalysisAPIView(APIView):
@@ -50,6 +56,7 @@ class MarketAnalysisAPIView(APIView):
                 )
             
             # Extract parameters
+            cycles = request.data.get('cycles', '3')
             company_info = {
                 'company_name': request.data.get('company_name'),
                 'industry': request.data.get('industry'),
@@ -58,6 +65,7 @@ class MarketAnalysisAPIView(APIView):
                 'current_positioning': request.data.get('current_positioning', ''),
                 'brand_description': request.data.get('brand_description', ''),
                 'email': request.data.get('email', ''),
+                'cycles': cycles,  # Add cycles parameter
                 # Additional optional fields from AnalysisForm
                 'customer_segment': request.data.get('customer_segment', ''),
                 'expansion_direction': request.data.get('expansion_direction', ''),
@@ -88,7 +96,7 @@ class MarketAnalysisAPIView(APIView):
                 asyncio.set_event_loop(loop)
             
             # Run the research agent with enhanced prompts
-            research_agent = CompetitorResearchAgent()
+            research_agent = CompetitorResearchAgent(cycles=cycles)
             
             # Execute the research with company context
             research_report = loop.run_until_complete(
@@ -421,6 +429,7 @@ class DeepMarketAnalysisAPIView(APIView):
                 return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
             
             # Extract parameters
+            cycles = request.data.get('cycles', '3')
             company_info = {
                 'company_name': request.data.get('company_name'),
                 'industry': request.data.get('industry'),
@@ -429,6 +438,7 @@ class DeepMarketAnalysisAPIView(APIView):
                 'current_positioning': request.data.get('current_positioning', ''),
                 'brand_description': request.data.get('brand_description', ''),
                 'email': request.data.get('email', ''),
+                'cycles': cycles,  # Add cycles parameter
                 # Additional optional fields from AnalysisForm
                 'customer_segment': request.data.get('customer_segment', ''),
                 'expansion_direction': request.data.get('expansion_direction', ''),
@@ -458,7 +468,7 @@ class DeepMarketAnalysisAPIView(APIView):
                 asyncio.set_event_loop(loop)
             
             # Run deep research analysis
-            research_agent = CompetitorResearchAgent()
+            research_agent = CompetitorResearchAgent(cycles=cycles)
             
             # Execute deep research with enhanced prompts
             deep_report = loop.run_until_complete(
@@ -577,7 +587,7 @@ class KeyInsightsAPIView(APIView):
             except RuntimeError:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-            research_agent = CompetitorResearchAgent()
+            research_agent = CompetitorResearchAgent(cycles=cycles)
             research_report = loop.run_until_complete(
                 research_agent.research_market(
                     company=company_info['company_name'],
@@ -622,7 +632,7 @@ class CompetitorAnalysisAPIView(APIView):
             except RuntimeError:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-            research_agent = CompetitorResearchAgent()
+            research_agent = CompetitorResearchAgent(cycles=cycles)
             competitor_report = loop.run_until_complete(
                 research_agent.generate_competitor_report(
                     company=company_info['company_name'],
@@ -670,7 +680,7 @@ class SegmentArbitrageAPIView(APIView):
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
             
-            research_agent = CompetitorResearchAgent()
+            research_agent = CompetitorResearchAgent(cycles=cycles)
             arbitrage_analysis = loop.run_until_complete(
                 research_agent.generate_segment_arbitrage_analysis(
                     company=company_info['company_name'],

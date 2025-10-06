@@ -73,9 +73,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
   const getTimerDuration = (cycles: string): number => {
     switch (cycles) {
       case '3': return 300; // 5 minutes
-      case '5': return 420; // 7 minutes
-      case '7': return 600; // 10 minutes
-      case '10': return 900; // 15 minutes
+      case '5': return 600; // 10 minutes
+      case '7': return 900; // 15 minutes
+      case '10': return 1200; // 20 minutes
       default: return 300; // Default to 5 minutes
     }
   };

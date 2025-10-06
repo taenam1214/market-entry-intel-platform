@@ -8,7 +8,7 @@ from deep_researcher import IterativeResearcher, DeepResearcher, LLMConfig
 from django.conf import settings
 
 class CompetitorResearchAgent:
-    def __init__(self):
+    def __init__(self, cycles='3'):
         # Set environment variables from Django settings
         if hasattr(settings, 'OPENAI_API_KEY') and settings.OPENAI_API_KEY:
             os.environ['OPENAI_API_KEY'] = settings.OPENAI_API_KEY
@@ -28,16 +28,49 @@ class CompetitorResearchAgent:
             fast_model="gpt-4o-mini"
         )
         
+        # Configure iterations and time based on cycles
+        cycles_config = self._get_cycles_config(cycles)
+        
         self.iterative_researcher = IterativeResearcher(
-            max_iterations=4, 
-            max_time_minutes=7,
+            max_iterations=cycles_config['max_iterations'], 
+            max_time_minutes=cycles_config['max_time_minutes'],
             config=llm_config
         )
         self.deep_researcher = DeepResearcher(
-            max_iterations=3, 
-            max_time_minutes=5,
+            max_iterations=cycles_config['deep_max_iterations'], 
+            max_time_minutes=cycles_config['deep_max_time_minutes'],
             config=llm_config
         )
+    
+    def _get_cycles_config(self, cycles):
+        """Get configuration based on cycles parameter"""
+        cycles_configs = {
+            '3': {
+                'max_iterations': 4,
+                'max_time_minutes': 7,
+                'deep_max_iterations': 3,
+                'deep_max_time_minutes': 5
+            },
+            '5': {
+                'max_iterations': 6,
+                'max_time_minutes': 10,
+                'deep_max_iterations': 4,
+                'deep_max_time_minutes': 7
+            },
+            '7': {
+                'max_iterations': 8,
+                'max_time_minutes': 15,
+                'deep_max_iterations': 5,
+                'deep_max_time_minutes': 10
+            },
+            '10': {
+                'max_iterations': 10,
+                'max_time_minutes': 20,
+                'deep_max_iterations': 6,
+                'deep_max_time_minutes': 15
+            }
+        }
+        return cycles_configs.get(cycles, cycles_configs['3'])
     
     def _build_scoring_focused_prompt(self, company: str, industry: str, target_country: str, company_info: Dict[str, Any] = None) -> str:
         """Build a comprehensive prompt designed to generate data suitable for quantitative scoring."""
