@@ -339,7 +339,6 @@ const NavigationBar: React.FC = () => {
                       outline="none"
                       _hover={{ border: 'none', outline: 'none', bg: 'gray.100' }}
                       _focus={{ boxShadow: 'none', outline: 'none' }}
-                      _focus={{ boxShadow: 'none', outline: 'none' }}
                       leftIcon={<FiSettings />}
                       onClick={() => handleNavigation('/settings')}
                     >

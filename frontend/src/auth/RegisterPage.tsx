@@ -38,10 +38,6 @@ const RegisterPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  // Color mode values
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const textColor = useColorModeValue('gray.800', 'white');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -102,7 +98,7 @@ const RegisterPage: React.FC = () => {
       });
       
       // Check if email verification is required
-      if (result && result.email_verification_required) {
+      if (result && typeof result === 'object' && 'email_verification_required' in result) {
         // Navigate to email verification page
         navigate('/verify-email', {
           state: {
