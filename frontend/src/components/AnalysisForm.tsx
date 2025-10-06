@@ -19,6 +19,9 @@ import {
   Badge,
   Flex,
   Spinner,
+  RadioGroup,
+  Radio,
+  HStack,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -47,6 +50,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
     email: user?.email || '',
     customerSegment: '',
     expansionDirection: '',
+    cycles: '3', // Default to 3 cycles
     // Additional detailed fields for better analysis
     companySize: '',
     annualRevenue: '',
@@ -60,10 +64,21 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
     partnershipPreferences: '',
   });
   const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(300); // 5 minutes in seconds
+  const [timer, setTimer] = useState(300); // 5 minutes in seconds (default for 3 cycles)
   const [timerExpired, setTimerExpired] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
+
+  // Function to calculate timer duration based on cycles
+  const getTimerDuration = (cycles: string): number => {
+    switch (cycles) {
+      case '3': return 300; // 5 minutes
+      case '5': return 420; // 7 minutes
+      case '7': return 600; // 10 minutes
+      case '10': return 900; // 15 minutes
+      default: return 300; // Default to 5 minutes
+    }
+  };
 
   // Customer segments
   const customerSegments = [
@@ -196,7 +211,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
       isClosable: true,
     });
     setLoading(true);
-    setTimer(300);
+    setTimer(getTimerDuration(formData.cycles));
     setTimerExpired(false);
     try {
       const payload = {
@@ -414,6 +429,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                   )}
                 </FormControl>
 
+
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={3}>
                   <GridItem>
                     <FormControl isRequired>
@@ -562,6 +578,34 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     }}
                     _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                   />
+                </FormControl>
+
+                {/* Cycles Selection */}
+                <FormControl isRequired>
+                  <FormLabel fontWeight="semibold" fontSize="sm" color="white">Cycles to be run</FormLabel>
+                  <RadioGroup 
+                    value={formData.cycles} 
+                    onChange={(value) => handleInputChange('cycles', value)}
+                    colorScheme="purple"
+                  >
+                    <HStack spacing={6} wrap="wrap">
+                      <Radio value="3" color="white" _checked={{ bg: "purple.500", borderColor: "purple.500" }}>
+                        <Text color="white" fontSize="sm">3 cycles</Text>
+                      </Radio>
+                      <Radio value="5" color="white" _checked={{ bg: "purple.500", borderColor: "purple.500" }}>
+                        <Text color="white" fontSize="sm">5 cycles</Text>
+                      </Radio>
+                      <Radio value="7" color="white" _checked={{ bg: "purple.500", borderColor: "purple.500" }}>
+                        <Text color="white" fontSize="sm">7 cycles</Text>
+                      </Radio>
+                      <Radio value="10" color="white" _checked={{ bg: "purple.500", borderColor: "purple.500" }}>
+                        <Text color="white" fontSize="sm">10 cycles</Text>
+                      </Radio>
+                    </HStack>
+                  </RadioGroup>
+                  <Text fontSize="xs" color="rgba(255,255,255,0.7)" mt={1}>
+                    More cycles provide deeper analysis but take longer to complete
+                  </Text>
                 </FormControl>
 
                 <FormControl isRequired>
