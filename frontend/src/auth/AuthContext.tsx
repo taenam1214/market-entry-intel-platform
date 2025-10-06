@@ -19,8 +19,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<{
     user: User;
-    email_verification_required: boolean;
-    email_send_failed: boolean;
+    email_verification_required?: boolean;
+    email_send_failed?: boolean;
   } | void>;
   logout: () => void;
   setUser: (user: User | null) => void;

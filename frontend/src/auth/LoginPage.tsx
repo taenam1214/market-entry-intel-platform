@@ -16,7 +16,6 @@ import {
   AlertDescription,
   Spinner,
   Divider,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from './AuthContext';
