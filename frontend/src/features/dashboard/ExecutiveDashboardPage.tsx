@@ -1452,11 +1452,11 @@ For questions or additional analysis, contact the Strategic Planning team.
               </HStack>
               
               <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4} mb={6}>
-                <Box p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)">
+                {/* <Box p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)">
                   <Text fontSize="sm" color="white" fontWeight="semibold" mb={1}>Average Contract Value</Text>
                   <Text fontSize="2xl" fontWeight="bold" color="white">{wtpData.avgContract}</Text>
                   <Text fontSize="xs" color="rgba(255,255,255,0.6)">Range: {wtpData.annualContract}</Text>
-                </Box>
+                </Box> */}
                 
                 <Box p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)">
                   <Text fontSize="sm" color="white" fontWeight="semibold" mb={1}>Market Size</Text>
