@@ -15,9 +15,19 @@ class EmailService:
     """Service for sending emails via SendGrid"""
     
     def __init__(self):
-        self.sg = SendGridAPIClient(api_key=settings.SENDGRID_API_KEY)
-        self.from_email = settings.SENDGRID_FROM_EMAIL
-        self.from_name = settings.SENDGRID_FROM_NAME
+        self._sg = None
+        self.from_email = getattr(settings, 'SENDGRID_FROM_EMAIL', 'noreply@kairosai.world')
+        self.from_name = getattr(settings, 'SENDGRID_FROM_NAME', 'KairosAI')
+    
+    @property
+    def sg(self):
+        """Lazy-load SendGrid client"""
+        if self._sg is None:
+            api_key = getattr(settings, 'SENDGRID_API_KEY', None)
+            if not api_key:
+                raise ValueError("SENDGRID_API_KEY is not configured. Email functionality is disabled.")
+            self._sg = SendGridAPIClient(api_key=api_key)
+        return self._sg
     
     def send_verification_email(self, user: User, verification_code: str, verification_type: str = 'signup') -> bool:
         """
@@ -31,6 +41,18 @@ class EmailService:
         Returns:
             bool: True if email sent successfully, False otherwise
         """
+        # Check if SendGrid is configured
+        if not getattr(settings, 'SENDGRID_API_KEY', None):
+            logger.warning(f"SendGrid not configured. Skipping email to {user.email}. Verification code: {verification_code}")
+            print(f"\n{'='*60}")
+            print(f"📧 EMAIL VERIFICATION CODE (SendGrid not configured)")
+            print(f"{'='*60}")
+            print(f"To: {user.email}")
+            print(f"Type: {verification_type}")
+            print(f"Code: {verification_code}")
+            print(f"{'='*60}\n")
+            return True  # Return True to allow signup to continue in development
+        
         try:
             # Create email content based on verification type
             subject, html_content, text_content = self._get_verification_email_content(
