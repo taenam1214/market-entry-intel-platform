@@ -18,6 +18,8 @@ import {
   Heading,
   Button,
   Icon,
+  Radio,
+  RadioGroup,
 } from '@chakra-ui/react';
 import { FiSend, FiMessageCircle, FiUser, FiRefreshCw, FiMessageSquare, FiArrowRight, FiTarget } from 'react-icons/fi';
 import { useAuth } from '../../auth/AuthContext';
@@ -39,7 +41,7 @@ const ChatbotPage: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [availableReports, setAvailableReports] = useState<MarketReport[]>([]);
-  const [selectedReport, setSelectedReport] = useState<MarketReport | null>(null);
+  const [selectedReportId, setSelectedReportId] = useState<string>('');
   const [currentConversation, setCurrentConversation] = useState<ChatConversation | null>(null);
   const [isLoadingReports, setIsLoadingReports] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -56,42 +58,51 @@ const ChatbotPage: React.FC = () => {
   const userBg = 'rgba(102, 126, 234, 0.2)';
   const assistantBg = 'rgba(255,255,255,0.1)';
 
-  // Load data from localStorage (same as other pages)
+  // Fetch reports from database API
   useEffect(() => {
-    const loadData = () => {
-      // Don't try to load data if user is not authenticated
-      if (!user || !isAuthenticated) {
+    const fetchReports = async () => {
+      // Wait for user to be fully loaded
+      if (!isAuthenticated || !user?.id) {
         setAvailableReports([]);
         setIsLoadingReports(false);
         return;
       }
 
       try {
-        // Check if we have analysis data in localStorage (user-specific, same as DataContext)
-        const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
-        const hasAnalysisHistory = analysisHistory !== null;
+        setIsLoadingReports(true);
         
-        if (hasAnalysisHistory && analysisHistory) {
-          const analysisData = JSON.parse(analysisHistory);
-          const dashboardData = analysisData.dashboardData;
+        // Small delay to ensure auth is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        
+        if (!token) {
+          console.error('No authentication token found in localStorage');
+          setAvailableReports([]);
+          setIsLoadingReports(false);
+          return;
+        }
+        
+        console.log('Fetching reports for user:', user.email, 'Token exists:', !!token);
+        
+        const response = await fetch('http://localhost:8000/api/v1/reports/?selector=true', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`
+          }
+        });
+
+        console.log('Reports API response status:', response.status);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Reports fetched:', data.reports?.length || 0);
+          setAvailableReports(data.reports || []);
           
-          // Check if dashboardData exists and has the required fields
-          if (dashboardData && dashboardData.company_info) {
-            // Create a mock report object from user-specific localStorage data
-            const mockReport = {
-              id: 1,
-              analysis_id: dashboardData.analysis_id || `user-${user.id}-analysis`,
-              analysis_type: 'standard',
-              status: 'completed',
-              company_name: dashboardData.company_info?.company_name || 'Your Company',
-              industry: dashboardData.company_info?.industry || 'Your Industry',
-              target_market: dashboardData.company_info?.target_market || 'Target Market',
-              executive_summary: dashboardData.executive_summary || 'Market analysis completed',
-              created_at: new Date().toISOString(),
-              completed_at: new Date().toISOString(),
-            };
-            
-            setAvailableReports([mockReport]);
+          // Auto-select the first (most recent) report by default
+          if (data.reports && data.reports.length > 0) {
+            setSelectedReportId(data.reports[0].id.toString());
             
             // Only add welcome message if there are reports and no existing messages
             if (messages.length === 0) {
@@ -99,30 +110,31 @@ const ChatbotPage: React.FC = () => {
                 {
                   id: '1',
                   type: 'assistant',
-                  content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to your market analysis reports and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
+                  content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to ${data.reports.length} market analysis report${data.reports.length > 1 ? 's' : ''} and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
+
+Currently discussing: **${data.reports[0].company_name} → ${data.reports[0].target_market}**
 
 I can answer questions about your reports, suggest new markets to explore, help with strategic positioning, assess risks, and provide strategic recommendations. What would you like to discuss?`,
                   timestamp: new Date(),
                 },
               ]);
             }
-          } else {
-            // Analysis history exists but no valid dashboard data
-            setAvailableReports([]);
           }
         } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Failed to fetch reports:', response.status, errorData);
           setAvailableReports([]);
         }
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('Error fetching reports:', error);
         setAvailableReports([]);
       } finally {
         setIsLoadingReports(false);
       }
     };
 
-    loadData();
-  }, [user?.id, isAuthenticated, messages.length]);
+    fetchReports();
+  }, [user?.id, isAuthenticated]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -225,6 +237,7 @@ I can answer questions about your reports, suggest new markets to explore, help 
       const response = await chatbotService.sendMessage({
         content: query,
         conversation_id: currentConversation?.id,
+        selected_report_ids: selectedReportId ? [parseInt(selectedReportId)] : undefined,
       });
       
       // Update current conversation if it's new
@@ -318,40 +331,64 @@ What would you like to know about your reports?`,
 
           <Flex gap={6} direction={{ base: 'column', lg: 'row' }}>
             {/* Available Reports Sidebar */}
-            <Box w={{ base: '100%', lg: '300px' }}>
+            <Box w={{ base: '100%', lg: '320px' }}>
               <Card bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
                 <CardHeader>
-                  <Heading size="sm" color="white">Available Reports</Heading>
+                  <VStack align="stretch" spacing={2}>
+                    <Heading size="sm" color="white">Select Report to Discuss</Heading>
+                    <Text fontSize="xs" color="rgba(255,255,255,0.7)">
+                      Choose which report the AI should reference
+                    </Text>
+                  </VStack>
                 </CardHeader>
                 <CardBody>
-                  <VStack spacing={3} align="stretch">
-                    {availableReports.map((report) => (
-                      <Box
-                        key={report.id}
-                        p={3}
-                        border="1px"
-                        borderColor={borderColor}
-                        borderRadius="md"
-                        cursor="pointer"
-                        bg={selectedReport?.id === report.id ? 'rgba(102, 126, 234, 0.2)' : 'transparent'}
-                        _hover={{ bg: 'rgba(255,255,255,0.1)' }}
-                        onClick={() => setSelectedReport(report)}
-                      >
-                        <Text fontSize="sm" fontWeight="semibold" mb={1} color="white">
-                          {report.company_name} - {report.target_market}
-                        </Text>
-                        <Text fontSize="xs" color="rgba(255,255,255,0.8)" mb={2}>
-                          {report.executive_summary ? 
-                            `${report.executive_summary.substring(0, 100)}...` : 
-                            'No summary available'
-                          }
-                        </Text>
-                        <Text fontSize="xs" color="rgba(255,255,255,0.6)">
-                          {report.created_at ? new Date(report.created_at).toLocaleDateString() : 'Date not available'}
-                        </Text>
-                      </Box>
-                    ))}
-                  </VStack>
+                  <RadioGroup 
+                    value={selectedReportId} 
+                    onChange={setSelectedReportId}
+                  >
+                    <VStack spacing={3} align="stretch">
+                      {availableReports.map((report) => (
+                        <Box
+                          key={report.id}
+                          p={3}
+                          border="1px"
+                          borderColor={selectedReportId === report.id.toString() ? 'rgba(147, 51, 234, 0.5)' : borderColor}
+                          borderRadius="md"
+                          bg={selectedReportId === report.id.toString() ? 'rgba(147, 51, 234, 0.1)' : 'transparent'}
+                          _hover={{ bg: 'rgba(255,255,255,0.05)' }}
+                        >
+                          <Radio
+                            value={report.id.toString()}
+                            colorScheme="purple"
+                            size="sm"
+                            mb={2}
+                          >
+                            <Text fontSize="sm" fontWeight="semibold" color="white">
+                              {report.company_name} → {report.target_market}
+                            </Text>
+                          </Radio>
+                          <Text fontSize="xs" color="rgba(255,255,255,0.7)" ml={6}>
+                            {report.industry}
+                          </Text>
+                          <Text fontSize="xs" color="rgba(255,255,255,0.5)" ml={6}>
+                            {report.created_at ? new Date(report.created_at).toLocaleDateString() : ''}
+                          </Text>
+                        </Box>
+                      ))}
+                    </VStack>
+                  </RadioGroup>
+                  {selectedReportId && (
+                    <Badge
+                      mt={3}
+                      colorScheme="purple"
+                      variant="solid"
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                    >
+                      1 report selected
+                    </Badge>
+                  )}
                 </CardBody>
               </Card>
             </Box>

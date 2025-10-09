@@ -16,7 +16,7 @@ class MarketReportSerializer(serializers.ModelSerializer):
             'budget_range', 'regulatory_requirements', 'partnership_preferences',
             'dashboard_data', 'detailed_scores', 'research_report',
             'key_insights', 'revenue_projections', 'recommended_actions',
-            'executive_summary', 'full_content',
+            'executive_summary', 'full_content', 'competitor_analysis', 'segment_arbitrage',
             'created_at', 'updated_at', 'completed_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'completed_at']
@@ -29,8 +29,23 @@ class MarketReportListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'analysis_id', 'analysis_type', 'status',
             'company_name', 'industry', 'target_market',
+            'customer_segment', 'expansion_direction',
             'executive_summary', 'created_at', 'completed_at'
         ]
+
+class MarketReportSelectorSerializer(serializers.ModelSerializer):
+    """Ultra-simple serializer for report selection UI"""
+    display_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = MarketReport
+        fields = [
+            'id', 'display_name', 'company_name', 'target_market', 
+            'industry', 'created_at'
+        ]
+    
+    def get_display_name(self, obj):
+        return f"{obj.company_name} → {obj.target_market} ({obj.industry})"
 
 class ChatMessageSerializer(serializers.ModelSerializer):
     """Serializer for ChatMessage model"""

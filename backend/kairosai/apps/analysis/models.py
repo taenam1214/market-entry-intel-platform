@@ -55,6 +55,8 @@ class MarketReport(models.Model):
     dashboard_data = models.JSONField(default=dict, blank=True)
     detailed_scores = models.JSONField(default=dict, blank=True)
     research_report = models.JSONField(default=dict, blank=True)
+    competitor_analysis = models.JSONField(default=list, blank=True)  # Competitor data
+    segment_arbitrage = models.JSONField(default=list, blank=True)  # Arbitrage opportunities
     key_insights = models.JSONField(default=list, blank=True)
     revenue_projections = models.JSONField(default=dict, blank=True)
     recommended_actions = models.JSONField(default=dict, blank=True)

@@ -26,6 +26,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { authService } from '../auth/authService';
+import { useData } from '../contexts/DataContext';
 
 interface AnalysisFormProps {
   // Optional props for customization
@@ -40,6 +41,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
   submitButtonText = "See KairosAI Analysis",
 }) => {
   const { user } = useAuth();
+  const { refreshAnalysisData } = useData();
   const [formData, setFormData] = useState({
     companyName: '',
     industry: '',
@@ -76,6 +78,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
       case '5': return 600; // 10 minutes
       case '7': return 900; // 15 minutes
       case '10': return 1200; // 20 minutes
+      case '20': return 2400; // 40 minutes
       default: return 300; // Default to 5 minutes
     }
   };
@@ -202,7 +205,17 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
   }, [loading, timer]);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('🎯 handleSubmit called!');
     e.preventDefault();
+    
+    // Prevent double submission
+    if (loading) {
+      console.log('⚠️ Form already submitting, ignoring duplicate submission');
+      return;
+    }
+    
+    console.log('✓ Not currently loading, proceeding with submission');
+    
     toast({
       title: 'Analysis Started!',
       description: "We're analyzing your market entry opportunities. You'll be redirected to your dashboard shortly.",
@@ -213,6 +226,14 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
     setLoading(true);
     setTimer(getTimerDuration(formData.cycles));
     setTimerExpired(false);
+    
+    console.log('🚀 Starting analysis submission...', {
+      companyName: formData.companyName,
+      industry: formData.industry,
+      targetMarket: formData.targetMarket,
+      cycles: formData.cycles
+    });
+    
     try {
       const payload = {
         company_name: formData.companyName,
@@ -224,6 +245,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         email: formData.email,
         customer_segment: formData.customerSegment,
         expansion_direction: formData.expansionDirection,
+        cycles: formData.cycles,  // Add cycles parameter
         // Additional detailed fields
         company_size: formData.companySize,
         annual_revenue: formData.annualRevenue,
@@ -237,53 +259,42 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         partnership_preferences: formData.partnershipPreferences,
       };
       
+      console.log('📦 Payload created:', JSON.stringify(payload, null, 2).substring(0, 200) + '...');
+      
       // Get authentication headers
       const authHeaders = authService.getAuthHeaders();
+      console.log('🔑 Auth headers:', authHeaders);
+      console.log('👤 User authenticated:', !!user);
+      console.log('📧 User email:', user?.email);
+      console.log('🎫 Token in localStorage:', !!localStorage.getItem('authToken'));
       
-      const [marketRes, competitorRes, arbitrageRes] = await Promise.all([
-        fetch('http://localhost:8000/api/v1/market-analysis/', {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify(payload),
-        }),
-        fetch('http://localhost:8000/api/v1/competitor-analysis/', {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify(payload),
-        }),
-        fetch('http://localhost:8000/api/v1/segment-arbitrage/', {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify(payload),
-        })
-      ]);
-      if (!marketRes.ok) {
-        const errorData = await marketRes.json();
+      // Call the comprehensive analysis endpoint (single call, all 3 analyses in parallel)
+      console.log('📊 Calling comprehensive-analysis API (runs all 3 analyses in parallel)...');
+      const response = await fetch('http://localhost:8000/api/v1/comprehensive-analysis/', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify(payload),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
         throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
       }
-      const data = await marketRes.json();
-      // Parse competitor and arbitrage data
-      let competitorData = null;
-      let arbitrageData = null;
-      
-      if (competitorRes.ok) {
-        competitorData = await competitorRes.json();
-        console.log('Competitor API response:', competitorData);
-        console.log('Competitor analysis data:', competitorData.competitor_analysis);
-        localStorage.setItem('competitorSummary', JSON.stringify(competitorData.competitor_analysis));
-      } else {
-        console.log('Competitor API failed:', competitorRes.status);
-        localStorage.setItem('competitorSummary', 'No competitor summary available.');
+      const data = await response.json();
+      console.log('✅ Comprehensive analysis complete!', {
+        analysis_id: data.analysis_id,
+        hasCompetitors: !!data.competitor_analysis,
+        hasArbitrage: !!data.segment_arbitrage
+      });
+      // Store competitor and arbitrage data
+      if (data.competitor_analysis) {
+        localStorage.setItem('competitorSummary', JSON.stringify(data.competitor_analysis));
+        console.log('💾 Saved competitor data to localStorage');
       }
       
-      if (arbitrageRes.ok) {
-        arbitrageData = await arbitrageRes.json();
-        console.log('Arbitrage API response:', arbitrageData);
-        console.log('Arbitrage analysis data:', arbitrageData.segment_arbitrage);
-        localStorage.setItem('segmentArbitrage', JSON.stringify(arbitrageData.segment_arbitrage));
-      } else {
-        console.log('Arbitrage API failed:', arbitrageRes.status);
-        localStorage.setItem('segmentArbitrage', 'No arbitrage analysis available.');
+      if (data.segment_arbitrage) {
+        localStorage.setItem('segmentArbitrage', JSON.stringify(data.segment_arbitrage));
+        console.log('💾 Saved arbitrage data to localStorage');
       }
       
       // Store all data globally (for backward compatibility)
@@ -294,15 +305,25 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         const analysisData = {
           formData: formData,
           dashboardData: data,
-          competitorSummary: competitorData?.competitor_analysis || null,
-          arbitrageData: arbitrageData?.segment_arbitrage || null
+          competitorSummary: data.competitor_analysis || null,
+          arbitrageData: data.segment_arbitrage || null
         };
         localStorage.setItem(`analysis_${user.id}`, JSON.stringify(analysisData));
+        console.log('💾 Saved complete analysis to localStorage');
       }
       
       setLoading(false);
+      
+      // Refresh the data context to load from database
+      setTimeout(() => {
+        refreshAnalysisData();
+      }, 500);
+      
       navigate('/dashboard');
     } catch (error: any) {
+      console.error('❌ Analysis submission error:', error);
+      console.error('Error stack:', error.stack);
+      
       toast({
         title: 'Analysis Failed',
         description: error.message || 'An error occurred while analyzing the market.',
@@ -600,6 +621,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                       </Radio>
                       <Radio value="10" color="white" _checked={{ bg: "purple.500", borderColor: "purple.500" }}>
                         <Text color="white" fontSize="sm">10 cycles</Text>
+                      </Radio>
+                      <Radio value="20" color="white" _checked={{ bg: "purple.500", borderColor: "purple.500" }}>
+                        <Text color="white" fontSize="sm">20 cycles</Text>
                       </Radio>
                     </HStack>
                   </RadioGroup>

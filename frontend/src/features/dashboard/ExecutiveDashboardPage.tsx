@@ -1,12 +1,12 @@
-import { Box, Container, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatNumber, Badge, Progress, Icon, Flex, SimpleGrid, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton } from '@chakra-ui/react';
+import { Box, Container, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatNumber, Badge, Progress, Icon, Flex, SimpleGrid, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton, Select } from '@chakra-ui/react';
 import { FiTrendingUp, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiDownload, FiArrowRight } from 'react-icons/fi';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import { useData } from '../../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
 
 const ExecutiveDashboardPage = () => {
-  const { analysisData } = useData();
+  const { analysisData, loadSpecificReport } = useData();
   const navigate = useNavigate();
   const [showFullReport, setShowFullReport] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<any>(null);
@@ -17,6 +17,27 @@ const ExecutiveDashboardPage = () => {
   const competitorSummary = analysisData.competitorSummary;
   const hasAnalysisHistory = analysisData.hasAnalysisHistory;
   const isLoading = analysisData.isLoading;
+  const availableReports = analysisData.availableReports || [];
+  
+  // Handle report selection
+  const handleReportChange = async (reportId: string) => {
+    if (reportId) {
+      console.log('🔀 Switching to report:', reportId);
+      await loadSpecificReport(parseInt(reportId));
+      console.log('✅ Report switch complete');
+    }
+  };
+
+  // Debug: Log when competitorSummary changes
+  useEffect(() => {
+    console.log('🔍 Dashboard competitorSummary changed:', {
+      exists: !!competitorSummary,
+      type: typeof competitorSummary,
+      isArray: Array.isArray(competitorSummary),
+      length: Array.isArray(competitorSummary) ? competitorSummary.length : 'N/A',
+      data: competitorSummary
+    });
+  }, [competitorSummary]);
 
   // Remove the useEffect since we're now using centralized data context
 
@@ -1145,12 +1166,45 @@ For questions or additional analysis, contact the Strategic Planning team.
         <VStack spacing={8} align="stretch" maxW="7xl" mx="auto">
           {/* Header */}
           <Box>
-            <Heading size="xl" mb={2} color="white">
-              Executive Dashboard
-            </Heading>
-            <Text fontSize="lg" color="rgba(255,255,255,0.8)">
-              Market Entry Intelligence Overview
-            </Text>
+            <Flex justify="space-between" align="center" mb={4}>
+              <Box>
+                <Heading size="xl" mb={2} color="white">
+                  Executive Dashboard
+                </Heading>
+                <Text fontSize="lg" color="rgba(255,255,255,0.8)">
+                  Market Entry Intelligence Overview
+                </Text>
+              </Box>
+              
+              {/* Report Selector */}
+              {availableReports.length > 1 && (
+                <Box minW="300px">
+                  <Text fontSize="sm" color="rgba(255,255,255,0.8)" mb={2}>
+                    Select Report:
+                  </Text>
+                  <Select
+                    value={dashboard?.company_name && dashboard?.target_market ? 
+                      availableReports.find(r => r.company_name === dashboard.company_name && r.target_market === dashboard.target_market)?.id || '' 
+                      : availableReports[0]?.id || ''}
+                    onChange={(e) => handleReportChange(e.target.value)}
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    borderColor="rgba(255,255,255,0.2)"
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
+                    _focus={{ borderColor: 'purple.400', boxShadow: 'none' }}
+                  >
+                    {availableReports.map((report) => (
+                      <option key={report.id} value={report.id} style={{ background: '#140d28', color: 'white' }}>
+                        {report.company_name} → {report.target_market}
+                      </option>
+                    ))}
+                  </Select>
+                  <Text fontSize="xs" color="rgba(255,255,255,0.6)" mt={1}>
+                    {availableReports.length} report{availableReports.length > 1 ? 's' : ''} available
+                  </Text>
+                </Box>
+              )}
+            </Flex>
           </Box>
 
           {/* Customer Segment Context Bar */}

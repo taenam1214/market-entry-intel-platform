@@ -8,11 +8,13 @@ interface AnalysisData {
   arbitrageData: any;
   hasAnalysisHistory: boolean;
   isLoading: boolean;
+  availableReports: any[];
 }
 
 interface DataContextType {
   analysisData: AnalysisData;
   refreshAnalysisData: () => void;
+  loadSpecificReport: (reportId: number) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -29,9 +31,83 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     arbitrageData: null,
     hasAnalysisHistory: false,
     isLoading: true,
+    availableReports: [],
   });
 
-  const loadAnalysisData = () => {
+  const loadSpecificReport = async (reportId: number) => {
+    if (!isAuthenticated || !user) return;
+
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      setAnalysisData(prev => ({ ...prev, isLoading: true }));
+      
+      const response = await fetch(`http://localhost:8000/api/v1/reports/${reportId}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const report = await response.json();
+        console.log('✅ Loaded specific report from DATABASE:', {
+          id: report.id,
+          company: report.company_name,
+          hasCompetitors: !!report.competitor_analysis,
+          competitorCount: Array.isArray(report.competitor_analysis) ? report.competitor_analysis.length : 0,
+          hasArbitrage: !!report.segment_arbitrage,
+          arbitrageCount: Array.isArray(report.segment_arbitrage) ? report.segment_arbitrage.length : 0
+        });
+        
+        console.log('📊 Competitor data:', report.competitor_analysis);
+        console.log('📊 Arbitrage data:', report.segment_arbitrage);
+        
+        setAnalysisData(prev => {
+          const newData = {
+            ...prev,
+            dashboardData: {
+              company_name: report.company_name,
+              industry: report.industry,
+              target_market: report.target_market,
+              website: report.website,
+              customer_segment: report.customer_segment,
+              expansion_direction: report.expansion_direction,
+              company_size: report.company_size,
+              annual_revenue: report.annual_revenue,
+              funding_stage: report.funding_stage,
+              current_markets: report.current_markets,
+              expansion_timeline: report.expansion_timeline,
+              budget_range: report.budget_range,
+              dashboard: report.dashboard_data,
+              detailed_scores: report.detailed_scores,
+              research_report: report.research_report,
+              key_insights: report.key_insights,
+              revenue_projections: report.revenue_projections,
+              recommended_actions: report.recommended_actions,
+            },
+            competitorSummary: report.competitor_analysis,
+            arbitrageData: report.segment_arbitrage,
+            isLoading: false,
+          };
+          
+          console.log('🔄 Setting new analysis data:', {
+            hasCompetitors: !!newData.competitorSummary,
+            hasArbitrage: !!newData.arbitrageData
+          });
+          
+          return newData;
+        });
+      }
+    } catch (error) {
+      console.error('Error loading specific report:', error);
+      setAnalysisData(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const loadAnalysisData = async () => {
     if (!isAuthenticated || !user) {
       setAnalysisData({
         dashboardData: null,
@@ -39,6 +115,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         arbitrageData: null,
         hasAnalysisHistory: false,
         isLoading: false,
+        availableReports: [],
       });
       return;
     }
@@ -46,7 +123,64 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setAnalysisData(prev => ({ ...prev, isLoading: true }));
 
     try {
-      // Check for analysis history
+      // First try to fetch from database
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+      
+      if (!token) {
+        console.log('No auth token found, skipping database fetch');
+        // Fall through to localStorage fallback
+      } else {
+        // Fetch available reports list
+        const reportsResponse = await fetch('http://localhost:8000/api/v1/reports/?selector=true', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`
+          }
+        });
+
+        let availableReports = [];
+        if (reportsResponse.ok) {
+          const reportsData = await reportsResponse.json();
+          availableReports = reportsData.reports || [];
+          console.log(`📋 Found ${availableReports.length} reports in database`);
+        }
+
+        // Fetch latest dashboard data
+        const response = await fetch('http://localhost:8000/api/v1/latest-dashboard/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.has_data) {
+            // Data fetched from database
+            console.log('✅ Loading data from DATABASE:', {
+              company: data.dashboard_data?.company_name,
+              hasCompetitors: !!data.competitor_summary,
+              hasArbitrage: !!data.arbitrage_data
+            });
+            setAnalysisData({
+              dashboardData: data.dashboard_data,
+              competitorSummary: data.competitor_summary,
+              arbitrageData: data.arbitrage_data,
+              hasAnalysisHistory: true,
+              isLoading: false,
+              availableReports: availableReports,
+            });
+            return;
+          }
+        } else {
+          console.warn('Failed to fetch from database, status:', response.status);
+        }
+      }
+
+      // Fallback to localStorage if database fetch fails or no data found
       const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
       const hasHistory = !!analysisHistory;
 
@@ -88,12 +222,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         }
       }
 
+      console.log('⚠️ Loading data from LOCALSTORAGE (fallback):', {
+        hasDashboard: !!dashboardData,
+        hasCompetitors: !!competitorSummary,
+        hasArbitrage: !!arbitrageData
+      });
+      
       setAnalysisData({
         dashboardData,
         competitorSummary,
         arbitrageData,
         hasAnalysisHistory: hasHistory,
         isLoading: false,
+        availableReports: [],
       });
     } catch (error) {
       console.error('Error loading analysis data:', error);
@@ -103,6 +244,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         arbitrageData: null,
         hasAnalysisHistory: false,
         isLoading: false,
+        availableReports: [],
       });
     }
   };
@@ -129,7 +271,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, [user?.id]);
 
   return (
-    <DataContext.Provider value={{ analysisData, refreshAnalysisData }}>
+    <DataContext.Provider value={{ analysisData, refreshAnalysisData, loadSpecificReport }}>
       {children}
     </DataContext.Provider>
   );

@@ -20,6 +20,9 @@ def signup(request):
     if serializer.is_valid():
         user = serializer.save()
         
+        # Create token for the user (for future use after verification)
+        token, created = Token.objects.get_or_create(user=user)
+        
         # Create verification code and send email
         verification = EmailVerification.objects.create(
             user=user,
@@ -274,9 +277,14 @@ def verify_email_code(request):
             if verification_type == 'signup':
                 user.is_verified = True
                 user.save()
+                
+                # Auto-login user after verification by creating/getting token
+                token, created = Token.objects.get_or_create(user=user)
+                
                 return Response({
-                    'message': 'Email verified successfully',
-                    'user': UserSerializer(user).data
+                    'message': 'Email verified successfully. You are now logged in.',
+                    'user': UserSerializer(user).data,
+                    'token': token.key  # Return token for auto-login
                 }, status=status.HTTP_200_OK)
             
             elif verification_type == 'password_reset':

@@ -17,7 +17,17 @@ class CompetitorResearchAgent:
         if hasattr(settings, 'SERPER_API_KEY') and settings.SERPER_API_KEY:
             os.environ['SERPER_API_KEY'] = settings.SERPER_API_KEY
         
-        # Create a proper LLM configuration with models that have higher rate limits
+        # Create a proper LLM configuration with best models (sequential execution avoids rate limits)
+        # llm_config = LLMConfig(
+        #     search_provider="serper",
+        #     reasoning_model_provider="openai",
+        #     reasoning_model="o1",  # Best reasoning model - sequential execution avoids rate limits
+        #     main_model_provider="openai",
+        #     main_model="gpt-4o",  # Best general model
+        #     fast_model_provider="openai",
+        #     fast_model="gpt-4o"  # High quality throughout
+        # )
+
         llm_config = LLMConfig(
             search_provider="serper",
             reasoning_model_provider="openai",
@@ -48,26 +58,32 @@ class CompetitorResearchAgent:
             '3': {
                 'max_iterations': 4,
                 'max_time_minutes': 7,
-                'deep_max_iterations': 3,
-                'deep_max_time_minutes': 5
+                'deep_max_iterations': 4,
+                'deep_max_time_minutes': 7
             },
             '5': {
                 'max_iterations': 6,
                 'max_time_minutes': 10,
-                'deep_max_iterations': 4,
-                'deep_max_time_minutes': 7
+                'deep_max_iterations': 6,
+                'deep_max_time_minutes': 10
             },
             '7': {
                 'max_iterations': 8,
                 'max_time_minutes': 15,
-                'deep_max_iterations': 5,
-                'deep_max_time_minutes': 10
+                'deep_max_iterations': 8,
+                'deep_max_time_minutes': 15
             },
             '10': {
                 'max_iterations': 10,
                 'max_time_minutes': 20,
-                'deep_max_iterations': 6,
-                'deep_max_time_minutes': 15
+                'deep_max_iterations': 10,
+                'deep_max_time_minutes': 20
+            },
+            '20': {
+                'max_iterations': 20,
+                'max_time_minutes': 40,
+                'deep_max_iterations': 20,
+                'deep_max_time_minutes': 40
             }
         }
         return cycles_configs.get(cycles, cycles_configs['3'])
@@ -126,7 +142,10 @@ RESEARCH OBJECTIVE: Conduct comprehensive market entry analysis for {company} ex
 Research and provide specific data points for:
 
 ### Market Size & Growth:
-- Total Addressable Market (TAM) in {target_country} for {industry} (in USD)
+- Total Addressable Market (TAM) in {target_country} for {industry} (in USD - VERIFY currency is USD not local currency)
+  * SANITY CHECK: For most industries, country-specific TAM should be $100M-$10B range, NOT $100B+
+  * Cross-validate with global market size - a single country's TAM should be a fraction of global TAM
+  * If you find a number in billions, verify it's not in local currency (INR, VND, etc.) converted incorrectly
 - Serviceable Addressable Market (SAM) relevant to {company}
 - Annual market growth rate (%) for past 3 years
 - Market growth projections for next 3-5 years
@@ -242,7 +261,16 @@ IMPORTANT REQUIREMENTS:
 4. ONLY include competitors that are verified to be operating in {target_country}
 5. Verify all market share and revenue data from reliable sources before including
 6. Focus on {target_country}-specific regulations, costs, and requirements
-7. Provide detailed, actionable information for each complexity factor"""
+7. Provide detailed, actionable information for each complexity factor
+
+CRITICAL DATA VERIFICATION RULES:
+8. ALWAYS verify currency is USD, not local currency (INR, VND, BRL, etc.)
+9. SANITY CHECK all market sizes: Country-level TAM rarely exceeds $50B unless it's a massive industry (automotive, real estate, etc.)
+10. Cross-validate numbers: If India music streaming TAM is $500B, that's WRONG (global music industry is ~$26B)
+11. Check reasonableness: If a single country has 90% of global market, verify extensively
+12. When citing market size, explicitly state the source, year, and currency
+13. If numbers seem extreme (too high or too low), find 2-3 additional sources to confirm
+14. Common sense check: Does this number make sense relative to the country's GDP and population?"""
 
         return prompt
     
@@ -277,6 +305,13 @@ Return ONLY the JSON array, nothing else - no markdown, no explanations, no extr
         deep_query = f"""{query}
 
 ADDITIONAL DEEP RESEARCH REQUIREMENTS:
+
+DATA ACCURACY & VERIFICATION (CRITICAL):
+- TRIPLE-CHECK all market size figures - verify currency is USD, not local currency
+- Validate market sizes against global benchmarks (e.g., India music streaming should be $1-5B, NOT $400B+)
+- If you find conflicting data, cite multiple sources and explain the discrepancy
+- Flag any numbers that seem unreasonable or require additional verification
+- For market sizes over $10B, provide extra validation from 2-3 independent sources
 
 COMPETITOR VALIDATION:
 - Verify that all competitors mentioned are actually operating in {target_country}

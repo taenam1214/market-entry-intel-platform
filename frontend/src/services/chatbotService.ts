@@ -33,6 +33,7 @@ interface ChatConversation {
 interface SendMessageRequest {
   content: string;
   conversation_id?: number;
+  selected_report_ids?: number[];
 }
 
 interface SendMessageResponse {
@@ -43,7 +44,7 @@ interface SendMessageResponse {
 
 class ChatbotService {
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
     const url = `${API_BASE_URL}${endpoint}`;
     
     const response = await fetch(url, {

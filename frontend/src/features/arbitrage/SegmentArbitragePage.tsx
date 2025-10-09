@@ -1,16 +1,25 @@
-import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Badge, Spinner, Icon, Grid, Button } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Badge, Spinner, Icon, Grid, Button, Select, Flex } from '@chakra-ui/react';
 import { FiTarget, FiTrendingUp, FiUsers, FiZap, FiArrowRight } from 'react-icons/fi';
 import { useData } from '../../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
 
 const SegmentArbitragePage = () => {
-  const { analysisData } = useData();
+  const { analysisData, loadSpecificReport } = useData();
   const navigate = useNavigate();
   
   // Use data from centralized context
   const arbitrageData = analysisData.arbitrageData;
   const hasAnalysisHistory = analysisData.hasAnalysisHistory;
   const isLoading = analysisData.isLoading;
+  const availableReports = analysisData.availableReports || [];
+  const dashboard = analysisData.dashboardData;
+  
+  // Handle report selection
+  const handleReportChange = async (reportId: string) => {
+    if (reportId) {
+      await loadSpecificReport(parseInt(reportId));
+    }
+  };
 
   // Remove the useEffect since we're now using centralized data context
 
@@ -100,12 +109,45 @@ const SegmentArbitragePage = () => {
         <VStack spacing={8} align="stretch" maxW="7xl" mx="auto">
           {/* Header Section */}
           <Box>
-            <Heading size="xl" mb={2} color="white">
-              Segment Arbitrage Detection
-            </Heading>
-            <Text fontSize="lg" color="rgba(255,255,255,0.8)">
-              Detects gaps between how a brand is currently positioned in its home market versus how similar brands are perceived in the target market. Recommends alternate positioning strategies where the brand can capture underserved or higher-value segments.
-            </Text>
+            <Flex justify="space-between" align="center" mb={4}>
+              <Box>
+                <Heading size="xl" mb={2} color="white">
+                  Segment Arbitrage Detection
+                </Heading>
+                <Text fontSize="lg" color="rgba(255,255,255,0.8)">
+                  Detects gaps between how a brand is currently positioned in its home market versus how similar brands are perceived in the target market. Recommends alternate positioning strategies where the brand can capture underserved or higher-value segments.
+                </Text>
+              </Box>
+              
+              {/* Report Selector */}
+              {availableReports.length > 1 && (
+                <Box minW="300px">
+                  <Text fontSize="sm" color="rgba(255,255,255,0.8)" mb={2}>
+                    Select Report:
+                  </Text>
+                  <Select
+                    value={dashboard?.company_name && dashboard?.target_market ? 
+                      availableReports.find(r => r.company_name === dashboard.company_name && r.target_market === dashboard.target_market)?.id || '' 
+                      : availableReports[0]?.id || ''}
+                    onChange={(e) => handleReportChange(e.target.value)}
+                    bg="rgba(255,255,255,0.1)"
+                    color="white"
+                    borderColor="rgba(255,255,255,0.2)"
+                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
+                    _focus={{ borderColor: 'purple.400', boxShadow: 'none' }}
+                  >
+                    {availableReports.map((report) => (
+                      <option key={report.id} value={report.id} style={{ background: '#140d28', color: 'white' }}>
+                        {report.company_name} → {report.target_market}
+                      </option>
+                    ))}
+                  </Select>
+                  <Text fontSize="xs" color="rgba(255,255,255,0.6)" mt={1}>
+                    {availableReports.length} report{availableReports.length > 1 ? 's' : ''} available
+                  </Text>
+                </Box>
+              )}
+            </Flex>
           </Box>
           
           {(() => {

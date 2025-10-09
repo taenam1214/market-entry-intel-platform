@@ -11,7 +11,8 @@ from typing import Dict, List
 
 from .models import MarketReport, ChatConversation, ChatMessage
 from .serializers import (
-    MarketReportListSerializer, 
+    MarketReportListSerializer,
+    MarketReportSelectorSerializer,
     ChatConversationSerializer, 
     ChatMessageSerializer,
     ChatMessageCreateSerializer
@@ -25,11 +26,33 @@ class MarketReportsAPIView(APIView):
     """API endpoint to get user's market reports for chatbot context"""
     permission_classes = [permissions.IsAuthenticated]
     
-    def get(self, request):
-        """Get all market reports for the authenticated user"""
+    def get(self, request, report_id=None):
+        """Get all market reports for the authenticated user or a specific report by ID"""
         try:
-            reports = MarketReport.objects.filter(user=request.user, status='completed')
-            serializer = MarketReportListSerializer(reports, many=True)
+            # If report_id is provided, return that specific report
+            if report_id:
+                try:
+                    report = MarketReport.objects.get(id=report_id, user=request.user, status='completed')
+                    from .serializers import MarketReportSerializer
+                    serializer = MarketReportSerializer(report)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                except MarketReport.DoesNotExist:
+                    return Response(
+                        {'error': 'Report not found'},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+            
+            # Otherwise, return list of reports
+            selector_mode = request.query_params.get('selector', 'false').lower() == 'true'
+            
+            reports = MarketReport.objects.filter(user=request.user, status='completed').order_by('-created_at')
+            
+            if selector_mode:
+                # Return simple format for UI selectors
+                serializer = MarketReportSelectorSerializer(reports, many=True)
+            else:
+                # Return detailed format
+                serializer = MarketReportListSerializer(reports, many=True)
             
             return Response({
                 'reports': serializer.data,
@@ -40,6 +63,62 @@ class MarketReportsAPIView(APIView):
             logger.error(f"Error fetching market reports: {str(e)}")
             return Response(
                 {'error': 'Failed to fetch market reports'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class LatestDashboardDataAPIView(APIView):
+    """API endpoint to get the latest dashboard data for the authenticated user"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """Get the latest completed market report with full dashboard data"""
+        try:
+            # Get the most recent completed report for this user
+            latest_report = MarketReport.objects.filter(
+                user=request.user, 
+                status='completed'
+            ).order_by('-created_at').first()
+            
+            if not latest_report:
+                return Response({
+                    'has_data': False,
+                    'message': 'No completed market reports found'
+                }, status=status.HTTP_200_OK)
+            
+            # Prepare the response in the format expected by the frontend
+            response_data = {
+                'has_data': True,
+                'dashboard_data': {
+                    'company_name': latest_report.company_name,
+                    'industry': latest_report.industry,
+                    'target_market': latest_report.target_market,
+                    'website': latest_report.website,
+                    'customer_segment': latest_report.customer_segment,
+                    'expansion_direction': latest_report.expansion_direction,
+                    'company_size': latest_report.company_size,
+                    'annual_revenue': latest_report.annual_revenue,
+                    'funding_stage': latest_report.funding_stage,
+                    'current_markets': latest_report.current_markets,
+                    'expansion_timeline': latest_report.expansion_timeline,
+                    'budget_range': latest_report.budget_range,
+                    'dashboard': latest_report.dashboard_data,
+                    'detailed_scores': latest_report.detailed_scores,
+                    'research_report': latest_report.research_report,
+                    'key_insights': latest_report.key_insights,
+                    'revenue_projections': latest_report.revenue_projections,
+                    'recommended_actions': latest_report.recommended_actions,
+                },
+                'competitor_summary': latest_report.competitor_analysis or None,
+                'arbitrage_data': latest_report.segment_arbitrage or None,
+                'created_at': latest_report.created_at.isoformat() if latest_report.created_at else None
+            }
+            
+            return Response(response_data, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            logger.error(f"Error fetching latest dashboard data: {str(e)}")
+            return Response(
+                {'error': 'Failed to fetch dashboard data', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -98,6 +177,7 @@ class ChatMessageAPIView(APIView):
             
             content = serializer.validated_data['content']
             conversation_id = serializer.validated_data.get('conversation_id')
+            selected_report_ids = request.data.get('selected_report_ids', None)  # Can be a list of report IDs
             
             # Get or create conversation
             if conversation_id:
@@ -121,8 +201,8 @@ class ChatMessageAPIView(APIView):
                 content=content
             )
             
-            # Generate AI response using RAG
-            ai_response, sources = self._generate_rag_response(content, request.user)
+            # Generate AI response using RAG with optional report selection
+            ai_response, sources = self._generate_rag_response(content, request.user, selected_report_ids)
             
             # Save AI response
             ai_message = ChatMessage.objects.create(
@@ -149,14 +229,27 @@ class ChatMessageAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
-    def _generate_rag_response(self, query: str, user: User) -> tuple[str, List[str]]:
+    def _generate_rag_response(self, query: str, user: User, selected_report_ids: List[int] = None) -> tuple[str, List[str]]:
         """Generate AI response using ChatGPT with RAG from user's market reports"""
         try:
             # Initialize ChatGPT service
             chatgpt_service = ChatGPTService()
             
-            # Get user's market reports
-            reports = MarketReport.objects.filter(user=user, status='completed')
+            # Get user's market reports - filter by selected IDs if provided
+            if selected_report_ids:
+                reports = MarketReport.objects.filter(
+                    user=user, 
+                    status='completed',
+                    id__in=selected_report_ids
+                )
+                if not reports.exists():
+                    return (
+                        "I couldn't find the selected reports. Please make sure you've selected valid reports.",
+                        []
+                    )
+            else:
+                # Get all user's reports if no specific selection
+                reports = MarketReport.objects.filter(user=user, status='completed')
             
             if not reports.exists():
                 return (
@@ -171,6 +264,7 @@ class ChatMessageAPIView(APIView):
             context_reports = []
             for report in reports:
                 context_reports.append({
+                    'id': report.id,
                     'title': f"Market Analysis: {report.company_name} expanding to {report.target_market}",
                     'company_name': report.company_name,
                     'industry': report.industry,

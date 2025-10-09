@@ -96,6 +96,12 @@ const EmailVerificationPage: React.FC = () => {
       if (response.ok) {
         setSuccess('Email verified successfully! Redirecting to dashboard...');
         
+        // Save token to localStorage for auto-login
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+          console.log('✅ Token saved after email verification');
+        }
+        
         // Update user in context if we have user data
         if (data.user) {
           setUser(data.user);
