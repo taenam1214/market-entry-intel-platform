@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "chmod +x build.sh && ./build.sh"
 
 [deploy]
-startCommand = "export DJANGO_SETTINGS_MODULE=kairosai.settings_production && python manage.py migrate && gunicorn kairosai.wsgi:application --bind 0.0.0.0:$PORT"
+startCommand = "export DJANGO_SETTINGS_MODULE=kairosai.settings_production && python manage.py migrate && gunicorn kairosai.wsgi:application --bind 0.0.0.0:$PORT --timeout 6000 --workers 2 --worker-class sync --max-requests 1000 --max-requests-jitter 50 --log-level info"
 healthcheckPath = "/health/"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
