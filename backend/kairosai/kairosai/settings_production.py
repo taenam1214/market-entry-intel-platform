@@ -129,6 +129,11 @@ OPENAI_API_KEY = config('OPENAI_API_KEY')
 # ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY')
 SERPER_API_KEY = config('SERPER_API_KEY')
 
+# Email Service Configuration
+SENDGRID_API_KEY = config('SENDGRID_API_KEY')
+SENDGRID_FROM_EMAIL = config('SENDGRID_FROM_EMAIL', default='verification@kairosai.world')
+SENDGRID_FROM_NAME = config('SENDGRID_FROM_NAME', default='KairosAI')
+
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
