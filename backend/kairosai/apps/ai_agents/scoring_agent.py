@@ -67,16 +67,32 @@ You are an expert market analysis scoring specialist. Your task is to analyze ma
 
 ### 4. Revenue Projections
 **Calculation Method:**
-- Use market size, realistic market share targets, and pricing analysis
+- CRITICAL: Revenue should scale proportionally with market size - larger markets = larger revenue potential
+- Use realistic market share targets that account for both company capabilities AND absolute market size
 - Consider customer acquisition costs and lifetime value
 - Factor in ramp-up timeline and market penetration rates
-- Provide conservative estimates with clear assumptions
+- Provide realistic estimates based on market potential, not overly conservative fear-based estimates
+
+**Market Size-Based Revenue Guidelines:**
+- **Small Markets (<$500M TAM)**: Target 0.5-2% market share → Y1: $0.4-3M, Y3: $2.5-10M
+- **Medium Markets ($500M-$5B TAM)**: Target 0.2-1% market share → Y1: $0.15-15M, Y3: $1-50M  
+- **Large Markets ($5B-$50B TAM)**: Target 0.05-0.5% market share → Y1: $0.4-75M, Y3: $2.5-250M
+- **Very Large Markets (>$50B TAM)**: Target 0.01-0.2% market share (scale with actual TAM):
+  * At $50B TAM: Y1: $0.75-30M, Y3: $5-100M
+  * At $250B TAM: Y1: $4-150M, Y3: $25-500M
+
+**IMPORTANT:** Even tiny market share percentages in large markets yield substantial revenue. 
+- Example: 0.1% of $30B market = $30M (not $1M!)
+- Don't be overly conservative just because the market is large
 
 ### 5. Market Share Targets
-**Realistic Targets:**
-- Year 1: Typically 0.1-1% of market for new entrants
-- Year 3: 1-5% depending on market size and competition
-- Consider company size, resources, and competitive landscape
+**Realistic Targets (Scale with Market Size):**
+- **Small Markets**: Year 1: 1-3%, Year 3: 3-10% (higher % possible in smaller markets)
+- **Medium Markets**: Year 1: 0.3-1.5%, Year 3: 1-5%
+- **Large Markets**: Year 1: 0.1-0.5%, Year 3: 0.3-2%
+- **Very Large Markets**: Year 1: 0.05-0.3%, Year 3: 0.2-1%
+
+**Key Principle:** Larger markets allow for lower percentage market share while still achieving significant absolute revenue. A company capturing 0.1% of China's market is likely more valuable than capturing 5% of a tiny market.
 
 ## OUTPUT FORMAT
 Provide your analysis in this exact JSON structure:
@@ -90,11 +106,11 @@ Provide your analysis in this exact JSON structure:
   "competitive_intensity_rationale": "Moderate competition with 8 key players. Market leader has 25% share but no dominant monopoly. Some price competition but room for differentiation.",
   "entry_complexity_score": 6.2,
   "entry_complexity_rationale": "Standard regulatory requirements taking 8-10 months. Moderate cultural adaptation needed. Established distribution channels available but require partnerships.",
-  "revenue_potential_y1": "$2.4M",
-  "revenue_potential_y3": "$8.7M",
-  "revenue_rationale": "Based on 0.5% market share Y1 growing to 2.1% Y3, with average selling price of $X and customer acquisition rate of Y",
-  "market_share_target_y1": "0.5%",
-  "market_share_target_y3": "2.1%",
+  "revenue_potential_y1": "$5M",
+  "revenue_potential_y3": "$23M",
+  "revenue_rationale": "Based on conservative 0.22% market share Y1 ($2.3B × 0.0022 = $5M) growing to 1% Y3 ($2.3B × 0.01 = $23M). Accounts for gradual market penetration and ramp-up period.",
+  "market_share_target_y1": "0.22%",
+  "market_share_target_y3": "1.0%",
   "confidence_level": "High",
   "key_assumptions": [
     "Market growth continues at current 12% rate",
@@ -121,8 +137,19 @@ Provide your analysis in this exact JSON structure:
 4. **Calculate Scores**: Use the rubrics above with extracted data points
 5. **Provide Clear Rationale**: Explain how you arrived at each score with specific evidence
 6. **Flag Confidence Levels**: High (strong data), Medium (some gaps), Low (limited data)
+7. **Calculate Revenue PROPERLY**: 
+   - ALWAYS show your calculation in the revenue_rationale field
+   - Formula: Revenue = TAM × (market_share_% ÷ 100)
+   - Example: If TAM = $30B and market share = 0.1%, then revenue = $30B × 0.001 = $30M
+   - VERIFY: Does the final revenue number make sense given the market size?
+   - Remember: 0.1% = 0.001, 1% = 0.01, 10% = 0.1
+   - Conservative is good, but don't artificially deflate - use appropriate market share % for market size
 
-Remember: Scores must be justified by specific data points from the research report. If data is missing for a category, note this and provide best estimate with lower confidence level.
+Remember: 
+- Scores must be justified by specific data points from the research report
+- Revenue calculations must be mathematically correct and proportional to market size
+- Don't artificially deflate projections just because a market is large - use appropriate market share % instead
+- If data is missing for a category, note this and provide best estimate with lower confidence level
 """
     
     def _extract_numbers_from_text(self, text: str) -> Dict[str, Any]:
