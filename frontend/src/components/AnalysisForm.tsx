@@ -53,7 +53,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
     email: user?.email || '',
     customerSegment: '',
     expansionDirection: '',
-    cycles: '3', // Default to 3 cycles
+    cycles: '5', // Default to 5 cycles
     // Additional detailed fields for better analysis
     companySize: '',
     annualRevenue: '',
@@ -67,7 +67,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
     partnershipPreferences: '',
   });
   const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(300); // 5 minutes in seconds (default for 3 cycles)
+  const [timer, setTimer] = useState(600); // 10 minutes in seconds (default for 5 cycles)
   const [timerExpired, setTimerExpired] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
@@ -611,9 +611,6 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     colorScheme="purple"
                   >
                     <HStack spacing={6} wrap="wrap">
-                      <Radio value="3" color="white" _checked={{ bg: "purple.500", borderColor: "purple.500" }}>
-                        <Text color="white" fontSize="sm">3 cycles</Text>
-                      </Radio>
                       <Radio value="5" color="white" _checked={{ bg: "purple.500", borderColor: "purple.500" }}>
                         <Text color="white" fontSize="sm">5 cycles</Text>
                       </Radio>
