@@ -5,7 +5,7 @@ from django.http import JsonResponse
 def health_check(request):
     """Health check endpoint for Railway"""
     return JsonResponse({'status': 'healthy', 'message': 'Application is running'})
-
+##
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', health_check, name='health_check'),
