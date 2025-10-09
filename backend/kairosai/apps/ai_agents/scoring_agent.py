@@ -65,34 +65,73 @@ You are an expert market analysis scoring specialist. Your task is to analyze ma
 - **7.0-8.9**: Heavy regulation, 12-18 months setup, major cultural barriers, difficult distribution, high capital needs
 - **9.0-10.0**: Complex regulation, >18 months setup, extreme cultural/legal barriers, restricted distribution, very high capital
 
-### 4. Revenue Projections
-**Calculation Method:**
-- CRITICAL: Revenue should scale proportionally with market size - larger markets = larger revenue potential
-- Use realistic market share targets that account for both company capabilities AND absolute market size
-- Consider customer acquisition costs and lifetime value
-- Factor in ramp-up timeline and market penetration rates
-- Provide realistic estimates based on market potential, not overly conservative fear-based estimates
+### 4. Revenue Projections (CONSERVATIVE BOTTOM-UP APPROACH)
 
-**Market Size-Based Revenue Guidelines:**
-- **Small Markets (<$500M TAM)**: Target 0.5-2% market share → Y1: $0.4-3M, Y3: $2.5-10M
-- **Medium Markets ($500M-$5B TAM)**: Target 0.2-1% market share → Y1: $0.15-15M, Y3: $1-50M  
-- **Large Markets ($5B-$50B TAM)**: Target 0.05-0.5% market share → Y1: $0.4-75M, Y3: $2.5-250M
-- **Very Large Markets (>$50B TAM)**: Target 0.01-0.2% market share (scale with actual TAM):
-  * At $50B TAM: Y1: $0.75-30M, Y3: $5-100M
-  * At $250B TAM: Y1: $4-150M, Y3: $25-500M
+**CRITICAL: Use bottom-up calculation based on ACTUAL operational presence, not market share percentages.**
 
-**IMPORTANT:** Even tiny market share percentages in large markets yield substantial revenue. 
-- Example: 0.1% of $30B market = $30M (not $1M!)
-- Don't be overly conservative just because the market is large
+**Step 1: Determine Realistic Year 1 Presence**
+For most new market entrants:
+- **Physical Retail/Restaurants/Stores:** 1-3 locations maximum in Year 1
+- **SaaS/Digital Products:** 50-200 customers in Year 1
+- **B2B Services/Consulting:** 5-20 clients in Year 1
+- **E-commerce:** Limited to marketing budget reach
 
-### 5. Market Share Targets
-**Realistic Targets (Scale with Market Size):**
-- **Small Markets**: Year 1: 1-3%, Year 3: 3-10% (higher % possible in smaller markets)
-- **Medium Markets**: Year 1: 0.3-1.5%, Year 3: 1-5%
-- **Large Markets**: Year 1: 0.1-0.5%, Year 3: 0.3-2%
-- **Very Large Markets**: Year 1: 0.05-0.3%, Year 3: 0.2-1%
+**Step 2: Calculate Revenue Per Unit**
 
-**Key Principle:** Larger markets allow for lower percentage market share while still achieving significant absolute revenue. A company capturing 0.1% of China's market is likely more valuable than capturing 5% of a tiny market.
+**Physical Locations (stores/restaurants/branches):**
+Base on local market conditions and purchasing power:
+- **High-Income Markets** (US, Western Europe, Singapore, Japan, S.Korea): $300K-$1M per location/year
+- **Upper-Middle Income** (China tier-1, Malaysia, UAE, Saudi Arabia): $150K-$600K per location/year
+- **Middle Income** (China tier-2/3, Thailand, Turkey, Mexico): $80K-$400K per location/year
+- **Emerging Markets** (India, Vietnam, Indonesia, Philippines): $40K-$250K per location/year
+
+**SaaS/Digital:**
+- **Enterprise B2B:** $20K-$80K average annual contract value (ACV)
+- **SMB:** $3K-$15K average ACV
+- **Consumer SaaS:** Users × $50-$300 annual ARPU
+
+**B2B Services:**
+- **Consulting/Professional Services:** $50K-$400K average project value
+- **Technical Services:** $30K-$200K average contract
+
+**Step 3: Apply CONSERVATIVE Multipliers**
+
+**Year 1 Revenue = (# of units) × (revenue per unit) × (0.6-0.75 ramp-up factor)**
+- Assume only 6-9 months of actual operations
+- Account for slow start, learning curve, brand building
+
+**Year 3 Revenue = (# of units scaled) × (revenue per unit) × (0.9-1.0 maturity factor)**
+- Realistic scale: 3-10x Year 1 presence (not 100x)
+- Established operations at near-full capacity
+
+**REALISTIC CONSERVATIVE RANGES:**
+
+**For Physical Retail/Restaurants:**
+- **Year 1:** $30K-$2M (1-3 locations × per-location revenue × 0.6-0.75 ramp-up)
+  * Low: 1 location in emerging market × $40K × 0.75 = $30K
+  * Mid: 2 locations in mid-income × $200K × 0.7 = $280K
+  * High: 3 locations in wealthy market × $800K × 0.75 = $1.8M
+
+- **Year 3:** $500K-$20M (10-25 locations at maturity)
+  * Low: 10 locations × $50K = $500K
+  * Mid: 15 locations × $350K = $5.3M
+  * High: 25 locations × $800K = $20M
+
+**For SaaS/Digital:**
+- **Year 1:** $150K-$3M (50-200 customers × ACV × partial year)
+- **Year 3:** $1M-$25M (500-2000 customers with expansion revenue)
+
+**For B2B Services:**
+- **Year 1:** $200K-$4M (5-20 clients × average project)
+- **Year 3:** $1.5M-$35M (20-100 clients with recurring relationships)
+
+**UNCERTAINTY MARGIN (±30-50%):**
+Always provide a RANGE to account for:
+- Market reception uncertainty
+- Execution risks and operational challenges
+- Competitive response
+- Economic/regulatory changes
+- Currency fluctuations (for international markets)
 
 ## OUTPUT FORMAT
 Provide your analysis in this exact JSON structure:
@@ -106,11 +145,11 @@ Provide your analysis in this exact JSON structure:
   "competitive_intensity_rationale": "Moderate competition with 8 key players. Market leader has 25% share but no dominant monopoly. Some price competition but room for differentiation.",
   "entry_complexity_score": 6.2,
   "entry_complexity_rationale": "Standard regulatory requirements taking 8-10 months. Moderate cultural adaptation needed. Established distribution channels available but require partnerships.",
-  "revenue_potential_y1": "$5M",
-  "revenue_potential_y3": "$23M",
-  "revenue_rationale": "Based on conservative 0.22% market share Y1 ($2.3B × 0.0022 = $5M) growing to 1% Y3 ($2.3B × 0.01 = $23M). Accounts for gradual market penetration and ramp-up period.",
-  "market_share_target_y1": "0.22%",
-  "market_share_target_y3": "1.0%",
+  "revenue_potential_y1": "$420K-$1.2M",
+  "revenue_potential_y3": "$4M-$12M",
+  "revenue_rationale": "Bottom-up calculation: Y1: 2 locations × $300K avg revenue × 0.7 ramp-up = $420K (conservative) to 3 locations × $600K × 0.67 = $1.2M (optimistic). Y3: 12 locations × $350K = $4.2M (conservative) to 20 locations × $600K = $12M (optimistic). Assumes upper-middle income market conditions.",
+  "market_share_target_y1": "0.018-0.052%",
+  "market_share_target_y3": "0.17-0.52%",
   "confidence_level": "High",
   "key_assumptions": [
     "Market growth continues at current 12% rate",
@@ -137,19 +176,33 @@ Provide your analysis in this exact JSON structure:
 4. **Calculate Scores**: Use the rubrics above with extracted data points
 5. **Provide Clear Rationale**: Explain how you arrived at each score with specific evidence
 6. **Flag Confidence Levels**: High (strong data), Medium (some gaps), Low (limited data)
-7. **Calculate Revenue PROPERLY**: 
-   - ALWAYS show your calculation in the revenue_rationale field
-   - Formula: Revenue = TAM × (market_share_% ÷ 100)
-   - Example: If TAM = $30B and market share = 0.1%, then revenue = $30B × 0.001 = $30M
-   - VERIFY: Does the final revenue number make sense given the market size?
-   - Remember: 0.1% = 0.001, 1% = 0.01, 10% = 0.1
-   - Conservative is good, but don't artificially deflate - use appropriate market share % for market size
+7. **Calculate Revenue Using BOTTOM-UP Approach**: 
+   - **REQUIRED:** Use # of locations/customers/clients × revenue per unit, NOT market share %
+   - **ALWAYS provide a RANGE** (e.g., "$300K-$1.2M") to reflect uncertainty
+   - **Show detailed calculation** in revenue_rationale field with conservative and optimistic scenarios
+   
+   **Example for Physical Business:**
+   ```
+   Y1: 1-3 locations × $200K-400K per location × 0.6-0.75 ramp-up = $120K-$900K
+   Y3: 10-20 locations × $300K-500K per location = $3M-$10M
+   ```
+   
+   **Example for SaaS:**
+   ```
+   Y1: 80-150 customers × $8K-15K ACV × 0.7 partial year = $450K-$1.6M
+   Y3: 600-1200 customers × $10K-18K ACV = $6M-$21.6M
+   ```
+   
+   - **Be CONSERVATIVE:** Assume slow start, realistic scaling (not hockey stick growth)
+   - Account for market-specific factors: purchasing power, competition, regulations
+   - Market share % is OUTPUT (calculate after revenue), not INPUT
 
 Remember: 
 - Scores must be justified by specific data points from the research report
-- Revenue calculations must be mathematically correct and proportional to market size
-- Don't artificially deflate projections just because a market is large - use appropriate market share % instead
-- If data is missing for a category, note this and provide best estimate with lower confidence level
+- Revenue must be calculated bottom-up with ranges showing uncertainty
+- Be realistic about Year 1: assume 1-3 locations/limited presence, not massive scale
+- Year 3 should show 5-10x growth, not 100x
+- If data is missing, note this and provide best estimate with lower confidence level
 """
     
     def _extract_numbers_from_text(self, text: str) -> Dict[str, Any]:
@@ -328,17 +381,17 @@ Now analyze this research report and provide scores in the exact JSON format spe
             else:
                 scores['competitive_intensity'] = 'High'
         
-        # Ensure revenue fields are properly formatted
+        # Ensure revenue fields are properly formatted (now accepting ranges)
         for field in ['revenue_potential_y1', 'revenue_potential_y3']:
             if field not in scores or not scores[field]:
-                scores[field] = "$1.0M"
+                scores[field] = "$300K-$1M"
             elif not scores[field].startswith('$'):
                 scores[field] = f"${scores[field]}"
         
-        # Ensure market share targets are properly formatted
+        # Ensure market share targets are properly formatted (now accepting ranges)
         for field in ['market_share_target_y1', 'market_share_target_y3']:
             if field not in scores or not scores[field]:
-                scores[field] = "1.0%"
+                scores[field] = "0.1-0.5%"
             elif not scores[field].endswith('%'):
                 scores[field] = f"{scores[field]}%"
         
@@ -378,11 +431,11 @@ Now analyze this research report and provide scores in the exact JSON format spe
             "competitive_intensity_rationale": f"Default competitive assessment for {company_name}",
             "entry_complexity_score": 5.0,
             "entry_complexity_rationale": f"Default complexity assessment for {target_market}",
-            "revenue_potential_y1": "$1.0M",
-            "revenue_potential_y3": "$3.0M",
-            "revenue_rationale": "Conservative default projections pending detailed analysis",
-            "market_share_target_y1": "0.5%",
-            "market_share_target_y3": "1.5%",
+            "revenue_potential_y1": "$200K-$800K",
+            "revenue_potential_y3": "$2M-$8M",
+            "revenue_rationale": "Conservative default projections based on 1-3 locations in Year 1, scaling to 8-15 locations by Year 3. Detailed analysis pending.",
+            "market_share_target_y1": "0.05-0.2%",
+            "market_share_target_y3": "0.3-1.2%",
             "confidence_level": "Low",
             "key_assumptions": ["Analysis requires manual review due to processing error"],
             "critical_success_factors": ["Detailed market analysis needed"],
