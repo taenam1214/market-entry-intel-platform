@@ -19,6 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { FiArrowLeft, FiRefreshCw, FiCheckCircle } from 'react-icons/fi';
 import { useAuth } from './AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 
 interface LocationState {
   email?: string;
@@ -79,7 +80,7 @@ const EmailVerificationPage: React.FC = () => {
     setIsVerifying(true);
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/auth/verify-email-code/`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.VERIFY_EMAIL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +128,7 @@ const EmailVerificationPage: React.FC = () => {
     setIsResending(true);
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/auth/send-verification-email/`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.SEND_VERIFICATION, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 
 interface AnalysisData {
   dashboardData: any;
@@ -43,7 +44,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     try {
       setAnalysisData(prev => ({ ...prev, isLoading: true }));
       
-      const response = await fetch(`http://localhost:8000/api/v1/reports/${reportId}/`, {
+      const response = await fetch(API_ENDPOINTS.REPORTS.BY_ID(reportId.toString()), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +132,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         // Fall through to localStorage fallback
       } else {
         // Fetch available reports list
-        const reportsResponse = await fetch('http://localhost:8000/api/v1/reports/?selector=true', {
+        const reportsResponse = await fetch(API_ENDPOINTS.REPORTS.SELECTOR, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -147,7 +148,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         }
 
         // Fetch latest dashboard data
-        const response = await fetch('http://localhost:8000/api/v1/latest-dashboard/', {
+        const response = await fetch(API_ENDPOINTS.REPORTS.LATEST_DASHBOARD, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

@@ -1,5 +1,4 @@
-
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+import { API_ENDPOINTS, getAuthHeaders } from '../config/api';
 
 interface MarketReport {
   id: number;
@@ -43,15 +42,11 @@ interface SendMessageResponse {
 }
 
 class ChatbotService {
-  private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-    const url = `${API_BASE_URL}${endpoint}`;
-    
+  private async makeRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token ? `Token ${token}` : '',
+        ...getAuthHeaders(),
         ...options.headers,
       },
     });
@@ -65,29 +60,29 @@ class ChatbotService {
   }
 
   async getMarketReports(): Promise<{ reports: MarketReport[]; count: number }> {
-    return this.makeRequest<{ reports: MarketReport[]; count: number }>('/reports/');
+    return this.makeRequest<{ reports: MarketReport[]; count: number }>(API_ENDPOINTS.REPORTS.LIST);
   }
 
   async getConversations(): Promise<{ conversations: ChatConversation[]; count: number }> {
-    return this.makeRequest<{ conversations: ChatConversation[]; count: number }>('/chat/conversations/');
+    return this.makeRequest<{ conversations: ChatConversation[]; count: number }>(API_ENDPOINTS.CHAT.CONVERSATIONS);
   }
 
   async createConversation(title?: string): Promise<ChatConversation> {
-    return this.makeRequest<ChatConversation>('/chat/conversations/', {
+    return this.makeRequest<ChatConversation>(API_ENDPOINTS.CHAT.CONVERSATIONS, {
       method: 'POST',
       body: JSON.stringify({ title }),
     });
   }
 
   async sendMessage(data: SendMessageRequest): Promise<SendMessageResponse> {
-    return this.makeRequest<SendMessageResponse>('/chat/messages/', {
+    return this.makeRequest<SendMessageResponse>(API_ENDPOINTS.CHAT.MESSAGES, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getChatHistory(conversationId: number): Promise<{ conversation: ChatConversation; messages: ChatMessage[] }> {
-    return this.makeRequest<{ conversation: ChatConversation; messages: ChatMessage[] }>(`/chat/conversations/${conversationId}/`);
+    return this.makeRequest<{ conversation: ChatConversation; messages: ChatMessage[] }>(API_ENDPOINTS.CHAT.CONVERSATION_BY_ID(conversationId));
   }
 }
 

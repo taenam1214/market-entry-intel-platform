@@ -34,6 +34,7 @@ import {
 import { FiEye, FiEyeOff, FiUser, FiMail, FiLock, FiSave, FiEdit3, FiShield } from 'react-icons/fi';
 import { useAuth } from '../../auth/AuthContext';
 import { authService } from '../../auth/authService';
+import { API_ENDPOINTS } from '../../config/api';
 
 const SettingsPage = () => {
   const { user, setUser } = useAuth();
@@ -93,7 +94,7 @@ const SettingsPage = () => {
 
     try {
       const authHeaders = authService.getAuthHeaders();
-      const response = await fetch('http://localhost:8000/api/v1/auth/profile/update/', {
+      const response = await fetch(API_ENDPOINTS.AUTH.UPDATE_PROFILE, {
         method: 'PUT',
         headers: authHeaders,
         body: JSON.stringify(profileForm),
@@ -133,7 +134,7 @@ const SettingsPage = () => {
 
     try {
       const authHeaders = authService.getAuthHeaders();
-      const response = await fetch('http://localhost:8000/api/v1/auth/change-password/', {
+      const response = await fetch(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify(passwordForm),
@@ -178,7 +179,7 @@ const SettingsPage = () => {
 
     try {
       const authHeaders = authService.getAuthHeaders();
-      const response = await fetch('http://localhost:8000/api/v1/auth/change-email/', {
+      const response = await fetch(API_ENDPOINTS.AUTH.CHANGE_EMAIL, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify(emailForm),

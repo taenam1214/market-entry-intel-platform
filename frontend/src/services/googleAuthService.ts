@@ -1,5 +1,6 @@
 // Google OAuth Service
 import type { GoogleUser, GoogleAuthResponse } from '../types/googleAuth';
+import { API_ENDPOINTS } from '../config/api';
 
 declare global {
   interface Window {
@@ -87,7 +88,7 @@ class GoogleAuthService {
 
   async verifyToken(credential: string): Promise<GoogleUser> {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/auth/google-auth/', {
+      const response = await fetch(API_ENDPOINTS.AUTH.GOOGLE_AUTH, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

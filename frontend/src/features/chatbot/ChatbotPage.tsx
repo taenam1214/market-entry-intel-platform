@@ -27,6 +27,7 @@ import { useData } from '../../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
 import { chatbotService } from '../../services/chatbotService';
 import type { MarketReport, ChatConversation } from '../../services/chatbotService';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface Message {
   id: string;
@@ -85,7 +86,7 @@ const ChatbotPage: React.FC = () => {
         
         console.log('Fetching reports for user:', user.email, 'Token exists:', !!token);
         
-        const response = await fetch('http://localhost:8000/api/v1/reports/?selector=true', {
+        const response = await fetch(API_ENDPOINTS.REPORTS.SELECTOR, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

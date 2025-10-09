@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { authService } from '../auth/authService';
 import { useData } from '../contexts/DataContext';
+import { API_ENDPOINTS } from '../config/api';
 
 interface AnalysisFormProps {
   // Optional props for customization
@@ -270,7 +271,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
       
       // Call the comprehensive analysis endpoint (single call, all 3 analyses in parallel)
       console.log('📊 Calling comprehensive-analysis API (runs all 3 analyses in parallel)...');
-      const response = await fetch('http://localhost:8000/api/v1/comprehensive-analysis/', {
+      const response = await fetch(API_ENDPOINTS.ANALYSIS.COMPREHENSIVE, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify(payload),

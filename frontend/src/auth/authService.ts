@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+import { API_ENDPOINTS, getAuthHeaders as getHeaders } from '../config/api';
 
 interface LoginResponse {
   token: string;
@@ -43,16 +43,12 @@ interface User {
 
 class AuthService {
   getAuthHeaders() {
-    const token = localStorage.getItem('authToken');
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Token ${token}` }),
-    };
+    return getHeaders();
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +76,7 @@ class AuthService {
 
   async register(userData: RegisterData): Promise<RegisterResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/signup/`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.SIGNUP, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +107,7 @@ class AuthService {
 
   async sendVerificationEmail(email: string, verificationType: string = 'signup'): Promise<any> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/send-verification-email/`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.SEND_VERIFICATION, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +134,7 @@ class AuthService {
 
   async verifyEmailCode(email: string, code: string, verificationType: string = 'signup'): Promise<any> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/verify-email-code/`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.VERIFY_EMAIL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +162,7 @@ class AuthService {
 
   async getCurrentUser(): Promise<User> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/profile/`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
@@ -187,7 +183,7 @@ class AuthService {
 
   async logout(): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/logout/`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
         method: 'POST',
         headers: this.getAuthHeaders(),
       });
