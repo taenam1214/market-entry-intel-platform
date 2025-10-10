@@ -10,6 +10,7 @@ interface AnalysisData {
   hasAnalysisHistory: boolean;
   isLoading: boolean;
   availableReports: any[];
+  currentReportId: number | null;
 }
 
 interface DataContextType {
@@ -33,6 +34,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     hasAnalysisHistory: false,
     isLoading: true,
     availableReports: [],
+    currentReportId: null,
   });
 
   const loadSpecificReport = async (reportId: number) => {
@@ -91,12 +93,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
             },
             competitorSummary: report.competitor_analysis,
             arbitrageData: report.segment_arbitrage,
+            currentReportId: report.id,
             isLoading: false,
           };
           
           console.log('🔄 Setting new analysis data:', {
             hasCompetitors: !!newData.competitorSummary,
-            hasArbitrage: !!newData.arbitrageData
+            hasArbitrage: !!newData.arbitrageData,
+            currentReportId: report.id
           });
           
           return newData;
@@ -117,6 +121,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         hasAnalysisHistory: false,
         isLoading: false,
         availableReports: [],
+        currentReportId: null,
       });
       return;
     }
@@ -166,6 +171,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
               hasCompetitors: !!data.competitor_summary,
               hasArbitrage: !!data.arbitrage_data
             });
+            // Set currentReportId to the latest report (first in the list)
+            const latestReportId = availableReports.length > 0 ? availableReports[0].id : null;
             setAnalysisData({
               dashboardData: data.dashboard_data,
               competitorSummary: data.competitor_summary,
@@ -173,6 +180,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
               hasAnalysisHistory: true,
               isLoading: false,
               availableReports: availableReports,
+              currentReportId: latestReportId,
             });
             return;
           }
@@ -236,6 +244,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         hasAnalysisHistory: hasHistory,
         isLoading: false,
         availableReports: [],
+        currentReportId: null,
       });
     } catch (error) {
       console.error('Error loading analysis data:', error);
@@ -246,6 +255,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         hasAnalysisHistory: false,
         isLoading: false,
         availableReports: [],
+        currentReportId: null,
       });
     }
   };

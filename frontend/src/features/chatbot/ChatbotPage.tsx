@@ -135,7 +135,47 @@ I can answer questions about your reports, suggest new markets to explore, help 
     };
 
     fetchReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, isAuthenticated]);
+
+  // Update chat context when report selection changes
+  useEffect(() => {
+    if (!selectedReportId || availableReports.length === 0) return;
+    
+    // Find the selected report
+    const selectedReport = availableReports.find(r => r.id.toString() === selectedReportId);
+    if (!selectedReport) return;
+    
+    // If we only have the welcome message (or no messages), update it with the new report context
+    if (messages.length <= 1) {
+      setMessages([
+        {
+          id: '1',
+          type: 'assistant',
+          content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to ${availableReports.length} market analysis report${availableReports.length > 1 ? 's' : ''} and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
+
+Currently discussing: **${selectedReport.company_name} → ${selectedReport.target_market}**
+
+I can answer questions about your reports, suggest new markets to explore, help with strategic positioning, assess risks, and provide strategic recommendations. What would you like to discuss?`,
+          timestamp: new Date(),
+        },
+      ]);
+      return;
+    }
+    
+    // If we have a conversation going, add a context switch message
+    const contextMessage: Message = {
+      id: `context-${Date.now()}`,
+      type: 'assistant',
+      content: `📊 **Context switched to:** ${selectedReport.company_name} → ${selectedReport.target_market}
+
+I'm now ready to discuss this market analysis. What would you like to know?`,
+      timestamp: new Date(),
+    };
+    
+    setMessages(prev => [...prev, contextMessage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedReportId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

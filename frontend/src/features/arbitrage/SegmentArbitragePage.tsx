@@ -12,7 +12,7 @@ const SegmentArbitragePage = () => {
   const hasAnalysisHistory = analysisData.hasAnalysisHistory;
   const isLoading = analysisData.isLoading;
   const availableReports = analysisData.availableReports || [];
-  const dashboard = analysisData.dashboardData;
+  const currentReportId = analysisData.currentReportId;
   
   // Handle report selection
   const handleReportChange = async (reportId: string) => {
@@ -126,9 +126,7 @@ const SegmentArbitragePage = () => {
                     Select Report:
                   </Text>
                   <Select
-                    value={dashboard?.company_name && dashboard?.target_market ? 
-                      availableReports.find(r => r.company_name === dashboard.company_name && r.target_market === dashboard.target_market)?.id || '' 
-                      : availableReports[0]?.id || ''}
+                    value={currentReportId?.toString() || ''}
                     onChange={(e) => handleReportChange(e.target.value)}
                     bg="rgba(255,255,255,0.1)"
                     color="white"
