@@ -27,7 +27,6 @@ import { FiTarget, FiTrendingUp, FiBarChart, FiArrowRight, FiArrowDown, FiUsers,
 import { FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { useData } from '../../contexts/DataContext';
 import AnalysisForm from '../../components/AnalysisForm';
 import KairosAILogo from '../../assets/KairosAI_logo.png';
 
@@ -126,8 +125,6 @@ const DynamicConnectionLine = ({
 
 const LandingPage = () => {
   const { isAuthenticated, user } = useAuth();
-  const { analysisData } = useData();
-  const hasAnalysisHistory = analysisData.hasAnalysisHistory;
   const [showAnalysisForm, setShowAnalysisForm] = useState(false);
   const [activeConnections, setActiveConnections] = useState<Array<{
     fromX: string;
@@ -233,8 +230,8 @@ const LandingPage = () => {
     navigate('/register');
   };
 
-  // Show streamlined form for authenticated users without analysis history
-  if (isAuthenticated && !hasAnalysisHistory) {
+  // Show streamlined form for authenticated users
+  if (isAuthenticated) {
   return (
       <Box minH="100vh" bg="#140d28" py={8}>
         <Container maxW="100%" px={4}>
