@@ -19,8 +19,8 @@ import {
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from './AuthContext';
-import GoogleAuthButton from '../components/GoogleAuthButton';
-import type { GoogleUser } from '../types/googleAuth';
+// import GoogleAuthButton from '../components/GoogleAuthButton';
+// import type { GoogleUser } from '../types/googleAuth';
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -116,19 +116,19 @@ const RegisterPage: React.FC = () => {
     }
   };
 
-  const handleGoogleSuccess = async (_user: GoogleUser) => {
-    try {
-      // The GoogleAuthButton already handles the backend authentication
-      // We just need to update the auth context and navigate
-      navigate('/dashboard');
-    } catch (error: any) {
-      setLocalError(error.message || 'Google authentication failed');
-    }
-  };
+  // const handleGoogleSuccess = async (_user: GoogleUser) => {
+  //   try {
+  //     // The GoogleAuthButton already handles the backend authentication
+  //     // We just need to update the auth context and navigate
+  //     navigate('/dashboard');
+  //   } catch (error: any) {
+  //     setLocalError(error.message || 'Google authentication failed');
+  //   }
+  // };
 
-  const handleGoogleError = (error: string) => {
-    setLocalError(error);
-  };
+  // const handleGoogleError = (error: string) => {
+  //   setLocalError(error);
+  // };
 
   const displayError = localError || error;
 
@@ -371,20 +371,20 @@ const RegisterPage: React.FC = () => {
                 </Button>
 
                 {/* Divider */}
-                <HStack width="full">
+                {/* <HStack width="full">
                   <Divider borderColor="rgba(255,255,255,0.2)" />
                   <Text color="rgba(255,255,255,0.6)" fontSize="sm" px={2}>
                     OR
                   </Text>
                   <Divider borderColor="rgba(255,255,255,0.2)" />
-                </HStack>
+                </HStack> */}
 
                 {/* Google OAuth Button */}
-                <GoogleAuthButton
+                {/* <GoogleAuthButton
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
                   isLoading={isLoading}
-                />
+                /> */}
               </VStack>
             </form>
           </Box>
