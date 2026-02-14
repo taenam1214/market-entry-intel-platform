@@ -216,8 +216,8 @@ const ScenarioModelingPage: React.FC = () => {
                           {result.adjusted_scores.market_opportunity_score}/10
                         </StatNumber>
                         <StatHelpText>
-                          <StatArrow type={result.deltas.market_opportunity_score >= 0 ? 'increase' : 'decrease'} />
-                          {Math.abs(result.deltas.market_opportunity_score)} from original ({result.original_scores.market_opportunity_score}/10)
+                          <StatArrow type={(result.deltas?.market_opportunity_score || 0) >= 0 ? 'increase' : 'decrease'} />
+                          {Math.abs(result.deltas?.market_opportunity_score || 0)} from original ({result.original_scores.market_opportunity_score}/10)
                         </StatHelpText>
                       </Stat>
                     </CardBody>
@@ -232,8 +232,8 @@ const ScenarioModelingPage: React.FC = () => {
                           {result.adjusted_scores.competitive_intensity_score}/10
                         </StatNumber>
                         <StatHelpText>
-                          <StatArrow type={result.deltas.competitive_intensity_score <= 0 ? 'increase' : 'decrease'} />
-                          {Math.abs(result.deltas.competitive_intensity_score)} from original ({result.original_scores.competitive_intensity_score}/10)
+                          <StatArrow type={(result.deltas?.competitive_intensity_score || 0) <= 0 ? 'increase' : 'decrease'} />
+                          {Math.abs(result.deltas?.competitive_intensity_score || 0)} from original ({result.original_scores.competitive_intensity_score}/10)
                         </StatHelpText>
                       </Stat>
                     </CardBody>
@@ -248,8 +248,8 @@ const ScenarioModelingPage: React.FC = () => {
                           {result.adjusted_scores.entry_complexity_score}/10
                         </StatNumber>
                         <StatHelpText>
-                          <StatArrow type={result.deltas.entry_complexity_score <= 0 ? 'increase' : 'decrease'} />
-                          {Math.abs(result.deltas.entry_complexity_score)} from original ({result.original_scores.entry_complexity_score}/10)
+                          <StatArrow type={(result.deltas?.entry_complexity_score || 0) <= 0 ? 'increase' : 'decrease'} />
+                          {Math.abs(result.deltas?.entry_complexity_score || 0)} from original ({result.original_scores.entry_complexity_score}/10)
                         </StatHelpText>
                       </Stat>
                     </CardBody>

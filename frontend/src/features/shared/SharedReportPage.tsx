@@ -134,7 +134,7 @@ const SharedReportPage = () => {
   const normalizeActions = (actions: string[] | string | undefined): string[] => {
     if (!actions) return [];
     if (Array.isArray(actions)) return actions;
-    return actions.split('\n').map((s) => s.replace(/^[\s\-*]+/, '').trim()).filter(Boolean);
+    return (actions || '').split('\n').map((s) => s.replace(/^[\s\-*]+/, '').trim()).filter(Boolean);
   };
 
   if (loading) {

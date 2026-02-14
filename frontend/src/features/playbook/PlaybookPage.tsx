@@ -172,7 +172,7 @@ const PlaybookPage: React.FC = () => {
                   <CardBody>
                     <Stat>
                       <StatLabel color="gray.600">Total Phases</StatLabel>
-                      <StatNumber color="gray.900">{playbook.phases.length}</StatNumber>
+                      <StatNumber color="gray.900">{playbook.phases?.length || 0}</StatNumber>
                     </Stat>
                   </CardBody>
                 </Card>
@@ -226,7 +226,7 @@ const PlaybookPage: React.FC = () => {
                               </HStack>
                             </VStack>
                             <Badge colorScheme="gray" fontSize="xs">
-                              {phase.milestones.length} milestone{phase.milestones.length !== 1 ? 's' : ''}
+                              {phase.milestones?.length || 0} milestone{(phase.milestones?.length || 0) !== 1 ? 's' : ''}
                             </Badge>
                           </HStack>
                           <AccordionIcon />

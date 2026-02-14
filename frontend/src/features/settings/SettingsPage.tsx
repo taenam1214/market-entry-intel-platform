@@ -213,7 +213,7 @@ const SettingsPage = () => {
   }, []);
 
   const getTierBadgeColor = (tier: string) => {
-    switch (tier.toLowerCase()) {
+    switch ((tier || '').toLowerCase()) {
       case 'enterprise': return 'purple';
       case 'professional': return 'blue';
       case 'starter': return 'green';
@@ -223,7 +223,7 @@ const SettingsPage = () => {
   };
 
   const formatTierName = (tier: string) => {
-    return tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase();
+    return (tier || '').charAt(0).toUpperCase() + (tier || '').slice(1).toLowerCase();
   };
 
   const handleProfileInputChange = (field: string, value: string) => {

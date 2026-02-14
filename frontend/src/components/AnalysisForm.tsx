@@ -359,20 +359,16 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
         }
         const data = await response.json();
 
-        // Store competitor and arbitrage data
-        if (data.competitor_analysis) {
-          localStorage.setItem('competitorSummary', JSON.stringify(data.competitor_analysis));
-        }
-
-        if (data.segment_arbitrage) {
-          localStorage.setItem('segmentArbitrage', JSON.stringify(data.segment_arbitrage));
-        }
-
-        // Store all data globally (for backward compatibility)
-        localStorage.setItem('dashboardData', JSON.stringify(data));
-
-        // Store analysis data in localStorage for authenticated users (user-specific)
+        // Store analysis data in localStorage (all user-scoped)
         if (user) {
+          if (data.competitor_analysis) {
+            localStorage.setItem(`competitorSummary_${user.id}`, JSON.stringify(data.competitor_analysis));
+          }
+          if (data.segment_arbitrage) {
+            localStorage.setItem(`segmentArbitrage_${user.id}`, JSON.stringify(data.segment_arbitrage));
+          }
+          localStorage.setItem(`dashboardData_${user.id}`, JSON.stringify(data));
+
           const analysisData = {
             formData: formData,
             dashboardData: data,
@@ -394,7 +390,7 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
     } catch (error: any) {
       toast({
         title: 'Analysis Failed',
-        description: error.message || 'An error occurred while analyzing the market.',
+        description: error instanceof Error ? error.message : 'An error occurred while analyzing the market.',
         status: 'error',
         duration: 6000,
         isClosable: true,

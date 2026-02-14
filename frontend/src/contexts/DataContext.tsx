@@ -156,6 +156,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
 
       // Fallback to localStorage if database fetch fails or no data found
+      // All keys are user-scoped to prevent data leaking between accounts
       const analysisHistory = localStorage.getItem(`analysis_${user.id}`);
       const hasHistory = !!analysisHistory;
 
@@ -164,7 +165,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       let arbitrageData: ArbitrageOpportunity[] | null = null;
 
       if (hasHistory) {
-        const dashboardDataStr = localStorage.getItem('dashboardData');
+        const dashboardDataStr = localStorage.getItem(`dashboardData_${user.id}`);
         if (dashboardDataStr) {
           try {
             dashboardData = JSON.parse(dashboardDataStr);
@@ -173,7 +174,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           }
         }
 
-        const competitorDataStr = localStorage.getItem('competitorSummary');
+        const competitorDataStr = localStorage.getItem(`competitorSummary_${user.id}`);
         if (competitorDataStr) {
           try {
             competitorSummary = JSON.parse(competitorDataStr);
@@ -182,7 +183,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           }
         }
 
-        const arbitrageDataStr = localStorage.getItem('segmentArbitrage');
+        const arbitrageDataStr = localStorage.getItem(`segmentArbitrage_${user.id}`);
         if (arbitrageDataStr) {
           try {
             arbitrageData = JSON.parse(arbitrageDataStr);
@@ -222,7 +223,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // Listen for storage changes to refresh data when analysis is completed
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key && (e.key.includes('dashboardData') || e.key.includes('competitorSummary') || e.key.includes('segmentArbitrage') || e.key.includes(`analysis_${user?.id}`))) {
+      if (e.key && (e.key.includes(`dashboardData_${user?.id}`) || e.key.includes(`competitorSummary_${user?.id}`) || e.key.includes(`segmentArbitrage_${user?.id}`) || e.key.includes(`analysis_${user?.id}`))) {
         loadAnalysisData();
       }
     };

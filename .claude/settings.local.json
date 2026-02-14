@@ -25,7 +25,15 @@
       "Bash(npx vite build:*)",
       "Bash(python manage.py runserver:*)",
       "Bash(lsof:*)",
-      "Bash(python manage.py shell:*)"
+      "Bash(python manage.py shell:*)",
+      "WebSearch",
+      "WebFetch(domain:www.crunchbase.com)",
+      "WebFetch(domain:techcrunch.com)",
+      "WebFetch(domain:news.crunchbase.com)",
+      "WebFetch(domain:www.google.com)",
+      "WebFetch(domain:www.prnewswire.com)",
+      "Bash(echo $OPENAI_API_KEY)",
+      "Bash(source:*)"
     ]
   }
 }

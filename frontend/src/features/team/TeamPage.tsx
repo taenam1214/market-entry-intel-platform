@@ -507,13 +507,13 @@ const TeamPage = () => {
                       <HStack spacing={3} flex={1} minW="200px">
                         <Avatar
                           size="sm"
-                          name={`${member.first_name} ${member.last_name}`}
+                          name={`${member.first_name || ''} ${member.last_name || ''}`}
                           bg="gray.200"
                           color="gray.600"
                         />
                         <VStack spacing={0} align="start">
                           <Text fontSize="sm" fontWeight="medium" color="gray.900">
-                            {member.first_name} {member.last_name}
+                            {member.first_name || ''} {member.last_name || ''}
                           </Text>
                           <Text fontSize="xs" color="gray.500">{member.email}</Text>
                         </VStack>

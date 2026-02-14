@@ -67,7 +67,7 @@ class AuthService {
       const data = await response.json();
       return data;
     } catch (error: any) {
-      if (error.message) {
+      if (error instanceof Error) {
         throw error;
       }
       throw new Error('Network error. Please check your connection.');
@@ -98,7 +98,7 @@ class AuthService {
       const data = await response.json();
       return data;
     } catch (error: any) {
-      if (error.message) {
+      if (error instanceof Error) {
         throw error;
       }
       throw new Error('Network error. Please check your connection.');
@@ -125,7 +125,7 @@ class AuthService {
 
       return await response.json();
     } catch (error: any) {
-      if (error.message) {
+      if (error instanceof Error) {
         throw error;
       }
       throw new Error('Network error. Please check your connection.');
@@ -153,7 +153,7 @@ class AuthService {
 
       return await response.json();
     } catch (error: any) {
-      if (error.message) {
+      if (error instanceof Error) {
         throw error;
       }
       throw new Error('Network error. Please check your connection.');
@@ -174,7 +174,7 @@ class AuthService {
       const data = await response.json();
       return data;
     } catch (error: any) {
-      if (error.message) {
+      if (error instanceof Error) {
         throw error;
       }
       throw new Error('Network error. Please check your connection.');

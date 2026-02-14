@@ -1281,8 +1281,8 @@ For questions or additional analysis, contact the Strategic Planning team.
     {
       label: 'Market Opportunity Score',
       value: `${dashboard.dashboard.market_opportunity_score}/10`,
-      change: dashboard.dashboard.market_opportunity_change,
-      trend: dashboard.dashboard.market_opportunity_change.startsWith('+') ? 'up' : 'down',
+      change: dashboard.dashboard.market_opportunity_change || '',
+      trend: (dashboard.dashboard.market_opportunity_change || '').startsWith('+') ? 'up' : 'down',
       color: 'green',
       icon: FiTrendingUp,
       explanation: dashboard.detailed_scores?.market_opportunity_rationale,
@@ -1290,8 +1290,8 @@ For questions or additional analysis, contact the Strategic Planning team.
     {
       label: 'Competitive Intensity',
       value: dashboard.dashboard.competitive_intensity,
-      change: dashboard.dashboard.competitive_intensity_change,
-      trend: dashboard.dashboard.competitive_intensity_change.startsWith('+') ? 'up' : 'down',
+      change: dashboard.dashboard.competitive_intensity_change || '',
+      trend: (dashboard.dashboard.competitive_intensity_change || '').startsWith('+') ? 'up' : 'down',
       color: 'blue',
       icon: FiBarChart,
       explanation: dashboard.detailed_scores?.competitive_intensity_rationale,
@@ -1299,8 +1299,8 @@ For questions or additional analysis, contact the Strategic Planning team.
     {
       label: 'Entry Complexity',
       value: `${dashboard.dashboard.entry_complexity_score}/10`,
-      change: dashboard.dashboard.entry_complexity_change,
-      trend: dashboard.dashboard.entry_complexity_change.startsWith('+') ? 'up' : 'down',
+      change: dashboard.dashboard.entry_complexity_change || '',
+      trend: (dashboard.dashboard.entry_complexity_change || '').startsWith('+') ? 'up' : 'down',
       color: 'orange',
       icon: FiTarget,
       explanation: dashboard.detailed_scores?.entry_complexity_rationale,
@@ -1308,8 +1308,8 @@ For questions or additional analysis, contact the Strategic Planning team.
     {
       label: 'Revenue Potential',
       value: dashboard.dashboard.revenue_potential,
-      change: dashboard.dashboard.revenue_potential_change,
-      trend: dashboard.dashboard.revenue_potential_change.startsWith('+') ? 'up' : 'down',
+      change: dashboard.dashboard.revenue_potential_change || '',
+      trend: (dashboard.dashboard.revenue_potential_change || '').startsWith('+') ? 'up' : 'down',
       color: 'purple',
       icon: FiDollarSign,
       explanation: dashboard.detailed_scores?.revenue_rationale,
@@ -1863,12 +1863,12 @@ For questions or additional analysis, contact the Strategic Planning team.
                                       Market Leader
                                     </Badge>
                                   )}
-                                  {parseInt(competitor.years_in_market) > 10 && (
+                                  {parseInt(competitor.years_in_market || '0') > 10 && (
                                     <Badge colorScheme="blue" variant="outline" size="sm">
                                       Established Player
                                     </Badge>
                                   )}
-                                  {parseInt(competitor.years_in_market) < 5 && (
+                                  {parseInt(competitor.years_in_market || '0') < 5 && (
                                     <Badge colorScheme="orange" variant="outline" size="sm">
                                       Emerging Player
                                     </Badge>
@@ -1897,7 +1897,7 @@ For questions or additional analysis, contact the Strategic Planning team.
                           <VStack align="start" spacing={2}>
                             {competitorSummary
                               .filter((c: Competitor) => c.market_share !== 'unknown')
-                              .sort((a: Competitor, b: Competitor) => parseFloat(b.market_share) - parseFloat(a.market_share))
+                              .sort((a: Competitor, b: Competitor) => parseFloat(b.market_share || '0') - parseFloat(a.market_share || '0'))
                               .map((competitor: Competitor, index: number) => (
                                 <HStack key={index} w="full" justify="space-between">
                                   <Text fontSize="sm" fontWeight="medium" color="gray.700">
@@ -1908,7 +1908,7 @@ For questions or additional analysis, contact the Strategic Planning team.
                                       {competitor.market_share}
                                     </Text>
                                     <Progress
-                                      value={parseFloat(competitor.market_share)}
+                                      value={parseFloat(competitor.market_share || '0')}
                                       size="sm"
                                       colorScheme="gray"
                                       w="100px"
@@ -2044,7 +2044,7 @@ For questions or additional analysis, contact the Strategic Planning team.
                             .sort((a, b) => b.sensitivity_score - a.sensitivity_score)
                             .slice(0, 8)
                             .map(v => ({
-                              name: v.variable.length > 28 ? v.variable.substring(0, 28) + '...' : v.variable,
+                              name: (v.variable || '').length > 28 ? (v.variable || '').substring(0, 28) + '...' : v.variable,
                               fullName: v.variable,
                               pessimistic: parseRevenueString(v.pessimistic_impact),
                               base: parseRevenueString(v.base_impact),
@@ -2058,7 +2058,7 @@ For questions or additional analysis, contact the Strategic Planning team.
                           <XAxis type="number" tick={{ fontSize: 11, fill: '#718096' }} tickFormatter={(v: number) => `$${v.toFixed(1)}M`} />
                           <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#4a5568' }} width={115} />
                           <Tooltip
-                            formatter={(value: number, name: string) => [`$${value.toFixed(2)}M`, name.charAt(0).toUpperCase() + name.slice(1)]}
+                            formatter={(value: number, name: string) => [`$${value.toFixed(2)}M`, (name || '').charAt(0).toUpperCase() + (name || '').slice(1)]}
                             contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}
                           />
                           <Legend wrapperStyle={{ fontSize: 11 }} />
@@ -2089,21 +2089,21 @@ For questions or additional analysis, contact the Strategic Planning team.
                           data={[
                             {
                               period: 'Year 1',
-                              Conservative: parseRevenueString(financialModel.scenario_projections.conservative.year_1_revenue),
-                              Base: parseRevenueString(financialModel.scenario_projections.base.year_1_revenue),
-                              Optimistic: parseRevenueString(financialModel.scenario_projections.optimistic.year_1_revenue),
+                              Conservative: parseRevenueString(financialModel.scenario_projections?.conservative?.year_1_revenue),
+                              Base: parseRevenueString(financialModel.scenario_projections?.base?.year_1_revenue),
+                              Optimistic: parseRevenueString(financialModel.scenario_projections?.optimistic?.year_1_revenue),
                             },
                             {
                               period: 'Year 3',
-                              Conservative: parseRevenueString(financialModel.scenario_projections.conservative.year_3_revenue),
-                              Base: parseRevenueString(financialModel.scenario_projections.base.year_3_revenue),
-                              Optimistic: parseRevenueString(financialModel.scenario_projections.optimistic.year_3_revenue),
+                              Conservative: parseRevenueString(financialModel.scenario_projections?.conservative?.year_3_revenue),
+                              Base: parseRevenueString(financialModel.scenario_projections?.base?.year_3_revenue),
+                              Optimistic: parseRevenueString(financialModel.scenario_projections?.optimistic?.year_3_revenue),
                             },
                             {
                               period: 'Year 5',
-                              Conservative: parseRevenueString(financialModel.scenario_projections.conservative.year_5_revenue),
-                              Base: parseRevenueString(financialModel.scenario_projections.base.year_5_revenue),
-                              Optimistic: parseRevenueString(financialModel.scenario_projections.optimistic.year_5_revenue),
+                              Conservative: parseRevenueString(financialModel.scenario_projections?.conservative?.year_5_revenue),
+                              Base: parseRevenueString(financialModel.scenario_projections?.base?.year_5_revenue),
+                              Optimistic: parseRevenueString(financialModel.scenario_projections?.optimistic?.year_5_revenue),
                             },
                           ]}
                           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -2128,14 +2128,14 @@ For questions or additional analysis, contact the Strategic Planning team.
                       <Box p={4} bg="red.50" borderRadius="lg" border="1px solid" borderColor="red.100">
                         <HStack justify="space-between" mb={2}>
                           <Text fontWeight="semibold" color="red.700" fontSize="sm">Conservative</Text>
-                          <Badge colorScheme="red" variant="subtle" fontSize="xs">{financialModel.scenario_projections.conservative.probability}</Badge>
+                          <Badge colorScheme="red" variant="subtle" fontSize="xs">{financialModel.scenario_projections?.conservative?.probability || 'N/A'}</Badge>
                         </HStack>
                         <VStack align="start" spacing={1}>
-                          <Text fontSize="xs" color="red.600">Y1: {financialModel.scenario_projections.conservative.year_1_revenue}</Text>
-                          <Text fontSize="xs" color="red.600">Y3: {financialModel.scenario_projections.conservative.year_3_revenue}</Text>
-                          <Text fontSize="xs" color="red.600">Y5: {financialModel.scenario_projections.conservative.year_5_revenue}</Text>
+                          <Text fontSize="xs" color="red.600">Y1: {financialModel.scenario_projections?.conservative?.year_1_revenue || 'N/A'}</Text>
+                          <Text fontSize="xs" color="red.600">Y3: {financialModel.scenario_projections?.conservative?.year_3_revenue || 'N/A'}</Text>
+                          <Text fontSize="xs" color="red.600">Y5: {financialModel.scenario_projections?.conservative?.year_5_revenue || 'N/A'}</Text>
                         </VStack>
-                        {financialModel.scenario_projections.conservative.key_assumptions && (
+                        {financialModel.scenario_projections?.conservative?.key_assumptions && (
                           <Text fontSize="xs" color="red.500" mt={2} noOfLines={3}>
                             {financialModel.scenario_projections.conservative.key_assumptions}
                           </Text>
@@ -2144,14 +2144,14 @@ For questions or additional analysis, contact the Strategic Planning team.
                       <Box p={4} bg="blue.50" borderRadius="lg" border="1px solid" borderColor="blue.100">
                         <HStack justify="space-between" mb={2}>
                           <Text fontWeight="semibold" color="blue.700" fontSize="sm">Base Case</Text>
-                          <Badge colorScheme="blue" variant="subtle" fontSize="xs">{financialModel.scenario_projections.base.probability}</Badge>
+                          <Badge colorScheme="blue" variant="subtle" fontSize="xs">{financialModel.scenario_projections?.base?.probability || 'N/A'}</Badge>
                         </HStack>
                         <VStack align="start" spacing={1}>
-                          <Text fontSize="xs" color="blue.600">Y1: {financialModel.scenario_projections.base.year_1_revenue}</Text>
-                          <Text fontSize="xs" color="blue.600">Y3: {financialModel.scenario_projections.base.year_3_revenue}</Text>
-                          <Text fontSize="xs" color="blue.600">Y5: {financialModel.scenario_projections.base.year_5_revenue}</Text>
+                          <Text fontSize="xs" color="blue.600">Y1: {financialModel.scenario_projections?.base?.year_1_revenue || 'N/A'}</Text>
+                          <Text fontSize="xs" color="blue.600">Y3: {financialModel.scenario_projections?.base?.year_3_revenue || 'N/A'}</Text>
+                          <Text fontSize="xs" color="blue.600">Y5: {financialModel.scenario_projections?.base?.year_5_revenue || 'N/A'}</Text>
                         </VStack>
-                        {financialModel.scenario_projections.base.key_assumptions && (
+                        {financialModel.scenario_projections?.base?.key_assumptions && (
                           <Text fontSize="xs" color="blue.500" mt={2} noOfLines={3}>
                             {financialModel.scenario_projections.base.key_assumptions}
                           </Text>
@@ -2160,14 +2160,14 @@ For questions or additional analysis, contact the Strategic Planning team.
                       <Box p={4} bg="green.50" borderRadius="lg" border="1px solid" borderColor="green.100">
                         <HStack justify="space-between" mb={2}>
                           <Text fontWeight="semibold" color="green.700" fontSize="sm">Optimistic</Text>
-                          <Badge colorScheme="green" variant="subtle" fontSize="xs">{financialModel.scenario_projections.optimistic.probability}</Badge>
+                          <Badge colorScheme="green" variant="subtle" fontSize="xs">{financialModel.scenario_projections?.optimistic?.probability || 'N/A'}</Badge>
                         </HStack>
                         <VStack align="start" spacing={1}>
-                          <Text fontSize="xs" color="green.600">Y1: {financialModel.scenario_projections.optimistic.year_1_revenue}</Text>
-                          <Text fontSize="xs" color="green.600">Y3: {financialModel.scenario_projections.optimistic.year_3_revenue}</Text>
-                          <Text fontSize="xs" color="green.600">Y5: {financialModel.scenario_projections.optimistic.year_5_revenue}</Text>
+                          <Text fontSize="xs" color="green.600">Y1: {financialModel.scenario_projections?.optimistic?.year_1_revenue || 'N/A'}</Text>
+                          <Text fontSize="xs" color="green.600">Y3: {financialModel.scenario_projections?.optimistic?.year_3_revenue || 'N/A'}</Text>
+                          <Text fontSize="xs" color="green.600">Y5: {financialModel.scenario_projections?.optimistic?.year_5_revenue || 'N/A'}</Text>
                         </VStack>
-                        {financialModel.scenario_projections.optimistic.key_assumptions && (
+                        {financialModel.scenario_projections?.optimistic?.key_assumptions && (
                           <Text fontSize="xs" color="green.500" mt={2} noOfLines={3}>
                             {financialModel.scenario_projections.optimistic.key_assumptions}
                           </Text>

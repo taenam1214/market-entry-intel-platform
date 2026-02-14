@@ -97,7 +97,7 @@ const ChatbotPage: React.FC = () => {
                   type: 'assistant',
                   content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to ${data.reports.length} market analysis report${data.reports.length > 1 ? 's' : ''} and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more.
 
-Currently discussing: **${data.reports[0].company_name} → ${data.reports[0].target_market}**
+Currently discussing: **${data.reports[0]?.company_name || 'Unknown'} → ${data.reports[0]?.target_market || 'Unknown'}**
 
 I can answer questions about your reports, suggest new markets to explore, help with strategic positioning, assess risks, and provide strategic recommendations. What would you like to discuss?`,
                   timestamp: new Date(),

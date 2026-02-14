@@ -168,7 +168,7 @@ const ExecutionTrackerPage: React.FC = () => {
 
   const getTotalActualCost = () => {
     if (!selectedPlan) return 0;
-    return selectedPlan.milestones.reduce((sum, m) => sum + (m.actual_cost || 0), 0);
+    return (selectedPlan.milestones || []).reduce((sum, m) => sum + (m.actual_cost || 0), 0);
   };
 
   const getMilestonesByPhase = () => {
@@ -307,7 +307,7 @@ const ExecutionTrackerPage: React.FC = () => {
                     <Stat>
                       <StatLabel color="gray.600">Actual Cost</StatLabel>
                       <StatNumber color="gray.900" fontSize="xl">
-                        ${getTotalActualCost().toLocaleString()}
+                        ${(getTotalActualCost() || 0).toLocaleString()}
                       </StatNumber>
                       {selectedPlan.total_projected_cost && (
                         <StatHelpText color="gray.500">

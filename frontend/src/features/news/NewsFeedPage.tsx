@@ -82,7 +82,7 @@ const NewsFeedPage: React.FC = () => {
   }, [fetchNews]);
 
   const formatCategory = (cat: string) => {
-    return cat.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return (cat || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   };
 
   const filteredArticles = categoryFilter
