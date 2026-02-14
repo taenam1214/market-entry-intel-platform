@@ -50,19 +50,12 @@ const ChatbotPage: React.FC = () => {
   const { analysisData } = useData();
   const navigate = useNavigate();
   const toast = useToast();
-  
-  // Use data from centralized context
-  const isDataLoading = analysisData.isLoading;
 
-  // Fixed dark theme colors (consistent with other pages)
-  const borderColor = 'rgba(255,255,255,0.2)';
-  const userBg = 'rgba(102, 126, 234, 0.2)';
-  const assistantBg = 'rgba(255,255,255,0.1)';
+  const isDataLoading = analysisData.isLoading;
 
   // Fetch reports from database API
   useEffect(() => {
     const fetchReports = async () => {
-      // Wait for user to be fully loaded
       if (!isAuthenticated || !user?.id) {
         setAvailableReports([]);
         setIsLoadingReports(false);
@@ -71,21 +64,17 @@ const ChatbotPage: React.FC = () => {
 
       try {
         setIsLoadingReports(true);
-        
-        // Small delay to ensure auth is fully initialized
+
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-        
+
         if (!token) {
-          console.error('No authentication token found in localStorage');
           setAvailableReports([]);
           setIsLoadingReports(false);
           return;
         }
-        
-        console.log('Fetching reports for user:', user.email, 'Token exists:', !!token);
-        
+
         const response = await fetch(API_ENDPOINTS.REPORTS.SELECTOR, {
           method: 'GET',
           headers: {
@@ -94,24 +83,19 @@ const ChatbotPage: React.FC = () => {
           }
         });
 
-        console.log('Reports API response status:', response.status);
-
         if (response.ok) {
           const data = await response.json();
-          console.log('Reports fetched:', data.reports?.length || 0);
           setAvailableReports(data.reports || []);
-          
-          // Auto-select the first (most recent) report by default
+
           if (data.reports && data.reports.length > 0) {
             setSelectedReportId(data.reports[0].id.toString());
-            
-            // Only add welcome message if there are reports and no existing messages
+
             if (messages.length === 0) {
               setMessages([
                 {
                   id: '1',
                   type: 'assistant',
-                  content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to ${data.reports.length} market analysis report${data.reports.length > 1 ? 's' : ''} and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
+                  content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to ${data.reports.length} market analysis report${data.reports.length > 1 ? 's' : ''} and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more.
 
 Currently discussing: **${data.reports[0].company_name} → ${data.reports[0].target_market}**
 
@@ -122,12 +106,9 @@ I can answer questions about your reports, suggest new markets to explore, help 
             }
           }
         } else {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('Failed to fetch reports:', response.status, errorData);
           setAvailableReports([]);
         }
-      } catch (error) {
-        console.error('Error fetching reports:', error);
+      } catch {
         setAvailableReports([]);
       } finally {
         setIsLoadingReports(false);
@@ -141,18 +122,16 @@ I can answer questions about your reports, suggest new markets to explore, help 
   // Update chat context when report selection changes
   useEffect(() => {
     if (!selectedReportId || availableReports.length === 0) return;
-    
-    // Find the selected report
+
     const selectedReport = availableReports.find(r => r.id.toString() === selectedReportId);
     if (!selectedReport) return;
-    
-    // If we only have the welcome message (or no messages), update it with the new report context
+
     if (messages.length <= 1) {
       setMessages([
         {
           id: '1',
           type: 'assistant',
-          content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to ${availableReports.length} market analysis report${availableReports.length > 1 ? 's' : ''} and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more. 
+          content: `Hello ${user?.first_name || 'there'}! I'm your AI strategic business advisor. I have access to ${availableReports.length} market analysis report${availableReports.length > 1 ? 's' : ''} and can help you with comprehensive business strategy, expansion planning, competitive analysis, and much more.
 
 Currently discussing: **${selectedReport.company_name} → ${selectedReport.target_market}**
 
@@ -162,17 +141,16 @@ I can answer questions about your reports, suggest new markets to explore, help 
       ]);
       return;
     }
-    
-    // If we have a conversation going, add a context switch message
+
     const contextMessage: Message = {
       id: `context-${Date.now()}`,
       type: 'assistant',
-      content: `📊 **Context switched to:** ${selectedReport.company_name} → ${selectedReport.target_market}
+      content: `**Context switched to:** ${selectedReport.company_name} → ${selectedReport.target_market}
 
 I'm now ready to discuss this market analysis. What would you like to know?`,
       timestamp: new Date(),
     };
-    
+
     setMessages(prev => [...prev, contextMessage]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedReportId]);
@@ -181,23 +159,20 @@ I'm now ready to discuss this market analysis. What would you like to know?`,
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Only scroll to bottom when new messages are added (not on initial load)
   useEffect(() => {
-    // Only scroll if there are messages and we're not on initial load
-    // Skip scrolling if we just have the initial welcome message
     if (messages.length > 1 && !isLoadingReports) {
       scrollToBottom();
     }
   }, [messages.length, isLoadingReports]);
 
-  // Show loading state while data is being loaded
+  // Loading state
   if (isDataLoading || isLoadingReports) {
     return (
-      <Box minH="100vh" bg="#140d28">
+      <Box minH="100vh" bg="gray.50">
         <Container maxW="6xl" py={8}>
           <VStack spacing={6} align="center" py={16}>
-            <Spinner size="xl" color="purple.400" />
-            <Text fontSize="lg" color="rgba(255,255,255,0.8)">
+            <Spinner size="xl" color="gray.600" />
+            <Text fontSize="lg" color="gray.600">
               Loading your market reports...
             </Text>
           </VStack>
@@ -206,65 +181,79 @@ I'm now ready to discuss this market analysis. What would you like to know?`,
     );
   }
 
-  // Show empty state if no reports available
+  // Empty state - no reports
   if (availableReports.length === 0) {
     return (
-      <Box p={6} bg="#140d28" minH="100vh" w="100%">
+      <Box p={6} bg="gray.50" minH="100vh" w="100%">
         <Container maxW="4xl" px={8}>
           <VStack spacing={8} py={16} textAlign="center">
             <VStack spacing={4}>
-              <Icon as={FiMessageSquare} boxSize={16} color="purple.400" />
-              <Heading size="xl" color="white">
+              <Icon as={FiMessageSquare} boxSize={16} color="gray.400" />
+              <Heading size="xl" color="gray.900">
                 AI Market Intelligence Assistant
               </Heading>
-              <Text fontSize="lg" color="rgba(255,255,255,0.8)" maxW="2xl">
-                Chat with your AI strategic business advisor about your market analysis reports. 
-                Get comprehensive business strategy advice, explore new markets, assess risks, 
+              <Text fontSize="lg" color="gray.600" maxW="2xl">
+                Chat with your AI strategic business advisor about your market analysis reports.
+                Get comprehensive business strategy advice, explore new markets, assess risks,
                 and receive strategic recommendations for your business expansion.
               </Text>
             </VStack>
 
-            <VStack spacing={4} bg="rgba(255,255,255,0.05)" p={8} borderRadius="xl" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)" maxW="md" w="full">
-              <Icon as={FiTarget} boxSize={8} color="purple.400" />
-              <Heading size="md" color="white">
-                Ready to Get Started?
-              </Heading>
-              <Text fontSize="md" color="rgba(255,255,255,0.8)" textAlign="center">
-                Start your first market analysis to unlock:
-              </Text>
-              <VStack spacing={2} align="start" w="full">
-                <HStack>
-                  <Badge colorScheme="green" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Strategic Business Advisory & Planning</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="blue" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Market Expansion & Country Recommendations</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="purple" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Competitive Analysis & Risk Assessment</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="orange" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">AI-Powered Strategic Intelligence</Text>
-                </HStack>
-              </VStack>
-              <Button 
-                colorScheme="purple" 
-                size="lg" 
-                rightIcon={<FiArrowRight />}
-                onClick={() => navigate('/')}
-                w="full"
-                mt={4}
-                _focus={{ boxShadow: 'none', outline: 'none' }}
-              >
-                Start Your Analysis
-              </Button>
-            </VStack>
+            <Card
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
+              shadow="sm"
+              maxW="md"
+              w="full"
+              borderRadius="xl"
+            >
+              <CardBody p={8}>
+                <VStack spacing={4}>
+                  <Icon as={FiTarget} boxSize={8} color="gray.500" />
+                  <Heading size="md" color="gray.900">
+                    Ready to Get Started?
+                  </Heading>
+                  <Text fontSize="md" color="gray.600" textAlign="center">
+                    Start your first market analysis to unlock:
+                  </Text>
+                  <VStack spacing={2} align="start" w="full">
+                    <HStack>
+                      <Badge colorScheme="green" borderRadius="full">✓</Badge>
+                      <Text fontSize="sm" color="gray.700">Strategic Business Advisory & Planning</Text>
+                    </HStack>
+                    <HStack>
+                      <Badge colorScheme="blue" borderRadius="full">✓</Badge>
+                      <Text fontSize="sm" color="gray.700">Market Expansion & Country Recommendations</Text>
+                    </HStack>
+                    <HStack>
+                      <Badge colorScheme="purple" borderRadius="full">✓</Badge>
+                      <Text fontSize="sm" color="gray.700">Competitive Analysis & Risk Assessment</Text>
+                    </HStack>
+                    <HStack>
+                      <Badge colorScheme="orange" borderRadius="full">✓</Badge>
+                      <Text fontSize="sm" color="gray.700">AI-Powered Strategic Intelligence</Text>
+                    </HStack>
+                  </VStack>
+                  <Button
+                    bg="gray.900"
+                    color="white"
+                    size="lg"
+                    rightIcon={<FiArrowRight />}
+                    onClick={() => navigate('/')}
+                    w="full"
+                    mt={4}
+                    _hover={{ bg: 'gray.800' }}
+                    _focus={{ boxShadow: 'none', outline: 'none' }}
+                  >
+                    Start Your Analysis
+                  </Button>
+                </VStack>
+              </CardBody>
+            </Card>
 
-            <Text fontSize="sm" color="rgba(255,255,255,0.8)" maxW="lg">
-              Once you generate your first market analysis report, you'll be able to chat with our AI assistant 
+            <Text fontSize="sm" color="gray.500" maxW="lg">
+              Once you generate your first market analysis report, you'll be able to chat with our AI assistant
               to get deeper insights and ask questions about your market opportunities.
             </Text>
           </VStack>
@@ -280,25 +269,22 @@ I'm now ready to discuss this market analysis. What would you like to know?`,
         conversation_id: currentConversation?.id,
         selected_report_ids: selectedReportId ? [parseInt(selectedReportId)] : undefined,
       });
-      
-      // Update current conversation if it's new
+
       if (!currentConversation && response.conversation_id) {
         setCurrentConversation({ id: response.conversation_id } as ChatConversation);
       }
-      
+
       return {
         content: response.ai_message.content,
         sources: response.ai_message.sources || [],
       };
     } catch (error) {
-      console.error('Error sending message:', error);
       throw error;
     }
   };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
-
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -313,7 +299,7 @@ I'm now ready to discuss this market analysis. What would you like to know?`,
 
     try {
       const response = await sendMessageToAPI(inputValue);
-      
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
@@ -323,7 +309,7 @@ I'm now ready to discuss this market analysis. What would you like to know?`,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to get response. Please try again.',
@@ -348,7 +334,7 @@ I'm now ready to discuss this market analysis. What would you like to know?`,
       {
         id: '1',
         type: 'assistant',
-        content: `Hello ${user?.first_name || 'there'}! I'm your AI assistant for market intelligence. I can help you analyze your generated reports and answer questions about market opportunities, competitive landscapes, and strategic insights. 
+        content: `Hello ${user?.first_name || 'there'}! I'm your AI assistant for market intelligence. I can help you analyze your generated reports and answer questions about market opportunities, competitive landscapes, and strategic insights.
 
 What would you like to know about your reports?`,
         timestamp: new Date(),
@@ -357,34 +343,40 @@ What would you like to know about your reports?`,
   };
 
   return (
-    <Box p={6} bg="#140d28" minH="100vh" w="100%">
+    <Box p={6} bg="gray.50" minH="100vh" w="100%">
       <Container maxW="100%" px={8}>
         <VStack spacing={6} align="stretch" maxW="7xl" mx="auto">
           {/* Header */}
           <Box>
-            <Heading size="xl" mb={2} color="white">
+            <Heading size="xl" mb={2} color="gray.900">
               AI Market Intelligence Assistant
             </Heading>
-            <Text fontSize="lg" color="rgba(255,255,255,0.8)">
+            <Text fontSize="lg" color="gray.600">
               Chat with your AI assistant about your market analysis reports
             </Text>
           </Box>
 
           <Flex gap={6} direction={{ base: 'column', lg: 'row' }}>
-            {/* Available Reports Sidebar */}
+            {/* Reports Sidebar */}
             <Box w={{ base: '100%', lg: '320px' }}>
-              <Card bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+              <Card
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                shadow="sm"
+                borderRadius="xl"
+              >
                 <CardHeader>
                   <VStack align="stretch" spacing={2}>
-                    <Heading size="sm" color="white">Select Report to Discuss</Heading>
-                    <Text fontSize="xs" color="rgba(255,255,255,0.7)">
+                    <Heading size="sm" color="gray.900">Select Report to Discuss</Heading>
+                    <Text fontSize="xs" color="gray.500">
                       Choose which report the AI should reference
                     </Text>
                   </VStack>
                 </CardHeader>
                 <CardBody>
-                  <RadioGroup 
-                    value={selectedReportId} 
+                  <RadioGroup
+                    value={selectedReportId}
                     onChange={setSelectedReportId}
                   >
                     <VStack spacing={3} align="stretch">
@@ -392,26 +384,27 @@ What would you like to know about your reports?`,
                         <Box
                           key={report.id}
                           p={3}
-                          border="1px"
-                          borderColor={selectedReportId === report.id.toString() ? 'rgba(147, 51, 234, 0.5)' : borderColor}
+                          border="1px solid"
+                          borderColor={selectedReportId === report.id.toString() ? 'gray.900' : 'gray.200'}
                           borderRadius="md"
-                          bg={selectedReportId === report.id.toString() ? 'rgba(147, 51, 234, 0.1)' : 'transparent'}
-                          _hover={{ bg: 'rgba(255,255,255,0.05)' }}
+                          bg={selectedReportId === report.id.toString() ? 'gray.50' : 'white'}
+                          _hover={{ bg: 'gray.50' }}
+                          cursor="pointer"
                         >
                           <Radio
                             value={report.id.toString()}
-                            colorScheme="purple"
+                            colorScheme="gray"
                             size="sm"
                             mb={2}
                           >
-                            <Text fontSize="sm" fontWeight="semibold" color="white">
+                            <Text fontSize="sm" fontWeight="semibold" color="gray.900">
                               {report.company_name} → {report.target_market}
                             </Text>
                           </Radio>
-                          <Text fontSize="xs" color="rgba(255,255,255,0.7)" ml={6}>
+                          <Text fontSize="xs" color="gray.600" ml={6}>
                             {report.industry}
                           </Text>
-                          <Text fontSize="xs" color="rgba(255,255,255,0.5)" ml={6}>
+                          <Text fontSize="xs" color="gray.500" ml={6}>
                             {report.created_at ? new Date(report.created_at).toLocaleDateString() : ''}
                           </Text>
                         </Box>
@@ -421,11 +414,12 @@ What would you like to know about your reports?`,
                   {selectedReportId && (
                     <Badge
                       mt={3}
-                      colorScheme="purple"
-                      variant="solid"
+                      bg="gray.900"
+                      color="white"
                       px={3}
                       py={1}
                       borderRadius="full"
+                      fontSize="xs"
                     >
                       1 report selected
                     </Badge>
@@ -436,12 +430,21 @@ What would you like to know about your reports?`,
 
             {/* Chat Interface */}
             <Box flex={1}>
-              <Card h="600px" display="flex" flexDirection="column" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
-                <CardHeader>
+              <Card
+                h="600px"
+                display="flex"
+                flexDirection="column"
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                shadow="sm"
+                borderRadius="xl"
+              >
+                <CardHeader borderBottom="1px solid" borderColor="gray.100">
                   <HStack justify="space-between">
                     <HStack>
-                      <Avatar icon={<FiMessageCircle />} size="sm" bg="purple.400" />
-                      <Text fontWeight="semibold" color="white">Market Intelligence Assistant</Text>
+                      <Avatar icon={<FiMessageCircle />} size="sm" bg="gray.900" />
+                      <Text fontWeight="semibold" color="gray.900">Market Intelligence Assistant</Text>
                     </HStack>
                     <IconButton
                       icon={<FiRefreshCw />}
@@ -449,13 +452,13 @@ What would you like to know about your reports?`,
                       variant="ghost"
                       onClick={clearChat}
                       aria-label="Clear chat"
-                      color="white"
-                      _hover={{ bg: 'rgba(255,255,255,0.1)' }}
+                      color="gray.500"
+                      _hover={{ bg: 'gray.100', color: 'gray.700' }}
                       _focus={{ boxShadow: 'none', outline: 'none' }}
                     />
                   </HStack>
                 </CardHeader>
-                
+
                 <CardBody flex={1} overflow="hidden" display="flex" flexDirection="column">
                   {/* Messages */}
                   <Box flex={1} overflowY="auto" mb={4}>
@@ -466,47 +469,53 @@ What would you like to know about your reports?`,
                             <Avatar
                               size="sm"
                               icon={message.type === 'user' ? <FiUser /> : <FiMessageCircle />}
-                              bg={message.type === 'user' ? 'blue.500' : 'purple.500'}
+                              bg={message.type === 'user' ? 'blue.500' : 'gray.700'}
                             />
                             <Box flex={1}>
                               <Box
                                 p={3}
                                 borderRadius="lg"
-                                bg={message.type === 'user' ? userBg : assistantBg}
+                                bg={message.type === 'user' ? 'blue.50' : 'gray.50'}
+                                border="1px solid"
+                                borderColor={message.type === 'user' ? 'blue.100' : 'gray.100'}
                                 maxW="80%"
                                 ml={message.type === 'user' ? 'auto' : 0}
                                 mr={message.type === 'user' ? 0 : 'auto'}
                               >
-                                <Text fontSize="sm" whiteSpace="pre-wrap" color={message.type === 'user' ? 'white' : 'white'}>
+                                <Text
+                                  fontSize="sm"
+                                  whiteSpace="pre-wrap"
+                                  color="gray.800"
+                                >
                                   {message.content}
                                 </Text>
-                                  {message.sources && message.sources.length > 0 && (
-                                    <Box mt={2}>
-                                      <Text fontSize="xs" color="rgba(255,255,255,0.8)" mb={1}>
-                                        Sources:
-                                      </Text>
+                                {message.sources && message.sources.length > 0 && (
+                                  <Box mt={2}>
+                                    <Text fontSize="xs" color="gray.500" mb={1}>
+                                      Sources:
+                                    </Text>
                                     {message.sources.map((source, index) => (
-                                      <Badge key={index} size="sm" colorScheme="blue" mr={1} mb={1}>
+                                      <Badge key={index} size="sm" colorScheme="blue" mr={1} mb={1} variant="subtle">
                                         {source}
                                       </Badge>
                                     ))}
                                   </Box>
                                 )}
                               </Box>
-                                <Text fontSize="xs" color="rgba(255,255,255,0.6)" mt={1} ml={3}>
-                                  {message.timestamp.toLocaleTimeString()}
-                                </Text>
+                              <Text fontSize="xs" color="gray.400" mt={1} ml={3}>
+                                {message.timestamp.toLocaleTimeString()}
+                              </Text>
                             </Box>
                           </HStack>
                         </Box>
                       ))}
                       {isLoading && (
                         <HStack align="flex-start" spacing={3}>
-                          <Avatar size="sm" icon={<FiMessageCircle />} bg="purple.500" />
-                          <Box p={3} borderRadius="lg" bg={assistantBg}>
+                          <Avatar size="sm" icon={<FiMessageCircle />} bg="gray.700" />
+                          <Box p={3} borderRadius="lg" bg="gray.50" border="1px solid" borderColor="gray.100">
                             <HStack>
-                              <Spinner size="sm" color="purple.400" />
-                              <Text fontSize="sm" color="white">Analyzing your question...</Text>
+                              <Spinner size="sm" color="gray.500" />
+                              <Text fontSize="sm" color="gray.600">Analyzing your question...</Text>
                             </HStack>
                           </Box>
                         </HStack>
@@ -526,27 +535,25 @@ What would you like to know about your reports?`,
                         resize="none"
                         rows={2}
                         disabled={isLoading}
-                        bg="rgba(255,255,255,0.1)"
-                        borderColor="rgba(255,255,255,0.2)"
-                        color="white"
-                        _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
-                        _focus={{ 
-                          borderColor: 'rgba(255,255,255,0.2)',
-                          bg: 'rgba(255,255,255,0.1)',
+                        bg="white"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        color="gray.900"
+                        _placeholder={{ color: 'gray.400' }}
+                        _focus={{
+                          borderColor: 'gray.400',
                           boxShadow: 'none'
                         }}
-                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
+                        _hover={{ borderColor: 'gray.300' }}
                       />
                       <IconButton
                         icon={<FiSend />}
-                        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        bg="gray.900"
                         color="white"
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isLoading}
                         aria-label="Send message"
-                        _hover={{
-                          bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                        }}
+                        _hover={{ bg: 'gray.800' }}
                         _focus={{ boxShadow: 'none', outline: 'none' }}
                       />
                     </HStack>

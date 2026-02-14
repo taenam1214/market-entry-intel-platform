@@ -26,6 +26,19 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     """Custom User model extending Django's AbstractUser"""
+
+    ROLE_CHOICES = [
+        ('user', 'User'),
+        ('admin', 'Admin'),
+    ]
+
+    TIER_CHOICES = [
+        ('free', 'Free'),
+        ('starter', 'Starter'),
+        ('professional', 'Professional'),
+        ('enterprise', 'Enterprise'),
+    ]
+
     username = None  # Remove username field
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
@@ -33,7 +46,13 @@ class User(AbstractUser):
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    # Role and subscription fields
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
+    subscription_tier = models.CharField(max_length=20, choices=TIER_CHOICES, default='free')
+    analyses_used_this_period = models.IntegerField(default=0)
+    billing_period_start = models.DateField(null=True, blank=True)
+
     # Google OAuth fields
     google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
     provider = models.CharField(max_length=50, blank=True, null=True)  # 'google', 'email', etc.
@@ -43,6 +62,10 @@ class User(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
+
+    @property
+    def is_admin(self):
+        return self.role == 'admin' or self.email == 'taenam00121496@gmail.com'
 
     def __str__(self):
         return self.email

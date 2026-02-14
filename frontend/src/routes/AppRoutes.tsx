@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Box, Container, Heading, Text, VStack } from '@chakra-ui/react';
 import LandingPage from '../features/landing/LandingPage';
 import SegmentArbitragePage from '../features/arbitrage/SegmentArbitragePage';
 import ExecutiveDashboardPage from '../features/dashboard/ExecutiveDashboardPage';
@@ -9,86 +8,61 @@ import HelpSupportPage from '../features/support/HelpSupportPage';
 import LoginPage from '../auth/LoginPage';
 import RegisterPage from '../auth/RegisterPage';
 import EmailVerificationPage from '../auth/EmailVerificationPage';
-
-// Placeholder components for new routes
-const AboutPage = () => (
-  <Box py={16} bg="white" minH="100vh">
-    <Container maxW="4xl">
-      <VStack spacing={8} textAlign="center">
-        <Heading size="xl">About KairosAI</Heading>
-        <Text fontSize="lg" color="gray.600">
-          We're building the future of market intelligence with autonomous AI agents.
-        </Text>
-      </VStack>
-    </Container>
-  </Box>
-);
-
-const PricingPage = () => (
-  <Box py={16} bg="white" minH="100vh">
-    <Container maxW="4xl">
-      <VStack spacing={8} textAlign="center">
-        <Heading size="xl">Pricing Plans</Heading>
-        <Text fontSize="lg" color="gray.600">
-          Choose the plan that fits your market entry needs.
-        </Text>
-      </VStack>
-    </Container>
-  </Box>
-);
-
-const ContactPage = () => (
-  <Box py={16} bg="white" minH="100vh">
-    <Container maxW="4xl">
-      <VStack spacing={8} textAlign="center">
-        <Heading size="xl">Contact Us</Heading>
-        <Text fontSize="lg" color="gray.600">
-          Get in touch with our team for support and inquiries.
-        </Text>
-      </VStack>
-    </Container>
-  </Box>
-);
-
-const ProfilePage = () => (
-  <Box py={16} bg="white" minH="100vh">
-    <Container maxW="4xl">
-      <VStack spacing={8} textAlign="center">
-        <Heading size="xl">User Profile</Heading>
-        <Text fontSize="lg" color="gray.600">
-          Manage your account settings and preferences.
-        </Text>
-      </VStack>
-    </Container>
-  </Box>
-);
-
-
+import AdminDashboardPage from '../features/admin/AdminDashboardPage';
+import PricingPage from '../features/pricing/PricingPage';
+import MultiMarketComparisonPage from '../features/comparison/MultiMarketComparisonPage';
+import ScenarioModelingPage from '../features/scenarios/ScenarioModelingPage';
+import DeepDivePage from '../features/deep-dives/DeepDivePage';
+import PlaybookPage from '../features/playbook/PlaybookPage';
+import ExecutionTrackerPage from '../features/execution/ExecutionTrackerPage';
+import MonitoringPage from '../features/monitoring/MonitoringPage';
+import CompetitorTrackingPage from '../features/competitors/CompetitorTrackingPage';
+import NewsFeedPage from '../features/news/NewsFeedPage';
+import SharedReportPage from '../features/shared/SharedReportPage';
+import TeamPage from '../features/team/TeamPage';
 
 const AppRoutes = () => (
   <Routes>
     {/* Public Routes */}
     <Route path="/" element={<LandingPage />} />
-    <Route path="/about" element={<AboutPage />} />
     <Route path="/pricing" element={<PricingPage />} />
-    <Route path="/contact" element={<ContactPage />} />
-    
+
     {/* Authentication Routes */}
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
     <Route path="/verify-email" element={<EmailVerificationPage />} />
-    
+
     {/* Protected Routes */}
     <Route path="/dashboard" element={<ExecutiveDashboardPage />} />
     <Route path="/arbitrage" element={<SegmentArbitragePage />} />
     <Route path="/chatbot" element={<ChatbotPage />} />
-    <Route path="/profile" element={<ProfilePage />} />
     <Route path="/settings" element={<SettingsPage />} />
     <Route path="/help" element={<HelpSupportPage />} />
-    
+
+    {/* Advanced Analysis */}
+    <Route path="/comparison" element={<MultiMarketComparisonPage />} />
+    <Route path="/scenarios" element={<ScenarioModelingPage />} />
+    <Route path="/deep-dives" element={<DeepDivePage />} />
+
+    {/* Execution & Monitoring */}
+    <Route path="/playbook" element={<PlaybookPage />} />
+    <Route path="/execution" element={<ExecutionTrackerPage />} />
+    <Route path="/monitoring" element={<MonitoringPage />} />
+    <Route path="/competitors" element={<CompetitorTrackingPage />} />
+    <Route path="/news" element={<NewsFeedPage />} />
+
+    {/* Admin */}
+    <Route path="/admin" element={<AdminDashboardPage />} />
+
+    {/* Shared/Public */}
+    <Route path="/shared/:token" element={<SharedReportPage />} />
+
+    {/* Team */}
+    <Route path="/team" element={<TeamPage />} />
+
     {/* Fallback */}
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
 );
 
-export default AppRoutes; 
+export default AppRoutes;

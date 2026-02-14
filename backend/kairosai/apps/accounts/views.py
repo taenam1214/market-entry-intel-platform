@@ -2,14 +2,18 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login, logout
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.db.models import Count, Q
+from django.utils import timezone
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, GoogleAuthSerializer, EmailVerificationSerializer, VerifyCodeSerializer
 from .models import User, EmailVerification
 from .email_service import email_service
+from .permissions import IsAdmin
 
 
 @api_view(['POST'])
@@ -374,20 +378,126 @@ def change_email(request):
         return Response({
             'error': 'Current password is incorrect'
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+
     # Check if email already exists
     if User.objects.filter(email=new_email).exclude(id=request.user.id).exists():
         return Response({
             'error': 'Email already exists',
             'details': 'This email address is already registered to another account'
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+
     # Update email and mark as unverified
     request.user.email = new_email
     request.user.is_verified = False
     request.user.save()
-    
+
     return Response({
         'message': 'Email changed successfully. Please verify your new email address.',
         'user': UserSerializer(request.user).data
     }, status=status.HTTP_200_OK)
+
+
+# --------------- Admin Views ---------------
+
+class AdminDashboardView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request):
+        from apps.analysis.models import MarketReport
+
+        total_users = User.objects.count()
+        total_reports = MarketReport.objects.count()
+        reports_by_status = dict(
+            MarketReport.objects.values_list('status').annotate(count=Count('id')).order_by('status')
+        )
+        users_by_tier = dict(
+            User.objects.values_list('subscription_tier').annotate(count=Count('id')).order_by('subscription_tier')
+        )
+        recent_signups = UserSerializer(
+            User.objects.order_by('-created_at')[:10], many=True
+        ).data
+
+        return Response({
+            'total_users': total_users,
+            'total_reports': total_reports,
+            'reports_by_status': reports_by_status,
+            'users_by_tier': users_by_tier,
+            'recent_signups': recent_signups,
+        })
+
+
+class AdminUsersView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request):
+        from apps.analysis.models import MarketReport
+
+        users = User.objects.annotate(report_count=Count('market_reports')).order_by('-created_at')
+
+        page = int(request.query_params.get('page', 1))
+        page_size = int(request.query_params.get('page_size', 20))
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        user_list = []
+        for u in users[start:end]:
+            data = UserSerializer(u).data
+            data['report_count'] = u.report_count
+            data['last_login'] = u.last_login.isoformat() if u.last_login else None
+            data['is_active'] = u.is_active
+            user_list.append(data)
+
+        return Response({
+            'users': user_list,
+            'total': users.count(),
+            'page': page,
+            'page_size': page_size,
+        })
+
+    def patch(self, request, pk=None):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        allowed_fields = ['role', 'subscription_tier', 'is_active']
+        for field in allowed_fields:
+            if field in request.data:
+                setattr(user, field, request.data[field])
+        user.save()
+
+        return Response({'message': 'User updated', 'user': UserSerializer(user).data})
+
+
+class AdminReportsView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request):
+        from apps.analysis.models import MarketReport
+
+        reports = MarketReport.objects.select_related('user').order_by('-created_at')
+
+        page = int(request.query_params.get('page', 1))
+        page_size = int(request.query_params.get('page_size', 20))
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        report_list = []
+        for r in reports[start:end]:
+            report_list.append({
+                'id': r.id,
+                'analysis_id': r.analysis_id,
+                'user_email': r.user.email,
+                'company_name': r.company_name,
+                'target_market': r.target_market,
+                'industry': r.industry,
+                'status': r.status,
+                'created_at': r.created_at.isoformat(),
+            })
+
+        return Response({
+            'reports': report_list,
+            'total': reports.count(),
+            'page': page,
+            'page_size': page_size,
+        })

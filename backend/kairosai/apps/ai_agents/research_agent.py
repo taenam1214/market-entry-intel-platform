@@ -595,3 +595,261 @@ Focus on segments that are:
             print(f"Raw response: {result}")
             # Return an empty array instead of error object to maintain consistency
             return []
+
+    async def research_deep_dive(self, company: str, industry: str, target_country: str, module: str, company_info: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Run a specific deep-dive research module."""
+        module_prompts = {
+            'regulatory': self._build_regulatory_prompt(company, industry, target_country, company_info),
+            'cultural': self._build_cultural_prompt(company, industry, target_country, company_info),
+            'talent': self._build_talent_prompt(company, industry, target_country, company_info),
+            'partners': self._build_partners_prompt(company, industry, target_country, company_info),
+        }
+
+        prompt = module_prompts.get(module)
+        if not prompt:
+            return {"error": f"Unknown module: {module}"}
+
+        report = await self.iterative_researcher.run(prompt, output_length="2 pages")
+        return {"module": module, "content": report, "generated_at": datetime.now().isoformat()}
+
+    async def generate_market_entry_playbook(self, report_data: dict) -> dict:
+        """Generate a structured market entry playbook from report data."""
+        company_name = report_data.get('company_name', 'the company')
+        industry = report_data.get('industry', 'the industry')
+        target_market = report_data.get('target_market', 'the target market')
+        scores = report_data.get('detailed_scores', {})
+        revenue = report_data.get('revenue_projections', {})
+
+        prompt = f"""You are an expert market entry strategist. Generate a structured market entry playbook for {company_name} ({industry}) entering {target_market}.
+
+Context from analysis:
+- Market Opportunity Score: {scores.get('market_opportunity_score', 'N/A')}/10
+- Competitive Intensity Score: {scores.get('competitive_intensity_score', 'N/A')}/10
+- Entry Complexity Score: {scores.get('entry_complexity_score', 'N/A')}/10
+- Revenue Potential Y1: {revenue.get('year_1', scores.get('revenue_potential_y1', 'N/A'))}
+- Revenue Potential Y3: {revenue.get('year_3', scores.get('revenue_potential_y3', 'N/A'))}
+
+Generate a JSON object with the following structure. Return ONLY valid JSON, no markdown or extra text.
+
+{{
+  "title": "Market Entry Playbook: {company_name} → {target_market}",
+  "summary": "Brief executive summary of the entry strategy",
+  "total_estimated_budget": "Total estimated budget range in USD",
+  "timeline_months": 18,
+  "phases": [
+    {{
+      "phase": 1,
+      "title": "Phase name",
+      "description": "What this phase accomplishes",
+      "duration_months": 3,
+      "estimated_cost": 50000,
+      "tasks": [
+        {{
+          "title": "Task name",
+          "description": "Detailed task description",
+          "estimated_cost": 10000,
+          "priority": "high",
+          "dependencies": []
+        }}
+      ],
+      "key_milestones": ["Milestone 1", "Milestone 2"],
+      "risks": ["Risk 1"]
+    }}
+  ],
+  "team_requirements": [
+    {{
+      "role": "Role name",
+      "type": "full-time or contractor",
+      "location": "local or remote",
+      "timing": "Phase 1"
+    }}
+  ],
+  "success_metrics": [
+    {{
+      "metric": "Metric name",
+      "target": "Target value",
+      "timeline": "By when"
+    }}
+  ],
+  "critical_risks": [
+    {{
+      "risk": "Risk description",
+      "probability": "high/medium/low",
+      "impact": "high/medium/low",
+      "mitigation": "Mitigation strategy"
+    }}
+  ]
+}}
+
+Create 4-5 phases covering: Research & Validation, Legal & Setup, Soft Launch, Full Launch, and Scale.
+Include realistic costs, timelines, and 3-5 tasks per phase.
+Return ONLY the JSON object."""
+
+        result = await self.iterative_researcher.run(prompt, output_length="2 pages")
+
+        # Parse the JSON response
+        playbook = self._validate_and_clean_playbook_response(result)
+        return playbook
+
+    def _validate_and_clean_playbook_response(self, result: str) -> dict:
+        """Validate and clean playbook JSON response from AI."""
+        import re
+
+        # Try to extract JSON from markdown code blocks
+        json_block_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', result, re.DOTALL)
+        if json_block_match:
+            json_str = json_block_match.group(1)
+        else:
+            # Fallback to extracting JSON object directly
+            json_match = re.search(r'\{.*\}', result, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+            else:
+                json_str = result
+
+        try:
+            playbook = json.loads(json_str)
+            if not isinstance(playbook, dict):
+                raise ValueError("Result is not a dictionary")
+            # Ensure required keys exist
+            if 'phases' not in playbook:
+                playbook['phases'] = []
+            return playbook
+        except (json.JSONDecodeError, ValueError):
+            # Return a default playbook structure on failure
+            return {
+                'title': 'Market Entry Playbook',
+                'summary': 'Auto-generated playbook - AI generation encountered an issue. Please regenerate.',
+                'total_estimated_budget': 'TBD',
+                'timeline_months': 18,
+                'phases': [
+                    {
+                        'phase': 1,
+                        'title': 'Research & Validation',
+                        'description': 'Validate market opportunity and refine entry strategy',
+                        'duration_months': 3,
+                        'estimated_cost': 25000,
+                        'tasks': [
+                            {'title': 'Market validation research', 'description': 'Conduct primary market research', 'estimated_cost': 10000, 'priority': 'high', 'dependencies': []},
+                            {'title': 'Competitive landscape deep-dive', 'description': 'Detailed competitor analysis', 'estimated_cost': 5000, 'priority': 'high', 'dependencies': []},
+                            {'title': 'Regulatory requirements review', 'description': 'Review all regulatory requirements', 'estimated_cost': 10000, 'priority': 'high', 'dependencies': []},
+                        ],
+                        'key_milestones': ['Market validation complete', 'Regulatory checklist finalized'],
+                        'risks': ['Market conditions may change during research phase'],
+                    },
+                    {
+                        'phase': 2,
+                        'title': 'Legal & Entity Setup',
+                        'description': 'Establish legal entity and complete regulatory compliance',
+                        'duration_months': 3,
+                        'estimated_cost': 50000,
+                        'tasks': [
+                            {'title': 'Legal entity formation', 'description': 'Register business entity', 'estimated_cost': 20000, 'priority': 'high', 'dependencies': []},
+                            {'title': 'Compliance setup', 'description': 'Complete all regulatory filings', 'estimated_cost': 15000, 'priority': 'high', 'dependencies': []},
+                            {'title': 'Local partnerships', 'description': 'Establish key local partnerships', 'estimated_cost': 15000, 'priority': 'medium', 'dependencies': []},
+                        ],
+                        'key_milestones': ['Legal entity registered', 'Key partnerships signed'],
+                        'risks': ['Regulatory delays', 'Partnership negotiations may take longer'],
+                    },
+                    {
+                        'phase': 3,
+                        'title': 'Soft Launch',
+                        'description': 'Limited market launch to test and iterate',
+                        'duration_months': 3,
+                        'estimated_cost': 75000,
+                        'tasks': [
+                            {'title': 'Product localization', 'description': 'Adapt product for local market', 'estimated_cost': 25000, 'priority': 'high', 'dependencies': []},
+                            {'title': 'Hire local team', 'description': 'Recruit key local positions', 'estimated_cost': 25000, 'priority': 'high', 'dependencies': []},
+                            {'title': 'Beta launch', 'description': 'Launch to limited audience', 'estimated_cost': 25000, 'priority': 'high', 'dependencies': []},
+                        ],
+                        'key_milestones': ['Product localized', 'First local customers acquired'],
+                        'risks': ['Product-market fit issues', 'Hiring challenges'],
+                    },
+                    {
+                        'phase': 4,
+                        'title': 'Full Launch & Scale',
+                        'description': 'Full market launch and growth acceleration',
+                        'duration_months': 6,
+                        'estimated_cost': 150000,
+                        'tasks': [
+                            {'title': 'Marketing campaign', 'description': 'Full marketing launch', 'estimated_cost': 50000, 'priority': 'high', 'dependencies': []},
+                            {'title': 'Scale operations', 'description': 'Expand team and operations', 'estimated_cost': 50000, 'priority': 'high', 'dependencies': []},
+                            {'title': 'Growth optimization', 'description': 'Optimize channels and operations', 'estimated_cost': 50000, 'priority': 'medium', 'dependencies': []},
+                        ],
+                        'key_milestones': ['Revenue targets met', 'Market share goals achieved'],
+                        'risks': ['Competition response', 'Scaling challenges'],
+                    },
+                ],
+                'team_requirements': [],
+                'success_metrics': [],
+                'critical_risks': [],
+                'raw_content': result,
+            }
+
+    def _build_regulatory_prompt(self, company, industry, target_country, company_info=None):
+        return f"""Provide a detailed regulatory compliance checklist for {company} ({industry}) entering {target_country}.
+
+Include:
+1. Required business licenses and permits (with costs and timelines)
+2. Foreign investment regulations and restrictions
+3. Tax obligations and compliance requirements
+4. Employment law requirements
+5. Data protection and privacy regulations
+6. Industry-specific regulations for {industry}
+7. Intellectual property protection
+8. Import/export regulations if applicable
+9. Environmental regulations if applicable
+10. Step-by-step compliance timeline with estimated costs
+
+Be specific to {target_country} with actual regulatory body names, law references, and realistic cost estimates."""
+
+    def _build_cultural_prompt(self, company, industry, target_country, company_info=None):
+        return f"""Provide a detailed cultural adaptation brief for {company} ({industry}) entering {target_country}.
+
+Include:
+1. Key cultural values and business etiquette in {target_country}
+2. Communication styles and preferences
+3. Consumer behavior patterns and preferences
+4. Product/service adaptation requirements
+5. Marketing and branding localization needs
+6. Relationship-building practices (guanxi, wasta, etc.)
+7. Seasonal and religious considerations
+8. Social media and digital platform preferences
+9. Pricing perception and willingness to pay
+10. Specific do's and don'ts for foreign companies
+
+Be specific with examples relevant to the {industry} industry in {target_country}."""
+
+    def _build_talent_prompt(self, company, industry, target_country, company_info=None):
+        return f"""Provide a detailed talent landscape and hiring guide for {company} ({industry}) in {target_country}.
+
+Include:
+1. Labor market overview (unemployment rate, talent availability)
+2. Key skill sets available and gaps
+3. Salary benchmarks for relevant roles (in USD)
+4. Recruitment channels and platforms popular in {target_country}
+5. Employment law requirements (contracts, benefits, termination)
+6. Work culture and employee expectations
+7. Remote vs. on-site workforce norms
+8. Training and development requirements
+9. Visa/work permit requirements for expat hires
+10. Recommended team structure for market entry
+
+Be specific to {target_country} with actual salary ranges and platform names."""
+
+    def _build_partners_prompt(self, company, industry, target_country, company_info=None):
+        return f"""Provide detailed local partner recommendations for {company} ({industry}) entering {target_country}.
+
+Include:
+1. Types of partnerships needed (distribution, legal, marketing, etc.)
+2. Criteria for selecting local partners
+3. Typical partnership structures and terms in {target_country}
+4. Key potential partner categories and examples
+5. Due diligence requirements
+6. Common partnership pitfalls in {target_country}
+7. Government partnership programs or incentives
+8. Industry associations and networking organizations
+9. Legal considerations for partnership agreements
+10. Recommended partnership timeline and approach
+
+Be specific to the {industry} industry in {target_country} with actionable recommendations."""

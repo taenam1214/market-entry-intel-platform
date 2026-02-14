@@ -1,74 +1,194 @@
-import { Box, Container, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatNumber, Badge, Progress, Icon, Flex, SimpleGrid, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton, Select } from '@chakra-ui/react';
-import { FiTrendingUp, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiDownload, FiArrowRight } from 'react-icons/fi';
-import { useState, useEffect } from 'react';
+import { Box, Container, Card, CardBody, Heading, Text, VStack, HStack, Stat, StatNumber, Badge, Progress, Icon, Flex, SimpleGrid, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, IconButton, Select, Spinner, useToast, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
+import { FiTrendingUp, FiTarget, FiDollarSign, FiUsers, FiBarChart, FiInfo, FiDownload, FiArrowRight, FiShare2, FiCopy, FiLink } from 'react-icons/fi';
+import { useState, useCallback } from 'react';
 import React from 'react';
 import { useData } from '../../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
+import type { Competitor, KeyInsight, RevenueProjections, RecommendedActions } from '../../types/analysis';
+import { API_ENDPOINTS, getAuthHeaders } from '../../config/api';
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+interface MetricItem {
+  label: string;
+  value: string;
+  change: string;
+  trend: string;
+  color: string;
+  icon: React.ElementType;
+  explanation: string | undefined;
+}
+
+interface WTPData {
+  annualContract: string;
+  avgContract: string;
+  marketSize: string;
+  growthRate: string;
+  priceSensitivity: string;
+  valueDrivers: string[];
+  competitiveAdvantage: string;
+}
+
+interface SensitivityVariable {
+  variable: string;
+  base_impact: string;
+  optimistic_impact: string;
+  pessimistic_impact: string;
+  sensitivity_score: number;
+}
+
+interface ScenarioData {
+  probability: string;
+  year_1_revenue: string;
+  year_3_revenue: string;
+  year_5_revenue: string;
+  key_assumptions: string;
+}
+
+interface FinancialModelData {
+  sensitivity_analysis: {
+    variables: SensitivityVariable[];
+    key_findings: string;
+  };
+  scenario_projections: {
+    conservative: ScenarioData;
+    base: ScenarioData;
+    optimistic: ScenarioData;
+  };
+}
+
+/**
+ * Parse revenue strings like "$1.2M", "$800K", "$25M" to numeric values (in millions).
+ */
+const parseRevenueString = (value: string): number => {
+  if (!value) return 0;
+  const cleaned = value.replace(/[^0-9.KMBkmb]/g, '');
+  const num = parseFloat(cleaned);
+  if (isNaN(num)) return 0;
+  const upper = value.toUpperCase();
+  if (upper.includes('B')) return num * 1000;
+  if (upper.includes('M')) return num;
+  if (upper.includes('K')) return num / 1000;
+  return num / 1_000_000; // assume raw dollar amount
+};
 
 const ExecutiveDashboardPage = () => {
   const { analysisData, loadSpecificReport } = useData();
   const navigate = useNavigate();
   const [showFullReport, setShowFullReport] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<any>(null);
+  const [selectedMetric, setSelectedMetric] = useState<MetricItem | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  
-  // Use data from centralized context
+
   const dashboard = analysisData.dashboardData;
   const competitorSummary = analysisData.competitorSummary;
   const hasAnalysisHistory = analysisData.hasAnalysisHistory;
   const isLoading = analysisData.isLoading;
   const availableReports = analysisData.availableReports || [];
   const currentReportId = analysisData.currentReportId;
-  
-  // Handle report selection
+
   const handleReportChange = async (reportId: string) => {
     if (reportId) {
-      console.log('🔀 Switching to report:', reportId);
       await loadSpecificReport(parseInt(reportId));
-      console.log('✅ Report switch complete');
     }
   };
 
-  // Debug: Log when competitorSummary changes
-  useEffect(() => {
-    console.log('🔍 Dashboard competitorSummary changed:', {
-      exists: !!competitorSummary,
-      type: typeof competitorSummary,
-      isArray: Array.isArray(competitorSummary),
-      length: Array.isArray(competitorSummary) ? competitorSummary.length : 'N/A',
-      data: competitorSummary
-    });
-  }, [competitorSummary]);
-
-  // Remove the useEffect since we're now using centralized data context
-
-  // const fetchCompetitorSummary = async (companyInfo: any) => {
-  //   setLoadingCompetitorSummary(true);
-  //   setCompetitorError(null);
-  //   try {
-  //     const res = await fetch('http://localhost:8000/api/v1/competitor-analysis/', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify(companyInfo),
-  //     });
-  //     const data = await res.json();
-  //     if (data.competitor_analysis) {
-  //       setCompetitorSummary(data.competitor_analysis);
-  //     } else {
-  //       setCompetitorSummary('No competitor summary available.');
-  //     }
-  //   } catch (e) {
-  //     setCompetitorError('Failed to fetch competitor analysis.');
-  //   }
-  //   setLoadingCompetitorSummary(false);
-  // };
-
-  const handleMetricClick = (metric: any) => {
+  const handleMetricClick = (metric: MetricItem) => {
     setSelectedMetric(metric);
     onOpen();
   };
 
+  // ---------------------------------------------------------------------------
+  // Financial Model State & Fetch
+  // ---------------------------------------------------------------------------
+  const [financialModel, setFinancialModel] = useState<FinancialModelData | null>(null);
+  const [financialModelLoading, setFinancialModelLoading] = useState(false);
+  const [financialModelError, setFinancialModelError] = useState<string | null>(null);
+
+  const fetchFinancialModel = useCallback(async () => {
+    if (!currentReportId) return;
+    setFinancialModelLoading(true);
+    setFinancialModelError(null);
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.ADVANCED.FINANCIAL_MODEL(currentReportId),
+        { method: 'GET', headers: getAuthHeaders() }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to load financial model (${response.status})`);
+      }
+      const data: FinancialModelData = await response.json();
+      setFinancialModel(data);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setFinancialModelError(message);
+    } finally {
+      setFinancialModelLoading(false);
+    }
+  }, [currentReportId]);
+
+  // ---------------------------------------------------------------------------
+  // Share Report State & Handlers
+  // ---------------------------------------------------------------------------
+  const shareToast = useToast();
+  const { isOpen: isShareOpen, onOpen: onShareOpen, onClose: onShareClose } = useDisclosure();
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [isShared, setIsShared] = useState(false);
+
+  const handleShareReport = async () => {
+    if (!currentReportId) return;
+    setShareLoading(true);
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.SHARING.SHARE_REPORT(currentReportId),
+        { method: 'POST', headers: getAuthHeaders() }
+      );
+      if (!response.ok) throw new Error('Failed to share report');
+      const data = await response.json();
+      const token = data.share_token || data.token;
+      const link = `${window.location.origin}/shared/${token}`;
+      setShareLink(link);
+      setIsShared(true);
+      onShareOpen();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to share report';
+      shareToast({ title: 'Error', description: message, status: 'error', duration: 4000, isClosable: true });
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleUnshareReport = async () => {
+    if (!currentReportId) return;
+    setShareLoading(true);
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.SHARING.UNSHARE_REPORT(currentReportId),
+        { method: 'POST', headers: getAuthHeaders() }
+      );
+      if (!response.ok) throw new Error('Failed to unshare report');
+      setShareLink(null);
+      setIsShared(false);
+      onShareClose();
+      shareToast({ title: 'Report Unshared', description: 'The public share link has been revoked.', status: 'success', duration: 3000, isClosable: true });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to unshare report';
+      shareToast({ title: 'Error', description: message, status: 'error', duration: 4000, isClosable: true });
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleCopyShareLink = () => {
+    if (shareLink) {
+      navigator.clipboard.writeText(shareLink);
+      shareToast({ title: 'Copied', description: 'Share link copied to clipboard.', status: 'success', duration: 2000, isClosable: true });
+    }
+  };
+
+  // ---------------------------------------------------------------------------
   // C-Level Deliverables Functions
+  // ---------------------------------------------------------------------------
+
   const generateExecutiveSummary = () => {
     const companyName = dashboard?.company_name || 'Your Company';
     const segment = dashboard?.customer_segment || 'business';
@@ -81,13 +201,13 @@ const ExecutiveDashboardPage = () => {
     const fundingStage = dashboard?.funding_stage || 'Growth stage';
     const expansionTimeline = dashboard?.expansion_timeline || 'Medium-term';
     const budgetRange = dashboard?.budget_range || 'TBD';
-    
-    const currentDate = new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
-    
+
     const executiveSummary = `
 EXECUTIVE SUMMARY
 ${companyName} - Market Entry Analysis
@@ -139,10 +259,7 @@ The competitive analysis reveals ${dashboard?.dashboard?.competitive_intensity |
 RISK ASSESSMENT
 
 Primary Risk Factors:
-${dashboard?.key_insights?.filter((i: any) => i.category === 'risk').map((i: any, index: number) => `${index + 1}. ${i.title}: ${i.description}`).join('\n') || '1. Market entry complexity\n2. Regulatory compliance requirements\n3. Competitive positioning challenges\n4. Cultural and operational adaptation'}
-
-Mitigation Strategies:
-${dashboard?.key_insights?.filter((i: any) => i.category === 'risk').map((i: any) => i.mitigation ? `• ${i.title}: ${i.mitigation}` : '').filter(Boolean).join('\n') || '• Establish local partnerships for market entry\n• Develop comprehensive regulatory compliance framework\n• Implement phased market entry approach\n• Invest in cultural and operational training'}
+${dashboard?.key_insights?.filter((i: KeyInsight) => i.type === 'risk').map((i: KeyInsight, index: number) => `${index + 1}. ${i.title}: ${i.description}`).join('\n') || '1. Market entry complexity\n2. Regulatory compliance requirements\n3. Competitive positioning challenges\n4. Cultural and operational adaptation'}
 
 STRATEGIC RECOMMENDATIONS
 
@@ -195,7 +312,6 @@ Review Cycle: Quarterly updates recommended
 For questions or additional analysis, contact the Strategic Planning team.
     `.trim();
 
-    // Download as text file
     const blob = new Blob([executiveSummary], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -217,19 +333,19 @@ For questions or additional analysis, contact the Strategic Planning team.
     const revenuePotential = dashboard?.dashboard?.revenue_potential || 'TBD';
     const budgetRange = dashboard?.budget_range || 'TBD';
     const expansionTimeline = dashboard?.expansion_timeline || 'Medium-term';
-    
-    const currentDate = new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
-    
+
     let recommendation = 'NO-GO';
     let confidence = 'Low';
     let rationale = 'Insufficient data for recommendation';
     let riskLevel = 'High';
     let priority = 'Low';
-    
+
     if (marketScore >= 7 && complexityScore <= 6) {
       recommendation = 'GO';
       confidence = 'High';
@@ -306,10 +422,10 @@ The decision is based on comprehensive analysis of market opportunity, entry com
 RISK ASSESSMENT
 
 Primary Risk Factors:
-${dashboard?.key_insights?.filter((i: any) => i.category === 'risk').map((i: any, index: number) => `${index + 1}. ${i.title}: ${i.description}`).join('\n') || '1. Market entry complexity and regulatory requirements\n2. Competitive positioning and market saturation\n3. Cultural and operational adaptation challenges\n4. Financial investment and ROI uncertainty'}
+${dashboard?.key_insights?.filter((i: KeyInsight) => i.type === 'risk').map((i: KeyInsight, index: number) => `${index + 1}. ${i.title}: ${i.description}`).join('\n') || '1. Market entry complexity and regulatory requirements\n2. Competitive positioning and market saturation\n3. Cultural and operational adaptation challenges\n4. Financial investment and ROI uncertainty'}
 
 Risk Mitigation Strategies:
-${dashboard?.key_insights?.filter((i: any) => i.category === 'risk').map((i: any) => i.mitigation ? `• ${i.title}: ${i.mitigation}` : '').filter(Boolean).join('\n') || '• Establish local partnerships and advisory relationships\n• Implement phased market entry approach\n• Develop comprehensive risk management framework\n• Maintain flexible resource allocation strategy'}
+${'• Establish local partnerships and advisory relationships\n• Implement phased market entry approach\n• Develop comprehensive risk management framework\n• Maintain flexible resource allocation strategy'}
 
 FINANCIAL IMPLICATIONS
 
@@ -326,7 +442,7 @@ Resource Allocation:
 
 STRATEGIC RECOMMENDATIONS
 
-${recommendation === 'GO' ? 
+${recommendation === 'GO' ?
   `IMMEDIATE ACTIONS (0-3 months):
 1. Proceed with market entry planning and resource allocation
 2. Establish local legal and regulatory framework
@@ -409,7 +525,7 @@ CONCLUSION
 
 Based on comprehensive analysis using the KairosAI Market Entry Intelligence Platform, the recommendation for ${companyName}'s expansion into ${targetMarket} is ${recommendation} with ${confidence.toLowerCase()} confidence.
 
-${recommendation === 'GO' ? 
+${recommendation === 'GO' ?
   'This market opportunity presents strong potential for growth and strategic value. With proper execution of the recommended strategies, this expansion is expected to contribute significantly to company growth and market position.' :
   recommendation === 'CONDITIONAL GO' ?
   'This market opportunity requires careful consideration and phased approach. The conditional recommendation allows for risk mitigation while maintaining strategic flexibility for future opportunities.' :
@@ -427,7 +543,6 @@ Review Cycle: Quarterly updates recommended
 For questions or additional analysis, contact the Strategic Planning team.
     `.trim();
 
-    // Download as text file
     const blob = new Blob([goNoGoDoc], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -444,7 +559,7 @@ For questions or additional analysis, contact the Strategic Planning team.
     const segment = dashboard?.customer_segment || 'business';
     const targetMarket = dashboard?.target_market || 'target market';
     const industry = dashboard?.industry || 'Technology';
-    const revenue = dashboard?.revenue_projections || {};
+    const revenue = dashboard?.revenue_projections || {} as RevenueProjections;
     const marketScore = parseInt(dashboard?.dashboard?.market_opportunity_score) || 0;
     const complexityScore = parseInt(dashboard?.dashboard?.entry_complexity_score) || 0;
     const budgetRange = dashboard?.budget_range || 'TBD';
@@ -453,13 +568,13 @@ For questions or additional analysis, contact the Strategic Planning team.
     const annualRevenue = dashboard?.annual_revenue || 'TBD';
     const fundingStage = dashboard?.funding_stage || 'Growth stage';
     const direction = dashboard?.expansion_direction || 'global';
-    
-    const currentDate = new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
-    
+
     const investmentMemo = `
 INVESTMENT MEMORANDUM
 ${companyName} - Market Entry Opportunity
@@ -511,8 +626,8 @@ Market Characteristics:
 Competitive Landscape:
 • Competitive Intensity: ${dashboard?.dashboard?.competitive_intensity || 'Moderate'}
 • Market Saturation: ${marketScore >= 7 ? 'Low saturation with opportunities' : marketScore >= 5 ? 'Moderate saturation' : 'High saturation with limited opportunities'}
-• Key Competitors: ${dashboard?.key_insights?.filter((i: any) => i.category === 'competitive').map((i: any) => i.competitors).join(', ') || 'Established local and international players'}
-• Competitive Advantages: ${dashboard?.key_insights?.filter((i: any) => i.category === 'competitive').map((i: any) => i.advantage).join(', ') || 'Technology innovation and market expertise'}
+• Key Competitors: Established local and international players
+• Competitive Advantages: Technology innovation and market expertise
 
 FINANCIAL PROJECTIONS
 
@@ -537,10 +652,10 @@ Investment Requirements:
 RISK ASSESSMENT
 
 Primary Risk Factors:
-${dashboard?.key_insights?.filter((i: any) => i.category === 'risk').map((i: any, index: number) => `${index + 1}. ${i.title}: ${i.description}`).join('\n') || '1. Market entry complexity and regulatory requirements\n2. Competitive positioning and market saturation\n3. Cultural and operational adaptation challenges\n4. Financial investment and ROI uncertainty\n5. Technology and infrastructure requirements'}
+${dashboard?.key_insights?.filter((i: KeyInsight) => i.type === 'risk').map((i: KeyInsight, index: number) => `${index + 1}. ${i.title}: ${i.description}`).join('\n') || '1. Market entry complexity and regulatory requirements\n2. Competitive positioning and market saturation\n3. Cultural and operational adaptation challenges\n4. Financial investment and ROI uncertainty\n5. Technology and infrastructure requirements'}
 
 Risk Mitigation Strategies:
-${dashboard?.key_insights?.filter((i: any) => i.category === 'risk').map((i: any) => i.mitigation ? `• ${i.title}: ${i.mitigation}` : '').filter(Boolean).join('\n') || '• Establish local partnerships and advisory relationships\n• Implement phased market entry approach\n• Develop comprehensive risk management framework\n• Maintain flexible resource allocation strategy\n• Invest in cultural and operational training'}
+${'• Establish local partnerships and advisory relationships\n• Implement phased market entry approach\n• Develop comprehensive risk management framework\n• Maintain flexible resource allocation strategy\n• Invest in cultural and operational training'}
 
 Risk-Reward Analysis:
 • Risk Level: ${marketScore >= 7 && complexityScore <= 6 ? 'Low' : marketScore >= 5 && complexityScore <= 7 ? 'Medium' : 'High'}
@@ -602,9 +717,9 @@ INVESTMENT RECOMMENDATION
 Based on comprehensive analysis using the KairosAI Market Entry Intelligence Platform, we recommend ${marketScore >= 7 ? 'proceeding with this market entry opportunity' : marketScore >= 5 ? 'proceeding with caution and phased approach' : 'reconsidering this market entry opportunity'}.
 
 Rationale:
-${marketScore >= 7 ? 
+${marketScore >= 7 ?
   'This market opportunity presents strong potential for growth and strategic value. The high market opportunity score combined with manageable entry complexity creates an attractive investment opportunity with favorable risk-reward characteristics.' :
-  marketScore >= 5 ? 
+  marketScore >= 5 ?
   'This market opportunity presents moderate potential with acceptable risk levels. A phased approach with careful monitoring and adjustment will optimize success probability while managing risk exposure.' :
   'This market opportunity presents limited potential relative to investment requirements and risk exposure. Resources may be better allocated to higher-potential opportunities.'}
 
@@ -617,9 +732,9 @@ CONCLUSION
 
 The ${targetMarket} market expansion represents a ${marketScore >= 7 ? 'high-potential' : marketScore >= 5 ? 'moderate-potential' : 'limited-potential'} opportunity for ${companyName} with ${marketScore >= 7 ? 'strong' : marketScore >= 5 ? 'moderate' : 'limited'} strategic value and growth potential.
 
-${marketScore >= 7 ? 
+${marketScore >= 7 ?
   'With proper execution of the recommended strategies, this expansion is expected to contribute significantly to company growth, market position, and long-term strategic objectives.' :
-  marketScore >= 5 ? 
+  marketScore >= 5 ?
   'With careful execution and monitoring, this expansion can provide valuable market experience and moderate growth contribution while maintaining strategic flexibility.' :
   'This expansion requires careful consideration of alternative opportunities and resource allocation priorities.'}
 
@@ -635,7 +750,6 @@ Review Cycle: Quarterly updates recommended
 For questions or additional analysis, contact the Strategic Planning team.
     `.trim();
 
-    // Download as text file
     const blob = new Blob([investmentMemo], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -655,18 +769,18 @@ For questions or additional analysis, contact the Strategic Planning team.
     const marketScore = parseInt(dashboard?.dashboard?.market_opportunity_score) || 0;
     const complexityScore = parseInt(dashboard?.dashboard?.entry_complexity_score) || 0;
     const competitiveIntensity = dashboard?.dashboard?.competitive_intensity || 'Moderate';
-    const revenue = dashboard?.revenue_projections || {};
+    const revenue = dashboard?.revenue_projections || {} as RevenueProjections;
     const budgetRange = dashboard?.budget_range || 'TBD';
     const expansionTimeline = dashboard?.expansion_timeline || 'Medium-term';
     const companySize = dashboard?.company_size || 'Medium';
     const annualRevenue = dashboard?.annual_revenue || 'TBD';
-    
-    const currentDate = new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
-    
+
     const presentation = `
 BOARD PRESENTATION
 ${companyName} - Market Entry Strategy
@@ -705,8 +819,8 @@ Market Overview:
 Competitive Landscape:
 • Competitive Intensity: ${competitiveIntensity}
 • Market Saturation: ${marketScore >= 7 ? 'Low saturation with opportunities' : marketScore >= 5 ? 'Moderate saturation' : 'High saturation with limited opportunities'}
-• Key Competitors: ${dashboard?.key_insights?.filter((i: any) => i.category === 'competitive').map((i: any) => i.competitors).join(', ') || 'Established local and international players'}
-• Competitive Advantages: ${dashboard?.key_insights?.filter((i: any) => i.category === 'competitive').map((i: any) => i.advantage).join(', ') || 'Technology innovation and market expertise'}
+• Key Competitors: Established local and international players
+• Competitive Advantages: Technology innovation and market expertise
 
 Entry Complexity:
 • Regulatory Environment: ${complexityScore <= 6 ? 'Favorable regulatory climate' : complexityScore <= 7 ? 'Moderate regulatory requirements' : 'Complex regulatory environment'}
@@ -736,10 +850,10 @@ Investment Requirements:
 SLIDE 4: RISK ASSESSMENT
 
 Primary Risk Factors:
-${dashboard?.key_insights?.filter((i: any) => i.category === 'risk').map((i: any, index: number) => `${index + 1}. ${i.title}: ${i.description}`).join('\n') || '1. Market entry complexity and regulatory requirements\n2. Competitive positioning and market saturation\n3. Cultural and operational adaptation challenges\n4. Financial investment and ROI uncertainty'}
+${dashboard?.key_insights?.filter((i: KeyInsight) => i.type === 'risk').map((i: KeyInsight, index: number) => `${index + 1}. ${i.title}: ${i.description}`).join('\n') || '1. Market entry complexity and regulatory requirements\n2. Competitive positioning and market saturation\n3. Cultural and operational adaptation challenges\n4. Financial investment and ROI uncertainty'}
 
 Risk Mitigation Strategies:
-${dashboard?.key_insights?.filter((i: any) => i.category === 'risk').map((i: any) => i.mitigation ? `• ${i.title}: ${i.mitigation}` : '').filter(Boolean).join('\n') || '• Establish local partnerships and advisory relationships\n• Implement phased market entry approach\n• Develop comprehensive risk management framework\n• Maintain flexible resource allocation strategy'}
+${'• Establish local partnerships and advisory relationships\n• Implement phased market entry approach\n• Develop comprehensive risk management framework\n• Maintain flexible resource allocation strategy'}
 
 Risk-Reward Analysis:
 • Risk Level: ${marketScore >= 7 && complexityScore <= 6 ? 'Low' : marketScore >= 5 && complexityScore <= 7 ? 'Medium' : 'High'}
@@ -799,9 +913,9 @@ Recommendation:
 ${marketScore >= 7 ? 'Proceed with market entry opportunity' : marketScore >= 5 ? 'Proceed with caution and phased approach' : 'Reconsider market entry opportunity'}
 
 Rationale:
-${marketScore >= 7 ? 
+${marketScore >= 7 ?
   'This market opportunity presents strong potential for growth and strategic value. The high market opportunity score combined with manageable entry complexity creates an attractive investment opportunity with favorable risk-reward characteristics.' :
-  marketScore >= 5 ? 
+  marketScore >= 5 ?
   'This market opportunity presents moderate potential with acceptable risk levels. A phased approach with careful monitoring and adjustment will optimize success probability while managing risk exposure.' :
   'This market opportunity presents limited potential relative to investment requirements and risk exposure. Resources may be better allocated to higher-potential opportunities.'}
 
@@ -848,7 +962,6 @@ Review Cycle: Quarterly updates recommended
 For questions or additional analysis, contact the Strategic Planning team.
     `.trim();
 
-    // Download as text file
     const blob = new Blob([presentation], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -860,10 +973,9 @@ For questions or additional analysis, contact the Strategic Planning team.
     URL.revokeObjectURL(url);
   };
 
-  // Function to download report as text file
   const downloadReport = () => {
     if (!researchReport) return;
-    
+
     const blob = new Blob([researchReport], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -875,7 +987,52 @@ For questions or additional analysis, contact the Strategic Planning team.
     URL.revokeObjectURL(url);
   };
 
-  // Function to parse and format markdown-like content
+  const downloadProfessionalReport = async (reportType: string) => {
+    const reportId = dashboard?.id;
+    if (!reportId) return;
+
+    try {
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL || 'https://market-entry-intel-platform-production.up.railway.app/api/v1'}/reports/${reportId}/download/${reportType}/`,
+        {
+          method: 'GET',
+          headers: {
+            ...(token && { Authorization: `Token ${token}` }),
+          },
+        }
+      );
+
+      if (response.status === 403) {
+        // Tier not high enough - show upgrade prompt
+        alert('Please upgrade your plan to download this report type.');
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const ext = reportType === 'board-presentation' ? 'pptx' : 'pdf';
+      const companyName = (dashboard?.company_name || 'report').replace(/\s+/g, '-').toLowerCase();
+      a.download = `${companyName}-${reportType}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback to text generation
+      if (reportType === 'executive-summary') generateExecutiveSummary();
+      else if (reportType === 'go-nogo') generateGoNoGoRecommendation();
+      else if (reportType === 'investment-memo') generateInvestmentMemo();
+      else if (reportType === 'board-presentation') exportBoardPresentation();
+    }
+  };
+
   const formatReportContent = (content: string) => {
     if (!content) return null;
 
@@ -884,37 +1041,32 @@ For questions or additional analysis, contact the Strategic Planning team.
 
     lines.forEach((line, index) => {
       const trimmedLine = line.trim();
-      
+
       if (trimmedLine.startsWith('# ')) {
-        // Main title
         formattedElements.push(
-          <Heading key={index} size="lg" color="purple.800" mb={3} mt={5}>
+          <Heading key={index} size="lg" color="gray.900" mb={3} mt={5}>
             {trimmedLine.replace('# ', '')}
           </Heading>
         );
       } else if (trimmedLine.startsWith('## ')) {
-        // Section header
         formattedElements.push(
-          <Heading key={index} size="md" color="blue.700" mb={2} mt={4}>
+          <Heading key={index} size="md" color="gray.800" mb={2} mt={4}>
             {trimmedLine.replace('## ', '')}
           </Heading>
         );
       } else if (trimmedLine.startsWith('### ')) {
-        // Subsection header
         formattedElements.push(
-          <Heading key={index} size="sm" color="teal.700" mb={2} mt={3}>
+          <Heading key={index} size="sm" color="gray.700" mb={2} mt={3}>
             {trimmedLine.replace('### ', '')}
           </Heading>
         );
       } else if (trimmedLine.startsWith('#### ')) {
-        // Sub-subsection header
         formattedElements.push(
           <Text key={index} fontSize="sm" color="gray.700" mb={2} mt={3} fontWeight="semibold">
             {trimmedLine.replace('#### ', '')}
           </Text>
         );
       } else if (trimmedLine.startsWith('- **')) {
-        // Bold bullet points
         const text = trimmedLine.replace('- **', '').replace('**:', '');
         const description = trimmedLine.split('**:').slice(1).join('**:');
         formattedElements.push(
@@ -922,26 +1074,24 @@ For questions or additional analysis, contact the Strategic Planning team.
             <Text fontSize="sm" fontWeight="bold" color="gray.800" display="inline">
               {text}:
             </Text>
-            <Text fontSize="sm" color="gray.700" display="inline" ml={2}>
+            <Text fontSize="sm" color="gray.600" display="inline" ml={2}>
               {description}
             </Text>
           </Box>
         );
       } else if (trimmedLine.startsWith('- ')) {
-        // Regular bullet points
         formattedElements.push(
           <Box key={index} mb={1} pl={4}>
-            <Text fontSize="sm" color="gray.700">• {trimmedLine.replace('- ', '')}</Text>
+            <Text fontSize="sm" color="gray.600">{trimmedLine.replace('- ', '')}</Text>
           </Box>
         );
       } else if (trimmedLine.includes('**') && trimmedLine.includes('**')) {
-        // Bold text within paragraph
         const parts = trimmedLine.split('**');
         const formattedParts = parts.map((part, partIndex) => {
           if (partIndex % 2 === 1) {
             return <Text key={partIndex} as="span" fontSize="sm" fontWeight="bold" color="gray.800">{part}</Text>;
           }
-          return <Text key={partIndex} as="span" fontSize="sm" color="gray.700">{part}</Text>;
+          return <Text key={partIndex} as="span" fontSize="sm" color="gray.600">{part}</Text>;
         });
         formattedElements.push(
           <Text key={index} mb={3} fontSize="sm" lineHeight="1.6">
@@ -949,14 +1099,12 @@ For questions or additional analysis, contact the Strategic Planning team.
           </Text>
         );
       } else if (trimmedLine.length > 0) {
-        // Regular paragraph
         formattedElements.push(
-          <Text key={index} mb={3} fontSize="sm" color="gray.700" lineHeight="1.6">
+          <Text key={index} mb={3} fontSize="sm" color="gray.600" lineHeight="1.6">
             {trimmedLine}
           </Text>
         );
       } else {
-        // Empty line for spacing
         formattedElements.push(<Box key={index} h={2} />);
       }
     });
@@ -964,18 +1112,20 @@ For questions or additional analysis, contact the Strategic Planning team.
     return formattedElements;
   };
 
-  // Show loading state while data is being loaded
+  // ---------------------------------------------------------------------------
+  // Loading state
+  // ---------------------------------------------------------------------------
   if (isLoading) {
     return (
-      <Box p={6} bg="#140d28" minH="100vh" w="100%">
+      <Box p={6} bg="#fafafa" minH="100vh" w="100%">
         <Container maxW="4xl" px={8}>
           <VStack spacing={8} py={16} textAlign="center">
             <VStack spacing={4}>
-              <Icon as={FiBarChart} boxSize={16} color="purple.400" />
-              <Heading size="xl" color="white">
+              <Icon as={FiBarChart} boxSize={16} color="gray.400" />
+              <Heading size="xl" color="gray.900">
                 Loading Dashboard...
               </Heading>
-              <Text fontSize="lg" color="rgba(255,255,255,0.8)" maxW="2xl">
+              <Text fontSize="lg" color="gray.500" maxW="2xl">
                 Preparing your market intelligence dashboard.
               </Text>
             </VStack>
@@ -985,65 +1135,73 @@ For questions or additional analysis, contact the Strategic Planning team.
     );
   }
 
-  // Show empty state for users without analysis history
+  // ---------------------------------------------------------------------------
+  // Empty state
+  // ---------------------------------------------------------------------------
   if (!hasAnalysisHistory || !dashboard) {
     return (
-      <Box p={6} bg="#140d28" minH="100vh" w="100%">
+      <Box p={6} bg="#fafafa" minH="100vh" w="100%">
         <Container maxW="4xl" px={8}>
           <VStack spacing={8} py={16} textAlign="center">
             <VStack spacing={4}>
-              <Icon as={FiBarChart} boxSize={16} color="purple.400" />
-              <Heading size="xl" color="white">
+              <Icon as={FiBarChart} boxSize={16} color="gray.400" />
+              <Heading size="xl" color="gray.900">
                 Welcome to Your Executive Dashboard
               </Heading>
-              <Text fontSize="lg" color="rgba(255,255,255,0.8)" maxW="2xl">
-                Start your market intelligence journey by running your first analysis. 
-                Our AI agents will provide comprehensive insights, competitive analysis, 
+              <Text fontSize="lg" color="gray.500" maxW="2xl">
+                Start your market intelligence journey by running your first analysis.
+                Our AI agents will provide comprehensive insights, competitive analysis,
                 and strategic recommendations for your market expansion.
               </Text>
             </VStack>
 
-            <VStack spacing={4} bg="rgba(255,255,255,0.05)" p={8} borderRadius="xl" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)" maxW="md" w="full">
-              <Icon as={FiTarget} boxSize={8} color="purple.400" />
-              <Heading size="md" color="white">
-                Ready to Get Started?
-              </Heading>
-              <Text fontSize="md" color="rgba(255,255,255,0.8)" textAlign="center">
-                Launch your first market analysis to unlock:
-              </Text>
-              <VStack spacing={2} align="start" w="full">
-                <HStack>
-                  <Badge colorScheme="green" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Executive Summary & Go/No-Go Recommendations</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="blue" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Competitive Intelligence Reports</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="purple" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Market Entry Strategy & Financial Projections</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="orange" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Regulatory & Compliance Analysis</Text>
-                </HStack>
-              </VStack>
-              <Button 
-                colorScheme="purple" 
-                size="lg" 
-                rightIcon={<FiArrowRight />}
-                onClick={() => navigate('/')}
-                w="full"
-                mt={4}
-                _focus={{ boxShadow: 'none', outline: 'none' }}
-              >
-                Start Your Analysis
-              </Button>
-            </VStack>
+            <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl" maxW="md" w="full">
+              <CardBody p={8}>
+                <VStack spacing={4}>
+                  <Icon as={FiTarget} boxSize={8} color="gray.400" />
+                  <Heading size="md" color="gray.900">
+                    Ready to Get Started?
+                  </Heading>
+                  <Text fontSize="md" color="gray.500" textAlign="center">
+                    Launch your first market analysis to unlock:
+                  </Text>
+                  <VStack spacing={2} align="start" w="full">
+                    <HStack>
+                      <Badge colorScheme="green" borderRadius="full">&#10003;</Badge>
+                      <Text fontSize="sm" color="gray.700">Executive Summary & Go/No-Go Recommendations</Text>
+                    </HStack>
+                    <HStack>
+                      <Badge colorScheme="blue" borderRadius="full">&#10003;</Badge>
+                      <Text fontSize="sm" color="gray.700">Competitive Intelligence Reports</Text>
+                    </HStack>
+                    <HStack>
+                      <Badge colorScheme="purple" borderRadius="full">&#10003;</Badge>
+                      <Text fontSize="sm" color="gray.700">Market Entry Strategy & Financial Projections</Text>
+                    </HStack>
+                    <HStack>
+                      <Badge colorScheme="orange" borderRadius="full">&#10003;</Badge>
+                      <Text fontSize="sm" color="gray.700">Regulatory & Compliance Analysis</Text>
+                    </HStack>
+                  </VStack>
+                  <Button
+                    bg="gray.900"
+                    color="white"
+                    size="lg"
+                    rightIcon={<FiArrowRight />}
+                    onClick={() => navigate('/')}
+                    w="full"
+                    mt={4}
+                    _hover={{ bg: 'gray.800' }}
+                    _focus={{ boxShadow: 'none', outline: 'none' }}
+                  >
+                    Start Your Analysis
+                  </Button>
+                </VStack>
+              </CardBody>
+            </Card>
 
-            <Text fontSize="sm" color="rgba(255,255,255,0.8)" maxW="lg">
-              Our autonomous AI agents will research market opportunities, analyze competitors, 
+            <Text fontSize="sm" color="gray.500" maxW="lg">
+              Our autonomous AI agents will research market opportunities, analyze competitors,
               and generate board-ready reports in minutes, not months.
             </Text>
           </VStack>
@@ -1052,12 +1210,13 @@ For questions or additional analysis, contact the Strategic Planning team.
     );
   }
 
-  // Extract data from API response and calculate WTP metrics
+  // ---------------------------------------------------------------------------
+  // Main dashboard data extraction
+  // ---------------------------------------------------------------------------
   const customerSegment = dashboard?.customer_segment || 'business';
-  
-  // WTP Analysis by Customer Segment
-  const getWTPData = (segment: string) => {
-    const wtpData: { [key: string]: any } = {
+
+  const getWTPData = (segment: string): WTPData => {
+    const wtpData: { [key: string]: WTPData } = {
       'saas-tech': {
         annualContract: '$50K - $500K',
         avgContract: '$200K',
@@ -1117,8 +1276,8 @@ For questions or additional analysis, contact the Strategic Planning team.
   };
 
   const wtpData = getWTPData(customerSegment);
-  
-  const metrics = [
+
+  const metrics: MetricItem[] = [
     {
       label: 'Market Opportunity Score',
       value: `${dashboard.dashboard.market_opportunity_score}/10`,
@@ -1156,64 +1315,84 @@ For questions or additional analysis, contact the Strategic Planning team.
       explanation: dashboard.detailed_scores?.revenue_rationale,
     },
   ];
-  const insights = dashboard.key_insights || [];
-  const recommended = dashboard.recommended_actions || {};
-  const researchReport = dashboard.research_report || '';
-  const revenue = dashboard.revenue_projections || {};
 
+  const insights: KeyInsight[] = dashboard.key_insights || [];
+  const recommended: Partial<RecommendedActions> = dashboard.recommended_actions || {};
+  const researchReport: string = dashboard.research_report || '';
+  const revenue: Partial<RevenueProjections> = dashboard.revenue_projections || {};
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
   return (
-    <Box p={6} bg="#140d28" minH="100vh" w="100%">
+    <Box p={6} bg="#fafafa" minH="100vh" w="100%">
       <Container maxW="100%" px={8}>
-        <VStack spacing={8} align="stretch" maxW="7xl" mx="auto">
+        <VStack spacing={6} align="stretch" maxW="7xl" mx="auto">
+
           {/* Header */}
           <Box>
             <Flex justify="space-between" align="center" mb={4}>
               <Box>
-                <Heading size="xl" mb={2} color="white">
+                <Heading size="xl" mb={1} color="gray.900">
                   Executive Dashboard
                 </Heading>
-                <Text fontSize="lg" color="rgba(255,255,255,0.8)">
+                <Text fontSize="md" color="gray.500">
                   Market Entry Intelligence Overview
                 </Text>
               </Box>
-              
-              {/* Report Selector */}
-              {availableReports.length > 1 && (
-                <Box minW="300px">
-                  <Text fontSize="sm" color="rgba(255,255,255,0.8)" mb={2}>
-                    Select Report:
-                  </Text>
-                  <Select
-                    value={currentReportId?.toString() || ''}
-                    onChange={(e) => handleReportChange(e.target.value)}
-                    bg="rgba(255,255,255,0.1)"
-                    color="white"
-                    borderColor="rgba(255,255,255,0.2)"
-                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
-                    _focus={{ borderColor: 'purple.400', boxShadow: 'none' }}
+
+              <HStack spacing={3} align="end">
+                {availableReports.length > 1 && (
+                  <Box minW="300px">
+                    <Text fontSize="sm" color="gray.500" mb={2}>
+                      Select Report:
+                    </Text>
+                    <Select
+                      value={currentReportId?.toString() || ''}
+                      onChange={(e) => handleReportChange(e.target.value)}
+                      bg="white"
+                      color="gray.900"
+                      borderColor="gray.200"
+                      _hover={{ borderColor: 'gray.300' }}
+                      _focus={{ borderColor: 'gray.400', boxShadow: 'none' }}
+                    >
+                      {availableReports.map((report) => (
+                        <option key={report.id} value={report.id}>
+                          {report.company_name} &rarr; {report.target_market}
+                        </option>
+                      ))}
+                    </Select>
+                    <Text fontSize="xs" color="gray.400" mt={1}>
+                      {availableReports.length} report{availableReports.length > 1 ? 's' : ''} available
+                    </Text>
+                  </Box>
+                )}
+                {currentReportId && (
+                  <Button
+                    leftIcon={<FiShare2 />}
+                    variant="outline"
+                    borderColor="gray.300"
+                    color="gray.700"
+                    _hover={{ bg: 'gray.50', borderColor: 'gray.400' }}
+                    onClick={handleShareReport}
+                    isLoading={shareLoading}
+                    size="md"
                   >
-                    {availableReports.map((report) => (
-                      <option key={report.id} value={report.id} style={{ background: '#140d28', color: 'white' }}>
-                        {report.company_name} → {report.target_market}
-                      </option>
-                    ))}
-                  </Select>
-                  <Text fontSize="xs" color="rgba(255,255,255,0.6)" mt={1}>
-                    {availableReports.length} report{availableReports.length > 1 ? 's' : ''} available
-                  </Text>
-                </Box>
-              )}
+                    Share
+                  </Button>
+                )}
+              </HStack>
             </Flex>
           </Box>
 
           {/* Customer Segment Context Bar */}
-          <Card shadow="md" borderRadius="xl" bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" color="white">
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
             <CardBody p={4}>
               <HStack justify="space-between" align="center">
                 <VStack align="start" spacing={1}>
                   <HStack spacing={3}>
-                    <Text fontSize="lg" fontWeight="bold">
-                      {dashboard?.customer_segment ? 
+                    <Text fontSize="lg" fontWeight="bold" color="gray.900">
+                      {dashboard?.customer_segment ?
                         (() => {
                           const segments: { [key: string]: string } = {
                             'saas-tech': 'SaaS/Tech Companies',
@@ -1226,9 +1405,9 @@ For questions or additional analysis, contact the Strategic Planning team.
                         })() : 'Business'
                       }
                     </Text>
-                    <Text fontSize="md" opacity="0.9">→</Text>
-                    <Text fontSize="lg" fontWeight="bold">
-                      {dashboard?.expansion_direction ? 
+                    <Text fontSize="md" color="gray.400">&rarr;</Text>
+                    <Text fontSize="lg" fontWeight="bold" color="gray.900">
+                      {dashboard?.expansion_direction ?
                         (() => {
                           const directions: { [key: string]: string } = {
                             'us-to-asia': 'US to Asia',
@@ -1240,8 +1419,8 @@ For questions or additional analysis, contact the Strategic Planning team.
                       }
                     </Text>
                   </HStack>
-                  <Text fontSize="sm" opacity="0.8">
-                    {dashboard?.customer_segment ? 
+                  <Text fontSize="sm" color="gray.500">
+                    {dashboard?.customer_segment ?
                       (() => {
                         const descriptions: { [key: string]: string } = {
                           'saas-tech': 'Series A-B companies expanding to Asia',
@@ -1256,8 +1435,8 @@ For questions or additional analysis, contact the Strategic Planning team.
                   </Text>
                 </VStack>
                 <VStack align="end" spacing={1}>
-                  <Badge colorScheme="white" variant="solid" px={3} py={1} fontSize="sm" color="purple.600">
-                    {dashboard?.company_size ? 
+                  <Badge colorScheme="gray" variant="subtle" px={3} py={1} fontSize="sm">
+                    {dashboard?.company_size ?
                       (() => {
                         const sizes: { [key: string]: string } = {
                           '1-10': 'Startup',
@@ -1270,8 +1449,8 @@ For questions or additional analysis, contact the Strategic Planning team.
                       })() : 'Business'
                     }
                   </Badge>
-                  <Text fontSize="xs" opacity="0.7">
-                    {dashboard?.annual_revenue ? 
+                  <Text fontSize="xs" color="gray.400">
+                    {dashboard?.annual_revenue ?
                       (() => {
                         const revenues: { [key: string]: string } = {
                           '0-1M': '$0-1M Revenue',
@@ -1290,96 +1469,75 @@ For questions or additional analysis, contact the Strategic Planning team.
           </Card>
 
           {/* C-Level Deliverables Section */}
-          <Card shadow="lg" borderRadius="xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
             <CardBody p={6}>
               <HStack justify="space-between" mb={4}>
-                <Heading size="md" color="white" display="flex" alignItems="center">
+                <Heading size="md" color="gray.900">
                   C-Level Deliverables
                 </Heading>
-                <Badge colorScheme="purple" variant="solid" px={3} py={1}>
+                <Badge colorScheme="green" variant="subtle" px={3} py={1}>
                   Executive Ready
                 </Badge>
               </HStack>
-              <Text fontSize="sm" color="rgba(255,255,255,0.8)" mb={4}>
+              <Text fontSize="sm" color="gray.500" mb={4}>
                 Generate executive-ready documents and decision frameworks for board presentations and strategic planning
               </Text>
-              
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
+
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={3}>
                 <Button
                   size="md"
-                  bg="rgba(255,255,255,0.1)"
+                  bg="gray.900"
                   color="white"
-                  border="1px solid"
-                  borderColor="rgba(147, 51, 234, 0.3)"
-                  _hover={{ 
-                    bg: 'rgba(147, 51, 234, 0.2)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: 'lg'
-                  }}
-                  _active={{ transform: 'translateY(0)' }}
-                  onClick={() => generateExecutiveSummary()}
+                  _hover={{ bg: 'gray.800' }}
+                  _active={{ bg: 'gray.700' }}
+                  onClick={() => downloadProfessionalReport('executive-summary')}
                   leftIcon={<Icon as={FiTarget} />}
-                  fontWeight="semibold"
+                  fontWeight="medium"
                   _focus={{ boxShadow: 'none', outline: 'none' }}
                 >
                   Executive Summary
                 </Button>
-                
+
                 <Button
                   size="md"
-                  bg="rgba(255,255,255,0.1)"
-                  color="white"
-                  border="1px solid"
-                  borderColor="rgba(34, 197, 94, 0.3)"
-                  _hover={{ 
-                    bg: 'rgba(34, 197, 94, 0.2)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: 'lg'
-                  }}
-                  _active={{ transform: 'translateY(0)' }}
-                  onClick={() => generateGoNoGoRecommendation()}
+                  variant="outline"
+                  borderColor="gray.200"
+                  color="gray.700"
+                  _hover={{ bg: 'gray.50' }}
+                  _active={{ bg: 'gray.100' }}
+                  onClick={() => downloadProfessionalReport('go-nogo')}
                   leftIcon={<Icon as={FiTrendingUp} />}
-                  fontWeight="semibold"
+                  fontWeight="medium"
                   _focus={{ boxShadow: 'none', outline: 'none' }}
                 >
                   Go/No-Go Decision
                 </Button>
-                
+
                 <Button
                   size="md"
-                  bg="rgba(255,255,255,0.1)"
-                  color="white"
-                  border="1px solid"
-                  borderColor="rgba(59, 130, 246, 0.3)"
-                  _hover={{ 
-                    bg: 'rgba(59, 130, 246, 0.2)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: 'lg'
-                  }}
-                  _active={{ transform: 'translateY(0)' }}
-                  onClick={() => generateInvestmentMemo()}
+                  variant="outline"
+                  borderColor="gray.200"
+                  color="gray.700"
+                  _hover={{ bg: 'gray.50' }}
+                  _active={{ bg: 'gray.100' }}
+                  onClick={() => downloadProfessionalReport('investment-memo')}
                   leftIcon={<Icon as={FiDollarSign} />}
-                  fontWeight="semibold"
+                  fontWeight="medium"
                   _focus={{ boxShadow: 'none', outline: 'none' }}
                 >
                   Investment Memo
                 </Button>
-                
+
                 <Button
                   size="md"
-                  bg="rgba(255,255,255,0.1)"
-                  color="white"
-                  border="1px solid"
-                  borderColor="rgba(249, 115, 22, 0.3)"
-                  _hover={{ 
-                    bg: 'rgba(249, 115, 22, 0.2)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: 'lg'
-                  }}
-                  _active={{ transform: 'translateY(0)' }}
-                  onClick={() => exportBoardPresentation()}
+                  variant="outline"
+                  borderColor="gray.200"
+                  color="gray.700"
+                  _hover={{ bg: 'gray.50' }}
+                  _active={{ bg: 'gray.100' }}
+                  onClick={() => downloadProfessionalReport('board-presentation')}
                   leftIcon={<Icon as={FiDownload} />}
-                  fontWeight="semibold"
+                  fontWeight="medium"
                   _focus={{ boxShadow: 'none', outline: 'none' }}
                 >
                   Board Presentation
@@ -1389,41 +1547,49 @@ For questions or additional analysis, contact the Strategic Planning team.
           </Card>
 
           {/* Metrics Cards */}
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
             {metrics.map((metric, idx) => (
-              <Card key={idx} shadow="xl" borderRadius="2xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)" _hover={{ boxShadow: '0 12px 40px rgba(0,0,0,0.4)', transform: 'translateY(-2px)' }} transition="all 0.2s">
-                <CardBody p={6}>
+              <Card
+                key={idx}
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                shadow="sm"
+                borderRadius="xl"
+                _hover={{ shadow: 'md', transform: 'translateY(-1px)' }}
+                transition="all 0.2s"
+              >
+                <CardBody p={5}>
                   <VStack align="start" spacing={3}>
                     <HStack w="full" justify="space-between">
-                      <Text fontSize="md" color="white" fontWeight="bold">
+                      <Text fontSize="sm" color="gray.500" fontWeight="medium">
                         {metric.label}
                       </Text>
-                      <Icon as={metric.icon} color={`${metric.color}.400`} boxSize={6} />
+                      <Icon as={metric.icon} color="gray.400" boxSize={5} />
                     </HStack>
                     <Stat>
-                      <StatNumber fontSize="2xl" fontWeight="extrabold" color="white">
+                      <StatNumber fontSize="2xl" fontWeight="bold" color="gray.900">
                         {metric.value}
                       </StatNumber>
                     </Stat>
                     <HStack>
-                      <Badge colorScheme={metric.color} variant="solid" px={3} py={1} fontSize="md">
+                      <Badge colorScheme={metric.color} variant="subtle" px={2} py={0.5} fontSize="xs">
                         {metric.change}
                       </Badge>
-                      <Text fontSize="sm" color="rgba(255,255,255,0.6)">
+                      <Text fontSize="xs" color="gray.400">
                         vs last month
                       </Text>
                     </HStack>
                     <Button
                       size="sm"
                       variant="outline"
-                      colorScheme={metric.color}
+                      borderColor="gray.200"
+                      color="gray.600"
                       leftIcon={<FiInfo />}
                       onClick={() => handleMetricClick(metric)}
                       w="full"
-                      mt={2}
-                      borderColor={`${metric.color}.400`}
-                      color="white"
-                      _hover={{ bg: `${metric.color}.400`, color: 'white' }}
+                      mt={1}
+                      _hover={{ bg: 'gray.50' }}
                       _focus={{ boxShadow: 'none', outline: 'none' }}
                     >
                       View Details
@@ -1435,72 +1601,66 @@ For questions or additional analysis, contact the Strategic Planning team.
           </SimpleGrid>
 
           {/* WTP Analysis Section */}
-          <Card shadow="lg" borderRadius="xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
             <CardBody p={6}>
               <HStack justify="space-between" mb={4}>
-                <Heading size="md" color="white" display="flex" alignItems="center">
+                <Heading size="md" color="gray.900">
                   Willingness To Pay Analysis
                 </Heading>
-                <Badge colorScheme="blue" variant="solid" px={3} py={1}>
-                  {customerSegment === 'saas-tech' ? 'SaaS/Tech' : 
+                <Badge colorScheme="blue" variant="subtle" px={3} py={1}>
+                  {customerSegment === 'saas-tech' ? 'SaaS/Tech' :
                    customerSegment === 'manufacturing' ? 'Manufacturing' :
                    customerSegment === 'healthcare' ? 'Healthcare' :
                    customerSegment === 'financial' ? 'Financial' :
                    customerSegment === 'consumer' ? 'Consumer' : 'Business'} Segment
                 </Badge>
               </HStack>
-              
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4} mb={6}>
-                {/* <Box p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)">
-                  <Text fontSize="sm" color="white" fontWeight="semibold" mb={1}>Average Contract Value</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="white">{wtpData.avgContract}</Text>
-                  <Text fontSize="xs" color="rgba(255,255,255,0.6)">Range: {wtpData.annualContract}</Text>
-                </Box> */}
-                
-                <Box p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)">
-                  <Text fontSize="sm" color="white" fontWeight="semibold" mb={1}>Market Size</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="white">{wtpData.marketSize}</Text>
-                  <Text fontSize="xs" color="rgba(255,255,255,0.6)">Addressable market</Text>
+
+              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={6}>
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontSize="sm" color="gray.500" fontWeight="medium" mb={1}>Market Size</Text>
+                  <Text fontSize="2xl" fontWeight="bold" color="gray.900">{wtpData.marketSize}</Text>
+                  <Text fontSize="xs" color="gray.400">Addressable market</Text>
                 </Box>
-                
-                <Box p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)">
-                  <Text fontSize="sm" color="white" fontWeight="semibold" mb={1}>Growth Rate</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="white">{wtpData.growthRate}</Text>
-                  <Text fontSize="xs" color="rgba(255,255,255,0.6)">Annual growth</Text>
+
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontSize="sm" color="gray.500" fontWeight="medium" mb={1}>Growth Rate</Text>
+                  <Text fontSize="2xl" fontWeight="bold" color="gray.900">{wtpData.growthRate}</Text>
+                  <Text fontSize="xs" color="gray.400">Annual growth</Text>
                 </Box>
-                
-                <Box p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)">
-                  <Text fontSize="sm" color="white" fontWeight="semibold" mb={1}>Price Sensitivity</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="white">{wtpData.priceSensitivity}</Text>
-                  <Text fontSize="xs" color="rgba(255,255,255,0.6)">Pricing flexibility</Text>
+
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontSize="sm" color="gray.500" fontWeight="medium" mb={1}>Price Sensitivity</Text>
+                  <Text fontSize="2xl" fontWeight="bold" color="gray.900">{wtpData.priceSensitivity}</Text>
+                  <Text fontSize="xs" color="gray.400">Pricing flexibility</Text>
                 </Box>
               </SimpleGrid>
-              
+
               <VStack align="start" spacing={4}>
                 <Box>
-                  <Text fontSize="md" fontWeight="semibold" color="blue.700" mb={2}>Key Value Drivers</Text>
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>Key Value Drivers</Text>
                   <HStack spacing={2} flexWrap="wrap">
                     {wtpData.valueDrivers.map((driver: string, index: number) => (
-                      <Badge key={index} colorScheme="blue" variant="subtle" px={3} py={1}>
+                      <Badge key={index} colorScheme="gray" variant="subtle" px={3} py={1}>
                         {driver}
                       </Badge>
                     ))}
                   </HStack>
                 </Box>
-                
+
                 <Box>
-                  <Text fontSize="md" fontWeight="semibold" color="blue.700" mb={2}>Competitive Advantage</Text>
-                  <Text fontSize="sm" color="blue.600" bg="blue.100" p={3} borderRadius="md">
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>Competitive Advantage</Text>
+                  <Text fontSize="sm" color="gray.600" bg="#fafafa" p={3} borderRadius="md" border="1px solid" borderColor="gray.100">
                     {wtpData.competitiveAdvantage}
                   </Text>
                 </Box>
-                
+
                 <Box>
-                  <Text fontSize="md" fontWeight="semibold" color="blue.700" mb={2}>Pricing Strategy Recommendation</Text>
-                  <Text fontSize="sm" color="blue.600" bg="blue.100" p={3} borderRadius="md">
-                    {wtpData.priceSensitivity === 'Low' ? 
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>Pricing Strategy Recommendation</Text>
+                  <Text fontSize="sm" color="gray.600" bg="#fafafa" p={3} borderRadius="md" border="1px solid" borderColor="gray.100">
+                    {wtpData.priceSensitivity === 'Low' ?
                       'Premium pricing strategy recommended - customers value quality and compliance over cost' :
-                      wtpData.priceSensitivity === 'High' ? 
+                      wtpData.priceSensitivity === 'High' ?
                       'Value-based pricing strategy recommended - emphasize ROI and competitive advantages' :
                       'Balanced pricing strategy recommended - competitive pricing with value differentiation'
                     }
@@ -1510,41 +1670,31 @@ For questions or additional analysis, contact the Strategic Planning team.
             </CardBody>
           </Card>
 
-          {/* Enhanced Key Insights Section */}
-          <Card shadow="lg" borderRadius="xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+          {/* Key Insights Section */}
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
             <CardBody p={6}>
               <HStack justify="space-between" mb={6}>
-                <Heading size="md" color="white">Comprehensive Market Intelligence</Heading>
-                <Badge colorScheme="blue" variant="solid" px={3} py={1}>
+                <Heading size="md" color="gray.900">Comprehensive Market Intelligence</Heading>
+                <Badge colorScheme="blue" variant="subtle" px={3} py={1}>
                   {insights.length} Key Insights
                 </Badge>
               </HStack>
 
               {/* Executive Summary Insights */}
-              {insights.filter((insight: any) => insight.category === 'executive' || insight.priority === 'high').length > 0 && (
+              {insights.filter((insight: KeyInsight) => insight.priority === 'high').length > 0 && (
                 <Box mb={6}>
-                  <Heading size="sm" color="white" mb={3} display="flex" alignItems="center">
-                    <Icon as={FiTarget} mr={2} />
+                  <Heading size="sm" color="gray.800" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiTarget} mr={2} color="gray.500" />
                     Executive Summary & Strategic Overview
                   </Heading>
                   <VStack align="start" spacing={3}>
-                    {insights.filter((insight: any) => insight.category === 'executive' || insight.priority === 'high').map((insight: any, i: number) => (
-                      <Box key={i} p={4} bg="rgba(147, 51, 234, 0.1)" borderRadius="lg" w="full" border="1px solid" borderColor="rgba(147, 51, 234, 0.2)" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                    {insights.filter((insight: KeyInsight) => insight.priority === 'high').map((insight: KeyInsight, i: number) => (
+                      <Box key={i} p={4} bg="#fafafa" borderRadius="lg" w="full" border="1px solid" borderColor="gray.100" _hover={{ shadow: 'sm' }} transition="all 0.2s">
                         <HStack justify="space-between" mb={2}>
-                          <Text fontWeight="bold" color="white" fontSize="md">{insight.title}</Text>
-                          <Badge colorScheme="purple" variant="solid" size="sm">High Priority</Badge>
+                          <Text fontWeight="semibold" color="gray.900" fontSize="sm">{insight.title}</Text>
+                          <Badge colorScheme="purple" variant="subtle" size="sm">High Priority</Badge>
                         </HStack>
-                        <Text color="rgba(255,255,255,0.8)" mb={2} lineHeight="1.6">{insight.description}</Text>
-                        {insight.impact && (
-                          <Text fontSize="sm" color="purple.600" fontWeight="semibold">
-                            Impact: {insight.impact}
-                          </Text>
-                        )}
-                        {insight.recommendation && (
-                          <Text fontSize="sm" color="purple.600" fontWeight="semibold">
-                            Recommendation: {insight.recommendation}
-                          </Text>
-                        )}
+                        <Text color="gray.600" fontSize="sm" lineHeight="1.6">{insight.description}</Text>
                       </Box>
                     ))}
                   </VStack>
@@ -1552,156 +1702,72 @@ For questions or additional analysis, contact the Strategic Planning team.
               )}
 
               {/* Market Opportunity Insights */}
-              {insights.filter((insight: any) => insight.category === 'market' || insight.type === 'opportunity').length > 0 && (
+              {insights.filter((insight: KeyInsight) => insight.type === 'opportunity').length > 0 && (
                 <Box mb={6}>
-                  <Heading size="sm" color="white" mb={3} display="flex" alignItems="center">
-                    <Icon as={FiTrendingUp} mr={2} />
+                  <Heading size="sm" color="gray.800" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiTrendingUp} mr={2} color="gray.500" />
                     Market Opportunity & Growth Potential
                   </Heading>
                   <VStack align="start" spacing={3}>
-                    {insights.filter((insight: any) => insight.category === 'market' || insight.type === 'opportunity').map((insight: any, i: number) => (
-                      <Box key={i} p={4} bg="rgba(34, 197, 94, 0.1)" borderRadius="lg" w="full" border="1px solid" borderColor="rgba(34, 197, 94, 0.2)" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                    {insights.filter((insight: KeyInsight) => insight.type === 'opportunity').map((insight: KeyInsight, i: number) => (
+                      <Box key={i} p={4} bg="#fafafa" borderRadius="lg" w="full" border="1px solid" borderColor="gray.100" _hover={{ shadow: 'sm' }} transition="all 0.2s">
                         <HStack justify="space-between" mb={2}>
-                          <Text fontWeight="bold" color="white" fontSize="md">{insight.title}</Text>
-                          <Badge colorScheme="green" variant="solid" size="sm">Market Insight</Badge>
+                          <Text fontWeight="semibold" color="gray.900" fontSize="sm">{insight.title}</Text>
+                          <Badge colorScheme="green" variant="subtle" size="sm">Opportunity</Badge>
                         </HStack>
-                        <Text color="rgba(255,255,255,0.8)" mb={2} lineHeight="1.6">{insight.description}</Text>
-                        {insight.metrics && (
-                          <Box p={2} bg="rgba(34, 197, 94, 0.1)" borderRadius="md" mb={2}>
-                            <Text fontSize="sm" color="white" fontWeight="semibold">Key Metrics:</Text>
-                            <Text fontSize="sm" color="rgba(255,255,255,0.8)">{insight.metrics}</Text>
-                          </Box>
-                        )}
-                        {insight.timeline && (
-                          <Text fontSize="sm" color="rgba(255,255,255,0.8)" fontWeight="semibold">
-                            Timeline: {insight.timeline}
-                          </Text>
-                        )}
+                        <Text color="gray.600" fontSize="sm" lineHeight="1.6">{insight.description}</Text>
                       </Box>
                     ))}
                   </VStack>
                 </Box>
               )}
 
-              {/* Competitive Intelligence Insights */}
-              {insights.filter((insight: any) => insight.category === 'competitive' || insight.type === 'competitor').length > 0 && (
+              {/* Risk Insights */}
+              {insights.filter((insight: KeyInsight) => insight.type === 'risk').length > 0 && (
                 <Box mb={6}>
-                  <Heading size="sm" color="orange.700" mb={3} display="flex" alignItems="center">
-                    <Icon as={FiBarChart} mr={2} />
-                    Competitive Landscape & Positioning
-                  </Heading>
-                  <VStack align="start" spacing={3}>
-                    {insights.filter((insight: any) => insight.category === 'competitive' || insight.type === 'competitor').map((insight: any, i: number) => (
-                      <Box key={i} p={4} bg="orange.50" borderRadius="lg" w="full" border="1px solid" borderColor="orange.200" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
-                        <HStack justify="space-between" mb={2}>
-                          <Text fontWeight="bold" color="orange.800" fontSize="md">{insight.title}</Text>
-                          <Badge colorScheme="orange" variant="solid" size="sm">Competitive Intel</Badge>
-                        </HStack>
-                        <Text color="orange.700" mb={2} lineHeight="1.6">{insight.description}</Text>
-                        {insight.competitors && (
-                          <Box p={2} bg="orange.100" borderRadius="md" mb={2}>
-                            <Text fontSize="sm" color="orange.800" fontWeight="semibold">Key Competitors:</Text>
-                            <Text fontSize="sm" color="orange.700">{insight.competitors}</Text>
-                          </Box>
-                        )}
-                        {insight.advantage && (
-                          <Text fontSize="sm" color="orange.600" fontWeight="semibold">
-                            Competitive Advantage: {insight.advantage}
-                          </Text>
-                        )}
-                      </Box>
-                    ))}
-                  </VStack>
-                </Box>
-              )}
-
-              {/* Risk & Mitigation Insights */}
-              {insights.filter((insight: any) => insight.category === 'risk' || insight.type === 'risk').length > 0 && (
-                <Box mb={6}>
-                  <Heading size="sm" color="white" mb={3} display="flex" alignItems="center">
-                    <Icon as={FiUsers} mr={2} />
+                  <Heading size="sm" color="gray.800" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiUsers} mr={2} color="gray.500" />
                     Risk Assessment & Mitigation Strategies
                   </Heading>
                   <VStack align="start" spacing={3}>
-                    {insights.filter((insight: any) => insight.category === 'risk' || insight.type === 'risk').map((insight: any, i: number) => (
-                      <Box key={i} p={4} bg="rgba(239, 68, 68, 0.1)" borderRadius="lg" w="full" border="1px solid" borderColor="rgba(239, 68, 68, 0.2)" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                    {insights.filter((insight: KeyInsight) => insight.type === 'risk').map((insight: KeyInsight, i: number) => (
+                      <Box key={i} p={4} bg="#fafafa" borderRadius="lg" w="full" border="1px solid" borderColor="gray.100" _hover={{ shadow: 'sm' }} transition="all 0.2s">
                         <HStack justify="space-between" mb={2}>
-                          <Text fontWeight="bold" color="white" fontSize="md">{insight.title}</Text>
-                          <Badge colorScheme="red" variant="solid" size="sm">Risk Alert</Badge>
+                          <Text fontWeight="semibold" color="gray.900" fontSize="sm">{insight.title}</Text>
+                          <Badge colorScheme="red" variant="subtle" size="sm">Risk</Badge>
                         </HStack>
-                        <Text color="rgba(255,255,255,0.8)" mb={2} lineHeight="1.6">{insight.description}</Text>
-                        {insight.mitigation && (
-                          <Box p={2} bg="rgba(239, 68, 68, 0.1)" borderRadius="md" mb={2}>
-                            <Text fontSize="sm" color="white" fontWeight="semibold">Mitigation Strategy:</Text>
-                            <Text fontSize="sm" color="rgba(255,255,255,0.8)">{insight.mitigation}</Text>
-                          </Box>
-                        )}
-                        {insight.severity && (
-                          <Text fontSize="sm" color="rgba(255,255,255,0.8)" fontWeight="semibold">
-                            Severity: {insight.severity}
-                          </Text>
-                        )}
+                        <Text color="gray.600" fontSize="sm" lineHeight="1.6">{insight.description}</Text>
                       </Box>
                     ))}
                   </VStack>
                 </Box>
               )}
 
-              {/* Actionable Recommendations */}
-              {insights.filter((insight: any) => insight.category === 'action' || insight.type === 'recommendation').length > 0 && (
-                <Box>
-                  <Heading size="sm" color="blue.700" mb={3} display="flex" alignItems="center">
-                    <Icon as={FiDollarSign} mr={2} />
-                    Actionable Recommendations & Next Steps
+              {/* Strategy Insights */}
+              {insights.filter((insight: KeyInsight) => insight.type === 'strategy').length > 0 && (
+                <Box mb={6}>
+                  <Heading size="sm" color="gray.800" mb={3} display="flex" alignItems="center">
+                    <Icon as={FiDollarSign} mr={2} color="gray.500" />
+                    Strategic Recommendations & Next Steps
                   </Heading>
                   <VStack align="start" spacing={3}>
-                    {insights.filter((insight: any) => insight.category === 'action' || insight.type === 'recommendation').map((insight: any, i: number) => (
-                      <Box key={i} p={4} bg="blue.50" borderRadius="lg" w="full" border="1px solid" borderColor="blue.200" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                    {insights.filter((insight: KeyInsight) => insight.type === 'strategy').map((insight: KeyInsight, i: number) => (
+                      <Box key={i} p={4} bg="#fafafa" borderRadius="lg" w="full" border="1px solid" borderColor="gray.100" _hover={{ shadow: 'sm' }} transition="all 0.2s">
                         <HStack justify="space-between" mb={2}>
-                          <Text fontWeight="bold" color="blue.800" fontSize="md">{insight.title}</Text>
-                          <Badge colorScheme="blue" variant="solid" size="sm">Action Required</Badge>
+                          <Text fontWeight="semibold" color="gray.900" fontSize="sm">{insight.title}</Text>
+                          <Badge colorScheme="blue" variant="subtle" size="sm">Strategy</Badge>
                         </HStack>
-                        <Text color="blue.700" mb={2} lineHeight="1.6">{insight.description}</Text>
-                        {insight.budget && (
-                          <Text fontSize="sm" color="blue.600" fontWeight="semibold">
-                            Budget: {insight.budget}
-                          </Text>
-                        )}
-                        {insight.timeline && (
-                          <Text fontSize="sm" color="blue.600" fontWeight="semibold">
-                            Timeline: {insight.timeline}
-                          </Text>
-                        )}
-                        {insight.responsibility && (
-                          <Text fontSize="sm" color="blue.600" fontWeight="semibold">
-                            Owner: {insight.responsibility}
-                          </Text>
-                        )}
+                        <Text color="gray.600" fontSize="sm" lineHeight="1.6">{insight.description}</Text>
                       </Box>
                     ))}
                   </VStack>
-                </Box>
-              )}
-
-              {/* Fallback for basic insights without categories */}
-              {insights.length > 0 && insights.every((insight: any) => !insight.category && !insight.type) && (
-                <Box>
-                  <Heading size="sm" color="gray.700" mb={3}>General Insights</Heading>
-                  <VStack align="start" spacing={3}>
-                    {insights.map((insight: any, i: number) => (
-                  <Box key={i} p={3} bg="gray.50" borderRadius="md" w="full" boxShadow="sm">
-                    <Text fontWeight="bold" color="blue.700">{insight.title}</Text>
-                    <Text color="gray.700">{insight.description}</Text>
-                  </Box>
-                ))}
-              </VStack>
                 </Box>
               )}
 
               {/* No insights fallback */}
               {insights.length === 0 && (
                 <Box textAlign="center" py={8}>
-                  <Text color="gray.500" fontSize="lg">No detailed insights available.</Text>
+                  <Text color="gray.500" fontSize="md">No detailed insights available.</Text>
                   <Text color="gray.400" fontSize="sm">Please run a comprehensive market analysis to generate insights.</Text>
                 </Box>
               )}
@@ -1709,13 +1775,13 @@ For questions or additional analysis, contact the Strategic Planning team.
           </Card>
 
           {/* Competitor Analysis Section */}
-          <Card shadow="lg" borderRadius="xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
             <CardBody p={6}>
-              <Heading size="md" mb={4} color="white">Competitor Analysis</Heading>
+              <Heading size="md" mb={4} color="gray.900">Competitor Analysis</Heading>
               {(() => {
                 if (competitorSummary && typeof competitorSummary === 'string') {
                   return (
-                    <Box whiteSpace="pre-wrap" color="white" fontFamily="mono" fontSize="sm" p={2} bg="rgba(255,255,255,0.05)" borderRadius="md" border="1px solid rgba(255,255,255,0.1)">
+                    <Box whiteSpace="pre-wrap" color="gray.700" fontFamily="mono" fontSize="sm" p={3} bg="#fafafa" borderRadius="md" border="1px solid" borderColor="gray.100">
                       {competitorSummary}
                     </Box>
                   );
@@ -1723,76 +1789,74 @@ For questions or additional analysis, contact the Strategic Planning team.
                   return (
                     <VStack align="start" spacing={4}>
                       {/* Competitor Overview Stats */}
-                      <Box w="full" p={4} bg="rgba(147, 51, 234, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(147, 51, 234, 0.2)">
+                      <Box w="full" p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
                         <HStack justify="space-between" mb={3}>
-                          <Text fontWeight="bold" color="white" fontSize="md">Market Overview</Text>
-                          <Badge colorScheme="purple" variant="solid">
+                          <Text fontWeight="semibold" color="gray.900" fontSize="sm">Market Overview</Text>
+                          <Badge colorScheme="gray" variant="subtle">
                             {competitorSummary.length} Competitors Analyzed
                           </Badge>
                         </HStack>
                         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                           <Box textAlign="center">
-                            <Text fontSize="lg" fontWeight="bold" color="white">
-                              {competitorSummary.filter((c: any) => c.market_share !== 'unknown').length}
+                            <Text fontSize="lg" fontWeight="bold" color="gray.900">
+                              {competitorSummary.filter((c: Competitor) => c.market_share !== 'unknown').length}
                             </Text>
-                            <Text fontSize="sm" color="rgba(255,255,255,0.8)">With Market Share Data</Text>
+                            <Text fontSize="xs" color="gray.500">With Market Share Data</Text>
                           </Box>
                           <Box textAlign="center">
-                            <Text fontSize="lg" fontWeight="bold" color="white">
-                              {competitorSummary.filter((c: any) => c.years_in_market).length}
+                            <Text fontSize="lg" fontWeight="bold" color="gray.900">
+                              {competitorSummary.filter((c: Competitor) => c.years_in_market).length}
                             </Text>
-                            <Text fontSize="sm" color="rgba(255,255,255,0.8)">With Experience Data</Text>
+                            <Text fontSize="xs" color="gray.500">With Experience Data</Text>
                           </Box>
                           <Box textAlign="center">
-                            <Text fontSize="lg" fontWeight="bold" color="white">
-                              {competitorSummary.filter((c: any) => c.headquarters).length}
+                            <Text fontSize="lg" fontWeight="bold" color="gray.900">
+                              {competitorSummary.filter((c: Competitor) => c.headquarters).length}
                             </Text>
-                            <Text fontSize="sm" color="rgba(255,255,255,0.8)">With Location Data</Text>
+                            <Text fontSize="xs" color="gray.500">With Location Data</Text>
                           </Box>
                         </SimpleGrid>
                       </Box>
 
                       {/* Detailed Competitor Cards */}
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
-                        {competitorSummary.map((competitor: any, index: number) => (
-                          <Box key={index} p={4} bg="rgba(255,255,255,0.05)" borderRadius="lg" border="1px solid" borderColor="rgba(255,255,255,0.1)" w="full" _hover={{ boxShadow: 'md', transform: 'translateY(-1px)' }} transition="all 0.2s">
+                        {competitorSummary.map((competitor: Competitor, index: number) => (
+                          <Box key={index} p={4} bg="white" borderRadius="lg" border="1px solid" borderColor="gray.200" w="full" _hover={{ shadow: 'sm' }} transition="all 0.2s">
                             <VStack align="start" spacing={3}>
                               <HStack justify="space-between" w="full">
-                                <Text fontWeight="bold" color="white" fontSize="md">
+                                <Text fontWeight="semibold" color="gray.900" fontSize="sm">
                                   {competitor.name}
                                 </Text>
                                 <Badge colorScheme={competitor.market_share === 'unknown' ? 'gray' : 'green'} variant="subtle">
                                   {competitor.market_share}
                                 </Badge>
                               </HStack>
-                              
-                              <Text color="rgba(255,255,255,0.8)" fontSize="sm" lineHeight="1.5">
+
+                              <Text color="gray.600" fontSize="sm" lineHeight="1.5">
                                 {competitor.description}
                               </Text>
 
                               <SimpleGrid columns={2} spacing={3} w="full">
                                 {competitor.years_in_market && (
                                   <Box>
-                                    <Text fontSize="xs" color="rgba(255,255,255,0.6)" fontWeight="semibold">Years in Market</Text>
-                                    <Text fontSize="sm" fontWeight="bold" color="white">
+                                    <Text fontSize="xs" color="gray.400" fontWeight="medium">Years in Market</Text>
+                                    <Text fontSize="sm" fontWeight="semibold" color="gray.800">
                                       {competitor.years_in_market} years
                                     </Text>
                                   </Box>
                                 )}
-                                
+
                                 {competitor.headquarters && (
                                   <Box>
-                                    <Text fontSize="xs" color="rgba(255,255,255,0.6)" fontWeight="semibold">Headquarters</Text>
-                                    <Text fontSize="sm" fontWeight="bold" color="white">
+                                    <Text fontSize="xs" color="gray.400" fontWeight="medium">Headquarters</Text>
+                                    <Text fontSize="sm" fontWeight="semibold" color="gray.800">
                                       {competitor.headquarters}
                                     </Text>
                                   </Box>
                                 )}
                               </SimpleGrid>
 
-                              {/* Competitive Positioning Indicators */}
                               <Box w="full">
-                                <Text fontSize="xs" color="rgba(255,255,255,0.6)" fontWeight="semibold" mb={1}>Competitive Profile</Text>
                                 <HStack spacing={2} flexWrap="wrap">
                                   {competitor.market_share !== 'unknown' && (
                                     <Badge colorScheme="green" variant="outline" size="sm">
@@ -1827,26 +1891,26 @@ For questions or additional analysis, contact the Strategic Planning team.
                       </SimpleGrid>
 
                       {/* Market Share Analysis */}
-                      {competitorSummary.filter((c: any) => c.market_share !== 'unknown').length > 0 && (
-                        <Box w="full" p={4} bg="rgba(34, 197, 94, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(34, 197, 94, 0.2)">
-                          <Text fontWeight="bold" color="white" mb={3}>Market Share Analysis</Text>
+                      {competitorSummary.filter((c: Competitor) => c.market_share !== 'unknown').length > 0 && (
+                        <Box w="full" p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                          <Text fontWeight="semibold" color="gray.900" mb={3} fontSize="sm">Market Share Analysis</Text>
                           <VStack align="start" spacing={2}>
                             {competitorSummary
-                              .filter((c: any) => c.market_share !== 'unknown')
-                              .sort((a: any, b: any) => parseFloat(b.market_share) - parseFloat(a.market_share))
-                              .map((competitor: any, index: number) => (
+                              .filter((c: Competitor) => c.market_share !== 'unknown')
+                              .sort((a: Competitor, b: Competitor) => parseFloat(b.market_share) - parseFloat(a.market_share))
+                              .map((competitor: Competitor, index: number) => (
                                 <HStack key={index} w="full" justify="space-between">
-                                  <Text fontSize="sm" fontWeight="semibold" color="white">
+                                  <Text fontSize="sm" fontWeight="medium" color="gray.700">
                                     {competitor.name}
                                   </Text>
                                   <HStack spacing={2}>
-                                    <Text fontSize="sm" fontWeight="bold" color="white">
+                                    <Text fontSize="sm" fontWeight="semibold" color="gray.900">
                                       {competitor.market_share}
                                     </Text>
-                                    <Progress 
-                                      value={parseFloat(competitor.market_share)} 
-                                      size="sm" 
-                                      colorScheme="green" 
+                                    <Progress
+                                      value={parseFloat(competitor.market_share)}
+                                      size="sm"
+                                      colorScheme="gray"
                                       w="100px"
                                       borderRadius="full"
                                     />
@@ -1859,30 +1923,39 @@ For questions or additional analysis, contact the Strategic Planning team.
                     </VStack>
                   );
                 } else {
-                  return <Text color="gray.500">No competitor data available.</Text>;
+                  return <Text color="gray.500" fontSize="sm">No competitor data available.</Text>;
                 }
               })()}
             </CardBody>
           </Card>
 
-          {/* Full Competitor Analysis Report Section */}
+          {/* Research Report Section */}
           {researchReport && (
-            <Card shadow="lg" borderRadius="xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+            <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
               <CardBody p={6}>
                 <Flex justify="space-between" align="center" mb={4}>
-                  <Heading size="md" color="white">Full Competitor Analysis Report</Heading>
+                  <Heading size="md" color="gray.900">Full Competitor Analysis Report</Heading>
                   <IconButton
                     aria-label="Download report as text file"
                     icon={<FiDownload />}
-                    colorScheme="purple"
                     variant="outline"
+                    borderColor="gray.200"
+                    color="gray.600"
                     size="sm"
                     onClick={downloadReport}
-                    _hover={{ bg: 'rgba(255,255,255,0.1)' }}
+                    _hover={{ bg: 'gray.50' }}
                     _focus={{ boxShadow: 'none', outline: 'none' }}
                   />
                 </Flex>
-                <Button mb={4} colorScheme="purple" variant="outline" onClick={() => setShowFullReport(v => !v)}>
+                <Button
+                  mb={4}
+                  variant="outline"
+                  borderColor="gray.200"
+                  color="gray.700"
+                  size="sm"
+                  onClick={() => setShowFullReport(v => !v)}
+                  _hover={{ bg: 'gray.50' }}
+                >
                   {showFullReport ? 'Hide Full Report' : 'Show Full Report'}
                 </Button>
                 {showFullReport && (
@@ -1895,42 +1968,234 @@ For questions or additional analysis, contact the Strategic Planning team.
           )}
 
           {/* Revenue Projection Section */}
-          <Card shadow="lg" borderRadius="xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
             <CardBody p={6}>
-              <Heading size="md" mb={4} color="white">Revenue Projection</Heading>
-              <VStack align="start" spacing={2}>
-                <Box>
-                  <Text fontSize="sm" color="rgba(255,255,255,0.8)">Year 1 Revenue</Text>
-                  <Text fontSize="xl" fontWeight="bold" color="white">{revenue.year_1}</Text>
+              <Heading size="md" mb={4} color="gray.900">Revenue Projection</Heading>
+              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontSize="sm" color="gray.500" mb={1}>Year 1 Revenue</Text>
+                  <Text fontSize="xl" fontWeight="bold" color="gray.900">{revenue.year_1}</Text>
                 </Box>
-                <Box>
-                  <Text fontSize="sm" color="rgba(255,255,255,0.8)">Year 3 Revenue</Text>
-                  <Text fontSize="xl" fontWeight="bold" color="white">{revenue.year_3}</Text>
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontSize="sm" color="gray.500" mb={1}>Year 3 Revenue</Text>
+                  <Text fontSize="xl" fontWeight="bold" color="gray.900">{revenue.year_3}</Text>
                 </Box>
-                <Box>
-                  <Text fontSize="sm" color="gray.600">Market Share Target (Y1/Y3)</Text>
-                  <Text fontSize="xl" fontWeight="bold" color="purple.600">{revenue.market_share_y1} / {revenue.market_share_y3}</Text>
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontSize="sm" color="gray.500" mb={1}>Market Share Target (Y1/Y3)</Text>
+                  <Text fontSize="xl" fontWeight="bold" color="gray.900">{revenue.market_share_y1} / {revenue.market_share_y3}</Text>
                 </Box>
-              </VStack>
+              </SimpleGrid>
+            </CardBody>
+          </Card>
+
+          {/* Financial Model Section */}
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
+            <CardBody p={6}>
+              <Flex justify="space-between" align="center" mb={4}>
+                <Heading size="md" color="gray.900">Financial Model</Heading>
+                <Button
+                  size="sm"
+                  bg="gray.900"
+                  color="white"
+                  _hover={{ bg: 'gray.800' }}
+                  onClick={fetchFinancialModel}
+                  isLoading={financialModelLoading}
+                  loadingText="Generating..."
+                  isDisabled={!currentReportId}
+                >
+                  {financialModel ? 'Regenerate Financial Model' : 'Generate Financial Model'}
+                </Button>
+              </Flex>
+
+              {financialModelLoading && (
+                <Flex justify="center" align="center" py={12} direction="column" gap={3}>
+                  <Spinner size="lg" color="gray.500" />
+                  <Text fontSize="sm" color="gray.500">Generating financial model analysis...</Text>
+                </Flex>
+              )}
+
+              {financialModelError && !financialModelLoading && (
+                <Box p={4} bg="red.50" borderRadius="lg" border="1px solid" borderColor="red.200">
+                  <Text fontSize="sm" color="red.600">{financialModelError}</Text>
+                </Box>
+              )}
+
+              {!financialModel && !financialModelLoading && !financialModelError && (
+                <Box p={8} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100" textAlign="center">
+                  <Icon as={FiBarChart} boxSize={8} color="gray.400" mb={3} />
+                  <Text fontSize="sm" color="gray.500">
+                    Click "Generate Financial Model" to run sensitivity analysis and scenario projections for this report.
+                  </Text>
+                </Box>
+              )}
+
+              {financialModel && !financialModelLoading && (
+                <VStack spacing={6} align="stretch">
+                  {/* Sensitivity Analysis - Tornado Chart */}
+                  <Box>
+                    <Text fontWeight="semibold" color="gray.900" mb={3} fontSize="sm">
+                      Sensitivity Analysis (Revenue Impact by Variable)
+                    </Text>
+                    <Box bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100" p={4}>
+                      <ResponsiveContainer width="100%" height={Math.max(250, (financialModel.sensitivity_analysis.variables?.length || 0) * 50)}>
+                        <RechartsBarChart
+                          layout="vertical"
+                          data={(financialModel.sensitivity_analysis.variables || [])
+                            .sort((a, b) => b.sensitivity_score - a.sensitivity_score)
+                            .slice(0, 8)
+                            .map(v => ({
+                              name: v.variable.length > 28 ? v.variable.substring(0, 28) + '...' : v.variable,
+                              fullName: v.variable,
+                              pessimistic: parseRevenueString(v.pessimistic_impact),
+                              base: parseRevenueString(v.base_impact),
+                              optimistic: parseRevenueString(v.optimistic_impact),
+                              range: parseRevenueString(v.optimistic_impact) - parseRevenueString(v.pessimistic_impact),
+                              score: v.sensitivity_score,
+                            }))}
+                          margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                          <XAxis type="number" tick={{ fontSize: 11, fill: '#718096' }} tickFormatter={(v: number) => `$${v.toFixed(1)}M`} />
+                          <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#4a5568' }} width={115} />
+                          <Tooltip
+                            formatter={(value: number, name: string) => [`$${value.toFixed(2)}M`, name.charAt(0).toUpperCase() + name.slice(1)]}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: 11 }} />
+                          <Bar dataKey="pessimistic" name="Pessimistic" fill="#fc8181" radius={[0, 0, 0, 0]} />
+                          <Bar dataKey="base" name="Base" fill="#90cdf4" radius={[0, 0, 0, 0]} />
+                          <Bar dataKey="optimistic" name="Optimistic" fill="#68d391" radius={[0, 0, 0, 0]} />
+                        </RechartsBarChart>
+                      </ResponsiveContainer>
+                    </Box>
+                    {financialModel.sensitivity_analysis.key_findings && (
+                      <Box mt={3} p={3} bg="blue.50" borderRadius="lg" border="1px solid" borderColor="blue.100">
+                        <Text fontSize="xs" fontWeight="semibold" color="blue.700" mb={1}>Key Findings</Text>
+                        <Text fontSize="xs" color="blue.600" lineHeight="1.5">
+                          {financialModel.sensitivity_analysis.key_findings}
+                        </Text>
+                      </Box>
+                    )}
+                  </Box>
+
+                  {/* Scenario Projections Chart */}
+                  <Box>
+                    <Text fontWeight="semibold" color="gray.900" mb={3} fontSize="sm">
+                      Scenario Revenue Projections
+                    </Text>
+                    <Box bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100" p={4}>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <RechartsBarChart
+                          data={[
+                            {
+                              period: 'Year 1',
+                              Conservative: parseRevenueString(financialModel.scenario_projections.conservative.year_1_revenue),
+                              Base: parseRevenueString(financialModel.scenario_projections.base.year_1_revenue),
+                              Optimistic: parseRevenueString(financialModel.scenario_projections.optimistic.year_1_revenue),
+                            },
+                            {
+                              period: 'Year 3',
+                              Conservative: parseRevenueString(financialModel.scenario_projections.conservative.year_3_revenue),
+                              Base: parseRevenueString(financialModel.scenario_projections.base.year_3_revenue),
+                              Optimistic: parseRevenueString(financialModel.scenario_projections.optimistic.year_3_revenue),
+                            },
+                            {
+                              period: 'Year 5',
+                              Conservative: parseRevenueString(financialModel.scenario_projections.conservative.year_5_revenue),
+                              Base: parseRevenueString(financialModel.scenario_projections.base.year_5_revenue),
+                              Optimistic: parseRevenueString(financialModel.scenario_projections.optimistic.year_5_revenue),
+                            },
+                          ]}
+                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                          <XAxis dataKey="period" tick={{ fontSize: 12, fill: '#4a5568' }} />
+                          <YAxis tick={{ fontSize: 11, fill: '#718096' }} tickFormatter={(v: number) => `$${v.toFixed(1)}M`} />
+                          <Tooltip
+                            formatter={(value: number, name: string) => [`$${value.toFixed(2)}M`, name]}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: 11 }} />
+                          <Bar dataKey="Conservative" fill="#fc8181" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="Base" fill="#90cdf4" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="Optimistic" fill="#68d391" radius={[4, 4, 0, 0]} />
+                        </RechartsBarChart>
+                      </ResponsiveContainer>
+                    </Box>
+
+                    {/* Scenario Details Cards */}
+                    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mt={4}>
+                      <Box p={4} bg="red.50" borderRadius="lg" border="1px solid" borderColor="red.100">
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="semibold" color="red.700" fontSize="sm">Conservative</Text>
+                          <Badge colorScheme="red" variant="subtle" fontSize="xs">{financialModel.scenario_projections.conservative.probability}</Badge>
+                        </HStack>
+                        <VStack align="start" spacing={1}>
+                          <Text fontSize="xs" color="red.600">Y1: {financialModel.scenario_projections.conservative.year_1_revenue}</Text>
+                          <Text fontSize="xs" color="red.600">Y3: {financialModel.scenario_projections.conservative.year_3_revenue}</Text>
+                          <Text fontSize="xs" color="red.600">Y5: {financialModel.scenario_projections.conservative.year_5_revenue}</Text>
+                        </VStack>
+                        {financialModel.scenario_projections.conservative.key_assumptions && (
+                          <Text fontSize="xs" color="red.500" mt={2} noOfLines={3}>
+                            {financialModel.scenario_projections.conservative.key_assumptions}
+                          </Text>
+                        )}
+                      </Box>
+                      <Box p={4} bg="blue.50" borderRadius="lg" border="1px solid" borderColor="blue.100">
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="semibold" color="blue.700" fontSize="sm">Base Case</Text>
+                          <Badge colorScheme="blue" variant="subtle" fontSize="xs">{financialModel.scenario_projections.base.probability}</Badge>
+                        </HStack>
+                        <VStack align="start" spacing={1}>
+                          <Text fontSize="xs" color="blue.600">Y1: {financialModel.scenario_projections.base.year_1_revenue}</Text>
+                          <Text fontSize="xs" color="blue.600">Y3: {financialModel.scenario_projections.base.year_3_revenue}</Text>
+                          <Text fontSize="xs" color="blue.600">Y5: {financialModel.scenario_projections.base.year_5_revenue}</Text>
+                        </VStack>
+                        {financialModel.scenario_projections.base.key_assumptions && (
+                          <Text fontSize="xs" color="blue.500" mt={2} noOfLines={3}>
+                            {financialModel.scenario_projections.base.key_assumptions}
+                          </Text>
+                        )}
+                      </Box>
+                      <Box p={4} bg="green.50" borderRadius="lg" border="1px solid" borderColor="green.100">
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="semibold" color="green.700" fontSize="sm">Optimistic</Text>
+                          <Badge colorScheme="green" variant="subtle" fontSize="xs">{financialModel.scenario_projections.optimistic.probability}</Badge>
+                        </HStack>
+                        <VStack align="start" spacing={1}>
+                          <Text fontSize="xs" color="green.600">Y1: {financialModel.scenario_projections.optimistic.year_1_revenue}</Text>
+                          <Text fontSize="xs" color="green.600">Y3: {financialModel.scenario_projections.optimistic.year_3_revenue}</Text>
+                          <Text fontSize="xs" color="green.600">Y5: {financialModel.scenario_projections.optimistic.year_5_revenue}</Text>
+                        </VStack>
+                        {financialModel.scenario_projections.optimistic.key_assumptions && (
+                          <Text fontSize="xs" color="green.500" mt={2} noOfLines={3}>
+                            {financialModel.scenario_projections.optimistic.key_assumptions}
+                          </Text>
+                        )}
+                      </Box>
+                    </SimpleGrid>
+                  </Box>
+                </VStack>
+              )}
             </CardBody>
           </Card>
 
           {/* Recommended Actions Section */}
-          <Card shadow="lg" borderRadius="xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm" borderRadius="xl">
             <CardBody p={6}>
-              <Heading size="md" mb={4} color="white">Recommended Actions</Heading>
+              <Heading size="md" mb={4} color="gray.900">Recommended Actions</Heading>
               <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} w="full">
-                <Box p={4} bg="rgba(59, 130, 246, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(59, 130, 246, 0.2)">
-                  <Text fontWeight="bold" color="white" mb={1} fontSize="md">Immediate</Text>
-                  <Text fontSize="sm" color="rgba(255,255,255,0.8)">{recommended.immediate}</Text>
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontWeight="semibold" color="gray.900" mb={2} fontSize="sm">Immediate</Text>
+                  <Text fontSize="sm" color="gray.600">{recommended.immediate}</Text>
                 </Box>
-                <Box p={4} bg="rgba(249, 115, 22, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(249, 115, 22, 0.2)">
-                  <Text fontWeight="bold" color="white" mb={1} fontSize="md">Short-term</Text>
-                  <Text fontSize="sm" color="rgba(255,255,255,0.8)">{recommended.short_term}</Text>
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontWeight="semibold" color="gray.900" mb={2} fontSize="sm">Short-term</Text>
+                  <Text fontSize="sm" color="gray.600">{recommended.short_term}</Text>
                 </Box>
-                <Box p={4} bg="rgba(34, 197, 94, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(34, 197, 94, 0.2)">
-                  <Text fontWeight="bold" color="white" mb={1} fontSize="md">Long-term</Text>
-                  <Text fontSize="sm" color="rgba(255,255,255,0.8)">{recommended.long_term}</Text>
+                <Box p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
+                  <Text fontWeight="semibold" color="gray.900" mb={2} fontSize="sm">Long-term</Text>
+                  <Text fontSize="sm" color="gray.600">{recommended.long_term}</Text>
                 </Box>
               </SimpleGrid>
             </CardBody>
@@ -1941,31 +2206,31 @@ For questions or additional analysis, contact the Strategic Planning team.
       {/* Metric Details Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader color={`${selectedMetric?.color}.700`}>
+        <ModalContent bg="white" border="1px solid" borderColor="gray.200">
+          <ModalHeader color="gray.900">
             {selectedMetric?.label} - Detailed Analysis
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <VStack align="start" spacing={4}>
-              <HStack w="full" justify="space-between" p={4} bg={`${selectedMetric?.color}.50`} borderRadius="lg">
+              <HStack w="full" justify="space-between" p={4} bg="#fafafa" borderRadius="lg" border="1px solid" borderColor="gray.100">
                 <VStack align="start" spacing={1}>
-                  <Text fontSize="lg" fontWeight="bold" color={`${selectedMetric?.color}.900`}>
+                  <Text fontSize="lg" fontWeight="bold" color="gray.900">
                     {selectedMetric?.value}
                   </Text>
-                  <Badge colorScheme={selectedMetric?.color} variant="solid">
+                  <Badge colorScheme={selectedMetric?.color} variant="subtle">
                     {selectedMetric?.change}
                   </Badge>
                 </VStack>
-                <Icon as={selectedMetric?.icon} color={`${selectedMetric?.color}.500`} boxSize={8} />
+                <Icon as={selectedMetric?.icon} color="gray.400" boxSize={8} />
               </HStack>
-              
+
               <Box w="full">
-                <Text fontSize="md" fontWeight="semibold" color="gray.700" mb={3}>
+                <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={3}>
                   Analysis & Rationale
                 </Text>
-                <Box p={4} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.200">
-                  <Text fontSize="sm" color="gray.700" lineHeight="1.6">
+                <Box p={4} bg="#fafafa" borderRadius="md" border="1px solid" borderColor="gray.100">
+                  <Text fontSize="sm" color="gray.600" lineHeight="1.6">
                     {selectedMetric?.explanation || 'No detailed explanation available for this metric.'}
                   </Text>
                 </Box>
@@ -1973,8 +2238,70 @@ For questions or additional analysis, contact the Strategic Planning team.
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme={selectedMetric?.color} onClick={onClose}>
+            <Button bg="gray.900" color="white" _hover={{ bg: 'gray.800' }} onClick={onClose}>
               Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Share Report Modal */}
+      <Modal isOpen={isShareOpen} onClose={onShareClose} isCentered>
+        <ModalOverlay bg="blackAlpha.400" />
+        <ModalContent bg="white" border="1px solid" borderColor="gray.200" shadow="lg">
+          <ModalHeader>
+            <HStack spacing={3}>
+              <FiLink color="#4A5568" size={20} />
+              <Text color="gray.900">Share Report</Text>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton color="gray.500" />
+          <ModalBody>
+            <VStack spacing={4}>
+              <Text fontSize="sm" color="gray.600">
+                Anyone with this link can view a read-only version of this report.
+              </Text>
+              {shareLink && (
+                <InputGroup>
+                  <Input
+                    value={shareLink}
+                    isReadOnly
+                    fontSize="sm"
+                    bg="#fafafa"
+                    borderColor="gray.200"
+                    pr="4rem"
+                  />
+                  <InputRightElement width="4rem">
+                    <IconButton
+                      aria-label="Copy link"
+                      icon={<FiCopy />}
+                      size="sm"
+                      variant="ghost"
+                      color="gray.600"
+                      onClick={handleCopyShareLink}
+                    />
+                  </InputRightElement>
+                </InputGroup>
+              )}
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            {isShared && (
+              <Button
+                variant="outline"
+                borderColor="red.300"
+                color="red.600"
+                _hover={{ bg: 'red.50' }}
+                mr={3}
+                onClick={handleUnshareReport}
+                isLoading={shareLoading}
+                size="sm"
+              >
+                Unshare
+              </Button>
+            )}
+            <Button bg="gray.900" color="white" _hover={{ bg: 'gray.800' }} onClick={onShareClose} size="sm">
+              Done
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -1983,4 +2310,4 @@ For questions or additional analysis, contact the Strategic Planning team.
   );
 };
 
-export default ExecutiveDashboardPage; 
+export default ExecutiveDashboardPage;

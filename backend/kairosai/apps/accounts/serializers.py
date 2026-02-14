@@ -48,10 +48,12 @@ class UserLoginSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for user profile"""
+    is_admin = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'is_verified', 'created_at', 'provider', 'profile_picture')
-        read_only_fields = ('id', 'is_verified', 'created_at', 'provider', 'profile_picture')
+        fields = ('id', 'email', 'first_name', 'last_name', 'is_verified', 'created_at', 'provider', 'profile_picture', 'role', 'is_admin', 'subscription_tier')
+        read_only_fields = ('id', 'is_verified', 'created_at', 'provider', 'profile_picture', 'role', 'is_admin', 'subscription_tier')
 
 
 class GoogleAuthSerializer(serializers.Serializer):

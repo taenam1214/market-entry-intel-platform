@@ -60,7 +60,13 @@ class MarketReport(models.Model):
     key_insights = models.JSONField(default=list, blank=True)
     revenue_projections = models.JSONField(default=dict, blank=True)
     recommended_actions = models.JSONField(default=dict, blank=True)
-    
+    deep_dives = models.JSONField(default=dict, blank=True)  # Deep-dive research results keyed by module
+    playbook = models.JSONField(default=dict, blank=True)  # Market entry playbook
+
+    # Sharing
+    share_token = models.CharField(max_length=64, null=True, blank=True, unique=True)
+    is_shared = models.BooleanField(default=False)
+
     # Executive summary and content for RAG
     executive_summary = models.TextField(blank=True)
     full_content = models.TextField(blank=True)  # Full text content for RAG
@@ -90,6 +96,28 @@ class MarketReport(models.Model):
             'scores': self.detailed_scores,
             'created_at': self.created_at.isoformat(),
         }
+
+class MultiMarketReport(models.Model):
+    """Model to store multi-market comparison analysis results"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='multi_market_reports')
+    company_name = models.CharField(max_length=200)
+    industry = models.CharField(max_length=100)
+    target_markets = models.JSONField(default=list)  # List of target market names
+    comparison_matrix = models.JSONField(default=dict, blank=True)  # Side-by-side scores
+    ranking = models.JSONField(default=list, blank=True)  # Ordered recommendation
+    individual_reports = models.ManyToManyField(MarketReport, blank=True, related_name='multi_market_groups')
+    status = models.CharField(max_length=20, choices=MarketReport.STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Multi-Market Report'
+        verbose_name_plural = 'Multi-Market Reports'
+
+    def __str__(self):
+        return f"{self.company_name} - {', '.join(self.target_markets[:3])}..."
+
 
 class ChatConversation(models.Model):
     """Model to store chat conversations with the AI assistant"""

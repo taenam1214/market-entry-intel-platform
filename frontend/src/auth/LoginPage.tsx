@@ -15,17 +15,14 @@ import {
   AlertIcon,
   AlertDescription,
   Spinner,
-  Divider,
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from './AuthContext';
-// import GoogleAuthButton from '../components/GoogleAuthButton';
-// import type { GoogleUser } from '../types/googleAuth';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login, isLoading, error } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -33,14 +30,12 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
-    // Clear local error when user starts typing
     if (localError) setLocalError(null);
   };
 
@@ -48,7 +43,6 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setLocalError(null);
 
-    // Basic validation
     if (!formData.email.trim()) {
       setLocalError('Email is required');
       return;
@@ -64,72 +58,52 @@ const LoginPage: React.FC = () => {
 
     try {
       await login(formData.email, formData.password);
-      // Navigate to dashboard on successful login
       navigate('/dashboard');
     } catch (error: any) {
       setLocalError(error.message || 'Login failed');
     }
   };
 
-  // const handleGoogleSuccess = async (_user: GoogleUser) => {
-  //   try {
-  //     // The GoogleAuthButton already handles the backend authentication
-  //     // We just need to update the auth context and navigate
-  //     navigate('/dashboard');
-  //   } catch (error: any) {
-  //     setLocalError(error.message || 'Google authentication failed');
-  //   }
-  // };
-
-  // const handleGoogleError = (error: string) => {
-  //   setLocalError(error);
-  // };
-
   const displayError = localError || error;
 
   return (
-    <Box minH="100vh" bg="#140d28" py={12}>
-      <Container maxW="xl">
+    <Box minH="100vh" bg="#fafafa" py={12}>
+      <Container maxW="md">
         <VStack spacing={8} align="stretch">
-          {/* Header */}
           <VStack spacing={4} textAlign="center">
             <Button
               variant="ghost"
               leftIcon={<FiArrowLeft />}
               onClick={() => navigate('/')}
               alignSelf="flex-start"
-              color="white"
-              _focus={{ boxShadow: 'none', outline: 'none' }}
-              _hover={{ bg: 'rgba(255,255,255,0.1)' }}
+              color="gray.600"
+              _hover={{ bg: 'gray.100' }}
             >
               Back to Home
             </Button>
-            
-            <Heading 
-              size="xl" 
-              color="white"
+
+            <Heading
+              size="xl"
+              color="gray.900"
               fontWeight="bold"
-              fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
             >
               Welcome Back
             </Heading>
-            <Text color="rgba(255,255,255,0.8)" fontSize="lg">
+            <Text color="gray.600" fontSize="lg">
               Sign in to your KairosAI account
             </Text>
           </VStack>
 
-          {/* Login Form */}
-          <Box 
-            bg="rgba(255,255,255,0.05)" 
-            p={8} 
-            borderRadius="xl" 
-            backdropFilter="blur(20px)"
-            border="1px solid rgba(255,255,255,0.1)"
-            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
+          <Box
+            bg="white"
+            p={8}
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="gray.200"
+            shadow="sm"
           >
             <form onSubmit={handleSubmit}>
               <VStack spacing={6}>
-                {/* Error Alert */}
                 {displayError && (
                   <Alert status="error" borderRadius="md">
                     <AlertIcon />
@@ -137,9 +111,8 @@ const LoginPage: React.FC = () => {
                   </Alert>
                 )}
 
-                {/* Email Field */}
                 <FormControl isRequired>
-                  <FormLabel color="white" fontWeight="medium">
+                  <FormLabel color="gray.700" fontWeight="medium">
                     Email Address
                   </FormLabel>
                   <Input
@@ -150,24 +123,11 @@ const LoginPage: React.FC = () => {
                     placeholder="Enter your email address"
                     size="lg"
                     borderRadius="lg"
-                    bg="rgba(255,255,255,0.1)"
-                    borderColor="rgba(255,255,255,0.2)"
-                    color="white"
-                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
-                    _focus={{
-                      borderColor: 'rgba(255,255,255,0.2)',
-                      bg: 'rgba(255,255,255,0.1)',
-                      boxShadow: 'none',
-                    }}
-                    _hover={{
-                      borderColor: 'rgba(255,255,255,0.3)',
-                    }}
                   />
                 </FormControl>
 
-                {/* Password Field */}
                 <FormControl isRequired>
-                  <FormLabel color="white" fontWeight="medium">
+                  <FormLabel color="gray.700" fontWeight="medium">
                     Password
                   </FormLabel>
                   <HStack>
@@ -179,36 +139,22 @@ const LoginPage: React.FC = () => {
                       placeholder="Enter your password"
                       size="lg"
                       borderRadius="lg"
-                      bg="rgba(255,255,255,0.1)"
-                      borderColor="rgba(255,255,255,0.2)"
-                      color="white"
-                      _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
-                      _focus={{
-                        borderColor: 'rgba(255,255,255,0.2)',
-                        bg: 'rgba(255,255,255,0.1)',
-                        boxShadow: 'none',
-                      }}
-                      _hover={{
-                        borderColor: 'rgba(255,255,255,0.3)',
-                      }}
                     />
                     <Button
                       variant="ghost"
                       size="lg"
                       onClick={() => setShowPassword(!showPassword)}
-                      color="rgba(255,255,255,0.7)"
-                      _focus={{ boxShadow: 'none', outline: 'none' }}
-                      _hover={{ color: '#667eea', bg: 'rgba(255,255,255,0.1)' }}
+                      color="gray.500"
+                      _hover={{ color: 'gray.700', bg: 'gray.100' }}
                     >
                       {showPassword ? <FiEyeOff /> : <FiEye />}
                     </Button>
                   </HStack>
                 </FormControl>
 
-                {/* Submit Button */}
                 <Button
                   type="submit"
-                  bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                  bg="gray.900"
                   color="white"
                   size="lg"
                   width="full"
@@ -217,49 +163,22 @@ const LoginPage: React.FC = () => {
                   spinner={<Spinner size="sm" />}
                   borderRadius="lg"
                   fontWeight="semibold"
-                  border="none"
-                  _focus={{ boxShadow: 'none', outline: 'none' }}
-                  _hover={{
-                    bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)',
-                  }}
-                  _active={{ transform: 'translateY(0)' }}
+                  _hover={{ bg: 'gray.800' }}
                 >
                   Sign In
                 </Button>
-
-                {/* Divider */}
-                {/* <HStack width="full">
-                  <Divider borderColor="rgba(255,255,255,0.2)" />
-                  <Text color="rgba(255,255,255,0.6)" fontSize="sm" px={2}>
-                    OR
-                  </Text>
-                  <Divider borderColor="rgba(255,255,255,0.2)" />
-                </HStack> */}
-
-                {/* Google OAuth Button */}
-                {/* <GoogleAuthButton
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  isLoading={isLoading}
-                /> */}
               </VStack>
             </form>
           </Box>
 
-          {/* Footer */}
-          <VStack spacing={4}>
-            <Divider borderColor="rgba(255,255,255,0.2)" />
-            <Text color="rgba(255,255,255,0.8)" textAlign="center">
-              Don't have an account?{' '}
-              <Link to="/register">
-                <Text as="span" color="#667eea" fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
-                  Sign up here
-                </Text>
-              </Link>
-            </Text>
-          </VStack>
+          <Text color="gray.600" textAlign="center">
+            Don't have an account?{' '}
+            <Link to="/register">
+              <Text as="span" color="gray.900" fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
+                Sign up here
+              </Text>
+            </Link>
+          </Text>
         </VStack>
       </Container>
     </Box>

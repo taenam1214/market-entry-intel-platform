@@ -12,5 +12,9 @@ urlpatterns = [
     path('api/v1/', include('apps.analysis.urls')),
     path('api/v1/companies/', include('apps.companies.urls')),
     path('api/v1/auth/', include('apps.accounts.urls')),
+    path('api/v1/payments/', include('apps.payments.urls')),
+    path('api/v1/', include('apps.monitoring.urls')),
+    path('api/v1/teams/', include('apps.teams.urls')),
+    path('api/v1/api-keys/', include('apps.api_keys.urls')),
     path('accounts/', include('allauth.urls')),
 ]

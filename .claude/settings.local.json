@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(xargs:*)",
+      "Bash(python3:*)",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(python manage.py migrate:*)",
+      "Bash(curl:*)",
+      "Bash(node -e:*)",
+      "Bash(for f in a1db0e7 ae0ce90 ac1084e a3f626c a9b51ad)",
+      "Bash(do echo -n \"$f: \")",
+      "Bash(if grep -q '\"\"type\"\":\"\"result\"\"' /private/tmp/claude-501/-Users-maegbug-Desktop-market-entry-intel-platform/tasks/$f.output)",
+      "Bash(then echo \"DONE\")",
+      "Bash(else echo \"running\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(python manage.py makemigrations:*)",
+      "Bash(for f in a1db0e7 ae0ce90 ac1084e a3f626c a9b51ad a25c57b a58693a)",
+      "Bash(npx tsc:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm install:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npx vite build:*)",
+      "Bash(python manage.py runserver:*)",
+      "Bash(lsof:*)",
+      "Bash(python manage.py shell:*)"
+    ]
+  }
+}

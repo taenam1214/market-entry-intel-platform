@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Dict
 
 from .models import MarketReport
+from apps.accounts.permissions import HasAnalysisQuota
 
 logger = logging.getLogger(__name__)
 
@@ -39,10 +40,10 @@ class MarketAnalysisRequestSerializer:
 
 class ComprehensiveAnalysisAPIView(APIView):
     """
-    Comprehensive API endpoint that runs market analysis, competitor analysis, 
+    Comprehensive API endpoint that runs market analysis, competitor analysis,
     and segment arbitrage in a SINGLE call - no race conditions!
     """
-    permission_classes = [permissions.AllowAny]  # Allow both authenticated and unauthenticated access
+    permission_classes = [permissions.IsAuthenticated, HasAnalysisQuota]
     
     def post(self, request):
         try:
@@ -234,12 +235,12 @@ Revenue Projections:
                     )
                     
                     logger.info(f"✅ COMPREHENSIVE report saved to database with ID: {market_report.id}")
-                    logger.info(f"   - Competitor data: {len(competitor_report) if isinstance(competitor_report, list) else 'N/A'}")
-                    logger.info(f"   - Arbitrage data: {len(arbitrage_analysis) if isinstance(arbitrage_analysis, list) else 'N/A'}")
+
+                    # Increment analysis quota usage
+                    request.user.analyses_used_this_period += 1
+                    request.user.save(update_fields=['analyses_used_this_period'])
                 except Exception as e:
                     logger.error(f"❌ Error saving comprehensive report: {str(e)}")
-            else:
-                logger.warning("⚠️ User not authenticated, report not saved to database")
             
             return Response(response_data, status=status.HTTP_200_OK)
             

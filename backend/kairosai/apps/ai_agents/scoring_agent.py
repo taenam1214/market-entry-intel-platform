@@ -442,3 +442,57 @@ Now analyze this research report and provide scores in the exact JSON format spe
             "major_risks": ["Analysis incomplete due to technical issues"],
             "error_info": error_reason
         }
+
+    def generate_comparison_summary(self, market_scores: list) -> dict:
+        """Compare scores across multiple markets and generate ranked recommendation."""
+        try:
+            # Sort markets by overall attractiveness
+            for scores in market_scores:
+                market_score = scores.get('market_opportunity_score', 5.0)
+                competitive_score = scores.get('competitive_intensity_score', 5.0)
+                complexity_score = scores.get('entry_complexity_score', 5.0)
+                scores['overall_attractiveness'] = (
+                    (market_score * 0.4) +
+                    ((10 - competitive_score) * 0.3) +
+                    ((10 - complexity_score) * 0.3)
+                )
+
+            ranked = sorted(market_scores, key=lambda x: x.get('overall_attractiveness', 0), reverse=True)
+
+            comparison = {
+                'ranked_markets': [
+                    {
+                        'market': s.get('market_name', 'Unknown'),
+                        'rank': i + 1,
+                        'overall_attractiveness': round(s.get('overall_attractiveness', 0), 1),
+                        'market_opportunity_score': s.get('market_opportunity_score', 0),
+                        'competitive_intensity_score': s.get('competitive_intensity_score', 0),
+                        'entry_complexity_score': s.get('entry_complexity_score', 0),
+                        'revenue_potential_y1': s.get('revenue_potential_y1', 'N/A'),
+                        'revenue_potential_y3': s.get('revenue_potential_y3', 'N/A'),
+                    }
+                    for i, s in enumerate(ranked)
+                ],
+                'recommendation': self._generate_recommendation(ranked),
+            }
+
+            return comparison
+        except Exception as e:
+            logger.error(f"Error generating comparison: {e}")
+            return {'ranked_markets': [], 'recommendation': 'Unable to generate comparison.'}
+
+    def _generate_recommendation(self, ranked_scores: list) -> str:
+        """Generate a text recommendation based on ranked market scores."""
+        if not ranked_scores:
+            return "No markets to compare."
+
+        best = ranked_scores[0]
+        market_name = best.get('market_name', 'the top-ranked market')
+        score = best.get('overall_attractiveness', 0)
+
+        if score >= 7.0:
+            return f"{market_name} is strongly recommended as the primary market entry target with an overall attractiveness score of {round(score, 1)}/10."
+        elif score >= 5.0:
+            return f"{market_name} shows the most promise among the compared markets (score: {round(score, 1)}/10), though careful planning is recommended."
+        else:
+            return f"None of the compared markets show strong entry potential. {market_name} scored highest at {round(score, 1)}/10. Consider alternative markets."

@@ -16,7 +16,17 @@ from .chatbot_views import (
     ChatMessageAPIView,
     ChatHistoryAPIView,
 )
-from typing import Dict
+from .report_views import DownloadReportView
+from .sharing_views import ShareReportView, UnshareReportView, SharedReportView
+from .benchmark_views import BenchmarkView
+from .phase3_views import (
+    MultiMarketAnalysisView,
+    ScenarioModelView,
+    DeepDiveView,
+    FinancialModelView,
+    MultiMarketReportListView,
+    PlaybookView,
+)
 
 app_name = 'analysis'
 
@@ -37,4 +47,23 @@ urlpatterns = [
     path('chat/conversations/', ChatConversationsAPIView.as_view(), name='chat-conversations'),
     path('chat/messages/', ChatMessageAPIView.as_view(), name='chat-messages'),
     path('chat/conversations/<int:conversation_id>/', ChatHistoryAPIView.as_view(), name='chat-history'),
+
+    # Report downloads
+    path('reports/<int:report_id>/download/<str:report_type>/', DownloadReportView.as_view(), name='download-report'),
+
+    # Phase 3: Advanced Analysis
+    path('multi-market-analysis/', MultiMarketAnalysisView.as_view(), name='multi-market-analysis'),
+    path('multi-market-reports/', MultiMarketReportListView.as_view(), name='multi-market-reports'),
+    path('scenario-model/', ScenarioModelView.as_view(), name='scenario-model'),
+    path('deep-dive/', DeepDiveView.as_view(), name='deep-dive'),
+    path('reports/<int:report_id>/financial-model/', FinancialModelView.as_view(), name='financial-model'),
+
+    # Phase 4: Playbook & Execution
+    path('reports/<int:report_id>/playbook/', PlaybookView.as_view(), name='playbook'),
+
+    # Phase 5: Sharing & Benchmarks
+    path('reports/<int:report_id>/share/', ShareReportView.as_view(), name='share-report'),
+    path('reports/<int:report_id>/unshare/', UnshareReportView.as_view(), name='unshare-report'),
+    path('shared/<str:share_token>/', SharedReportView.as_view(), name='shared-report'),
+    path('benchmarks/', BenchmarkView.as_view(), name='benchmarks'),
 ]

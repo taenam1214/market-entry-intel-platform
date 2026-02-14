@@ -154,42 +154,35 @@ const HelpSupportPage = () => {
   ];
 
   return (
-    <Box p={6} bg="#140d28" minH="100vh" w="100%">
+    <Box p={6} bg="#fafafa" minH="100vh" w="100%">
       <Container maxW="100%" px={8}>
-        <VStack spacing={12} align="stretch" maxW="7xl" mx="auto">
+        <VStack spacing={10} align="stretch" maxW="7xl" mx="auto">
           {/* Support Channels */}
-          <Card 
-            bg="rgba(255,255,255,0.05)" 
-            border="1px solid rgba(255,255,255,0.1)"
-            backdropFilter="blur(20px)"
-            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
-          >
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm">
             <CardHeader>
               <HStack spacing={3}>
-                <FiHelpCircle color="#667eea" size={24} />
-                <Heading size="md" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Get Support</Heading>
+                <FiHelpCircle color="#4A5568" size={20} />
+                <Heading size="md" color="gray.900">Get Support</Heading>
               </HStack>
             </CardHeader>
-            <CardBody>
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+            <CardBody pt={0}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 {supportChannels.map((channel, index) => (
-                  <Card 
-                    key={index} 
-                    bg="rgba(255,255,255,0.05)" 
-                    border="1px solid rgba(255,255,255,0.1)"
-                    _hover={{ 
-                      shadow: "0 8px 32px rgba(0,0,0,0.3)", 
-                      transform: "translateY(-2px)",
-                      bg: "rgba(255,255,255,0.1)"
-                    }} 
+                  <Card
+                    key={index}
+                    bg="white"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    shadow="sm"
+                    _hover={{ shadow: 'md', borderColor: 'gray.300' }}
                     transition="all 0.2s"
                   >
                     <CardBody textAlign="center">
-                      <VStack spacing={4}>
-                        <Icon as={channel.icon} boxSize={8} color={`${channel.color}.500`} />
-                        <VStack spacing={2}>
-                          <Heading size="sm" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">{channel.title}</Heading>
-                          <Text fontSize="sm" color="rgba(255,255,255,0.8)" textAlign="center">
+                      <VStack spacing={3}>
+                        <Icon as={channel.icon} boxSize={7} color={`${channel.color}.500`} />
+                        <VStack spacing={1}>
+                          <Heading size="sm" color="gray.900">{channel.title}</Heading>
+                          <Text fontSize="sm" color="gray.500" textAlign="center">
                             {channel.description}
                           </Text>
                           <Text fontSize="sm" fontWeight="semibold" color={`${channel.color}.600`}>
@@ -208,126 +201,67 @@ const HelpSupportPage = () => {
           </Card>
 
           {/* Contact Form */}
-          <Card 
-            bg="rgba(255,255,255,0.05)" 
-            border="1px solid rgba(255,255,255,0.1)"
-            backdropFilter="blur(20px)"
-            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
-          >
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm">
             <CardHeader>
               <HStack spacing={3}>
-                <FiMail color="#667eea" size={24} />
-                <Heading size="md" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Contact Us</Heading>
+                <FiMail color="#4A5568" size={20} />
+                <Heading size="md" color="gray.900">Contact Us</Heading>
               </HStack>
             </CardHeader>
-            <CardBody>
+            <CardBody pt={0}>
               <form onSubmit={handleSubmit}>
                 <VStack spacing={4} align="stretch">
                   <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Name</FormLabel>
+                      <FormLabel fontWeight="medium" fontSize="sm" color="gray.700">Name</FormLabel>
                       <Input
                         placeholder="Your full name"
                         value={contactForm.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
                         size="md"
-                        borderRadius="md"
-                        border="1px solid"
-                        borderColor="rgba(255,255,255,0.2)"
-                        bg="rgba(255,255,255,0.1)"
-                        color="white"
-                        _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
-                        _focus={{ 
-                          borderColor: 'rgba(255,255,255,0.2)',
-                          bg: 'rgba(255,255,255,0.1)',
-                          boxShadow: 'none'
-                        }}
-                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       />
                     </FormControl>
 
                     <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Email</FormLabel>
+                      <FormLabel fontWeight="medium" fontSize="sm" color="gray.700">Email</FormLabel>
                       <Input
                         type="email"
                         placeholder="your.email@company.com"
                         value={contactForm.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
                         size="md"
-                        borderRadius="md"
-                        border="1px solid"
-                        borderColor="rgba(255,255,255,0.2)"
-                        bg="rgba(255,255,255,0.1)"
-                        color="white"
-                        _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
-                        _focus={{ 
-                          borderColor: 'rgba(255,255,255,0.2)',
-                          bg: 'rgba(255,255,255,0.1)',
-                          boxShadow: 'none'
-                        }}
-                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                       />
                     </FormControl>
                   </SimpleGrid>
 
                   <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm" color="white">Subject</FormLabel>
+                    <FormLabel fontWeight="medium" fontSize="sm" color="gray.700">Subject</FormLabel>
                     <Input
                       placeholder="Brief description of your inquiry"
                       value={contactForm.subject}
                       onChange={(e) => handleInputChange('subject', e.target.value)}
                       size="md"
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="rgba(255,255,255,0.2)"
-                      bg="rgba(255,255,255,0.1)"
-                      color="white"
-                      _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
-                      _focus={{ 
-                        borderColor: 'rgba(255,255,255,0.2)',
-                        bg: 'rgba(255,255,255,0.1)',
-                        boxShadow: 'none'
-                      }}
-                      _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                     />
                   </FormControl>
 
                   <FormControl isRequired>
-                    <FormLabel fontWeight="semibold" fontSize="sm" color="white">Message</FormLabel>
+                    <FormLabel fontWeight="medium" fontSize="sm" color="gray.700">Message</FormLabel>
                     <Textarea
                       placeholder="Please provide details about your question or issue..."
                       value={contactForm.message}
                       onChange={(e) => handleInputChange('message', e.target.value)}
                       size="md"
                       rows={5}
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="rgba(255,255,255,0.2)"
-                      bg="rgba(255,255,255,0.1)"
-                      color="white"
-                      _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
-                      _focus={{ 
-                        borderColor: 'rgba(255,255,255,0.2)',
-                        bg: 'rgba(255,255,255,0.1)',
-                        boxShadow: 'none'
-                      }}
-                      _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
                     />
                   </FormControl>
 
                   <Button
                     type="submit"
                     leftIcon={<FiMail />}
-                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    bg="gray.900"
                     color="white"
-                    border="none"
-                    _focus={{ boxShadow: 'none', outline: 'none' }}
-                    _hover={{
-                      bg: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                      transform: 'translateY(-1px)',
-                      boxShadow: 'md',
-                    }}
-                    _active={{ transform: 'translateY(0)' }}
+                    _hover={{ bg: 'gray.800' }}
+                    _active={{ bg: 'gray.700' }}
                     isLoading={loading}
                     loadingText="Sending..."
                     size="md"
@@ -341,29 +275,36 @@ const HelpSupportPage = () => {
           </Card>
 
           {/* FAQ Section */}
-          <Card 
-            bg="rgba(255,255,255,0.05)" 
-            border="1px solid rgba(255,255,255,0.1)"
-            backdropFilter="blur(20px)"
-            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
-          >
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm">
             <CardHeader>
               <HStack spacing={3}>
-                <FiHelpCircle color="#667eea" size={24} />
-                <Heading size="md" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Frequently Asked Questions</Heading>
+                <FiHelpCircle color="#4A5568" size={20} />
+                <Heading size="md" color="gray.900">Frequently Asked Questions</Heading>
               </HStack>
             </CardHeader>
-            <CardBody>
+            <CardBody pt={0}>
               <Accordion allowToggle>
                 {faqItems.map((item, index) => (
-                  <AccordionItem key={index} border="1px solid" borderColor="rgba(255,255,255,0.2)" borderRadius="md" mb={2} bg="rgba(255,255,255,0.05)">
-                    <AccordionButton _hover={{ bg: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.2)", borderRadius: "md" }} _focus={{ boxShadow: 'none', outline: 'none' }} py={4}>
-                      <Box flex="1" textAlign="left" fontWeight="semibold" color="white">
+                  <AccordionItem
+                    key={index}
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="md"
+                    mb={2}
+                    bg="white"
+                  >
+                    <AccordionButton
+                      _hover={{ bg: 'gray.50' }}
+                      _expanded={{ bg: 'gray.50' }}
+                      py={4}
+                      borderRadius="md"
+                    >
+                      <Box flex="1" textAlign="left" fontWeight="semibold" color="gray.800">
                         {item.question}
                       </Box>
-                      <AccordionIcon color="white" />
+                      <AccordionIcon color="gray.500" />
                     </AccordionButton>
-                    <AccordionPanel pb={4} color="rgba(255,255,255,0.8)" lineHeight="1.6">
+                    <AccordionPanel pb={4} color="gray.600" lineHeight="1.7">
                       {item.answer}
                     </AccordionPanel>
                   </AccordionItem>
@@ -373,48 +314,41 @@ const HelpSupportPage = () => {
           </Card>
 
           {/* Resources Section */}
-          <Card 
-            bg="rgba(255,255,255,0.05)" 
-            border="1px solid rgba(255,255,255,0.1)"
-            backdropFilter="blur(20px)"
-            boxShadow="0 8px 32px rgba(0,0,0,0.3)"
-          >
+          <Card bg="white" border="1px solid" borderColor="gray.200" shadow="sm">
             <CardHeader>
               <HStack spacing={3}>
-                <FiBook color="#667eea" size={24} />
-                <Heading size="md" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">Resources & Documentation</Heading>
+                <FiBook color="#4A5568" size={20} />
+                <Heading size="md" color="gray.900">Resources & Documentation</Heading>
               </HStack>
             </CardHeader>
-            <CardBody>
+            <CardBody pt={0}>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 {resources.map((resource, index) => (
-                  <Card 
-                    key={index} 
-                    bg="rgba(255,255,255,0.05)" 
-                    border="1px solid rgba(255,255,255,0.1)"
-                    _hover={{ 
-                      shadow: "0 8px 32px rgba(0,0,0,0.3)", 
-                      transform: "translateY(-1px)",
-                      bg: "rgba(255,255,255,0.1)"
-                    }} 
+                  <Card
+                    key={index}
+                    bg="white"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    shadow="sm"
+                    _hover={{ shadow: 'md', borderColor: 'gray.300' }}
                     transition="all 0.2s"
                   >
                     <CardBody>
                       <HStack spacing={4} align="start">
-                        <Icon as={resource.icon} boxSize={6} color="purple.500" mt={1} />
-                        <VStack spacing={2} align="start" flex={1}>
-                          <Heading size="sm" color="white" fontFamily="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif">{resource.title}</Heading>
-                          <Text fontSize="sm" color="rgba(255,255,255,0.8)">
+                        <Icon as={resource.icon} boxSize={5} color="gray.500" mt={1} />
+                        <VStack spacing={1} align="start" flex={1}>
+                          <Heading size="sm" color="gray.900">{resource.title}</Heading>
+                          <Text fontSize="sm" color="gray.500">
                             {resource.description}
                           </Text>
                           <Button
                             size="sm"
                             variant="ghost"
                             rightIcon={<FiArrowRight />}
-                            color="rgba(255,255,255,0.7)"
-                            _hover={{ bg: "rgba(255,255,255,0.1)" }}
-                            _focus={{ boxShadow: 'none', outline: 'none' }}
+                            color="gray.400"
+                            _hover={{ bg: 'gray.50', color: 'gray.600' }}
                             isDisabled
+                            mt={1}
                           >
                             Coming Soon
                           </Button>
@@ -428,13 +362,13 @@ const HelpSupportPage = () => {
           </Card>
 
           {/* Quick Contact */}
-          <Alert status="info" borderRadius="lg">
-            <AlertIcon />
+          <Alert status="info" borderRadius="md" bg="blue.50" border="1px solid" borderColor="blue.100">
+            <AlertIcon color="blue.500" />
             <Box>
-              <AlertTitle fontSize="md">Need Immediate Help?</AlertTitle>
-              <AlertDescription fontSize="sm">
+              <AlertTitle fontSize="md" color="gray.900">Need Immediate Help?</AlertTitle>
+              <AlertDescription fontSize="sm" color="gray.600">
                 For urgent issues, email us directly at{' '}
-                <Link href="mailto:support@kairosai.world" color="purple.600" fontWeight="semibold">
+                <Link href="mailto:support@kairosai.world" color="blue.600" fontWeight="semibold">
                   support@kairosai.world
                 </Link>
                 {' '}or use our live chat during business hours.

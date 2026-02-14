@@ -1,19 +1,20 @@
-import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Badge, Spinner, Icon, Grid, Button, Select, Flex } from '@chakra-ui/react';
-import { FiTarget, FiTrendingUp, FiUsers, FiZap, FiArrowRight } from 'react-icons/fi';
+import { Box, Container, Heading, Text, VStack, HStack, Card, CardBody, Spinner, Icon, Grid, Button, Select, Flex } from '@chakra-ui/react';
+import { FiTarget, FiTrendingUp, FiUsers, FiZap, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
 import { useData } from '../../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
+import type { ArbitrageOpportunity } from '../../types/analysis';
 
 const SegmentArbitragePage = () => {
   const { analysisData, loadSpecificReport } = useData();
   const navigate = useNavigate();
-  
+
   // Use data from centralized context
   const arbitrageData = analysisData.arbitrageData;
   const hasAnalysisHistory = analysisData.hasAnalysisHistory;
   const isLoading = analysisData.isLoading;
   const availableReports = analysisData.availableReports || [];
   const currentReportId = analysisData.currentReportId;
-  
+
   // Handle report selection
   const handleReportChange = async (reportId: string) => {
     if (reportId) {
@@ -21,15 +22,13 @@ const SegmentArbitragePage = () => {
     }
   };
 
-  // Remove the useEffect since we're now using centralized data context
-
   if (isLoading) {
     return (
-      <Box p={6} bg="#140d28" minH="100vh" w="100%">
+      <Box p={6} bg="gray.50" minH="100vh" w="100%">
         <Container maxW="100%" px={8}>
           <VStack py={8}>
-            <Spinner size="xl" color="purple.400" />
-            <Text color="rgba(255,255,255,0.8)">Loading arbitrage analysis...</Text>
+            <Spinner size="xl" color="blue.500" />
+            <Text color="gray.600">Loading arbitrage analysis...</Text>
           </VStack>
         </Container>
       </Box>
@@ -39,62 +38,74 @@ const SegmentArbitragePage = () => {
   // Show empty state for users without analysis history
   if (!hasAnalysisHistory || !arbitrageData) {
     return (
-      <Box p={6} bg="#140d28" minH="100vh" w="100%">
+      <Box p={6} bg="gray.50" minH="100vh" w="100%">
         <Container maxW="4xl" px={8}>
           <VStack spacing={8} py={16} textAlign="center">
             <VStack spacing={4}>
-              <Icon as={FiTarget} boxSize={16} color="purple.400" />
-              <Heading size="xl" color="white">
+              <Icon as={FiTarget} boxSize={16} color="blue.500" />
+              <Heading size="xl" color="gray.900">
                 Segment Arbitrage Detection
               </Heading>
-              <Text fontSize="lg" color="rgba(255,255,255,0.8)" maxW="2xl">
-                Discover untapped opportunities by analyzing gaps between market positioning 
-                and competitor landscapes. Our AI detects segments where your brand can capture 
+              <Text fontSize="lg" color="gray.600" maxW="2xl">
+                Discover untapped opportunities by analyzing gaps between market positioning
+                and competitor landscapes. Our AI detects segments where your brand can capture
                 higher value and underserved markets.
               </Text>
             </VStack>
 
-            <VStack spacing={4} bg="rgba(255,255,255,0.05)" p={8} borderRadius="xl" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)" maxW="md" w="full">
-              <Icon as={FiZap} boxSize={8} color="purple.400" />
-              <Heading size="md" color="white">
-                Ready for Arbitrage Analysis?
-              </Heading>
-              <Text fontSize="md" color="rgba(255,255,255,0.8)" textAlign="center">
-                Start your market analysis to unlock:
-              </Text>
-              <VStack spacing={2} align="start" w="full">
-                <HStack>
-                  <Badge colorScheme="green" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Competitor Positioning Gap Analysis</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="blue" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Underserved Segment Identification</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="purple" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Premium Pricing Opportunity Detection</Text>
-                </HStack>
-                <HStack>
-                  <Badge colorScheme="orange" borderRadius="full">✓</Badge>
-                  <Text fontSize="sm" color="white">Strategic Repositioning Recommendations</Text>
-                </HStack>
-              </VStack>
-              <Button 
-                colorScheme="purple" 
-                size="lg" 
-                rightIcon={<FiArrowRight />}
-                onClick={() => navigate('/')}
-                w="full"
-                mt={4}
-                _focus={{ boxShadow: 'none', outline: 'none' }}
-              >
-                Start Your Analysis
-              </Button>
-            </VStack>
+            <Card
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
+              shadow="sm"
+              borderRadius="xl"
+              maxW="md"
+              w="full"
+            >
+              <CardBody p={8}>
+                <VStack spacing={4}>
+                  <Icon as={FiZap} boxSize={8} color="blue.500" />
+                  <Heading size="md" color="gray.900">
+                    Ready for Arbitrage Analysis?
+                  </Heading>
+                  <Text fontSize="md" color="gray.600" textAlign="center">
+                    Start your market analysis to unlock:
+                  </Text>
+                  <VStack spacing={2} align="start" w="full">
+                    <HStack>
+                      <Icon as={FiCheckCircle} color="green.500" boxSize={4} />
+                      <Text fontSize="sm" color="gray.700">Competitor Positioning Gap Analysis</Text>
+                    </HStack>
+                    <HStack>
+                      <Icon as={FiCheckCircle} color="blue.500" boxSize={4} />
+                      <Text fontSize="sm" color="gray.700">Underserved Segment Identification</Text>
+                    </HStack>
+                    <HStack>
+                      <Icon as={FiCheckCircle} color="purple.500" boxSize={4} />
+                      <Text fontSize="sm" color="gray.700">Premium Pricing Opportunity Detection</Text>
+                    </HStack>
+                    <HStack>
+                      <Icon as={FiCheckCircle} color="orange.500" boxSize={4} />
+                      <Text fontSize="sm" color="gray.700">Strategic Repositioning Recommendations</Text>
+                    </HStack>
+                  </VStack>
+                  <Button
+                    colorScheme="blue"
+                    size="lg"
+                    rightIcon={<FiArrowRight />}
+                    onClick={() => navigate('/')}
+                    w="full"
+                    mt={4}
+                    _focus={{ boxShadow: 'none', outline: 'none' }}
+                  >
+                    Start Your Analysis
+                  </Button>
+                </VStack>
+              </CardBody>
+            </Card>
 
-            <Text fontSize="sm" color="rgba(255,255,255,0.8)" maxW="lg">
-              Our arbitrage detection algorithms analyze competitor positioning across multiple 
+            <Text fontSize="sm" color="gray.500" maxW="lg">
+              Our arbitrage detection algorithms analyze competitor positioning across multiple
               dimensions to identify strategic opportunities for differentiation and premium capture.
             </Text>
           </VStack>
@@ -104,70 +115,71 @@ const SegmentArbitragePage = () => {
   }
 
   return (
-    <Box p={6} bg="#140d28" minH="100vh" w="100%">
+    <Box p={6} bg="gray.50" minH="100vh" w="100%">
       <Container maxW="100%" px={8}>
         <VStack spacing={8} align="stretch" maxW="7xl" mx="auto">
           {/* Header Section */}
           <Box>
             <Flex justify="space-between" align="center" mb={4}>
               <Box>
-                <Heading size="xl" mb={2} color="white">
+                <Heading size="xl" mb={2} color="gray.900">
                   Segment Arbitrage Detection
                 </Heading>
-                <Text fontSize="lg" color="rgba(255,255,255,0.8)">
+                <Text fontSize="lg" color="gray.600">
                   Detects gaps between how a brand is currently positioned in its home market versus how similar brands are perceived in the target market. Recommends alternate positioning strategies where the brand can capture underserved or higher-value segments.
                 </Text>
               </Box>
-              
+
               {/* Report Selector */}
               {availableReports.length > 1 && (
                 <Box minW="300px">
-                  <Text fontSize="sm" color="rgba(255,255,255,0.8)" mb={2}>
+                  <Text fontSize="sm" color="gray.600" mb={2}>
                     Select Report:
                   </Text>
                   <Select
                     value={currentReportId?.toString() || ''}
                     onChange={(e) => handleReportChange(e.target.value)}
-                    bg="rgba(255,255,255,0.1)"
-                    color="white"
-                    borderColor="rgba(255,255,255,0.2)"
-                    _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
-                    _focus={{ borderColor: 'purple.400', boxShadow: 'none' }}
+                    bg="white"
+                    color="gray.900"
+                    borderColor="gray.300"
+                    _hover={{ borderColor: 'gray.400' }}
+                    _focus={{ borderColor: 'blue.500', boxShadow: 'none' }}
                   >
                     {availableReports.map((report) => (
-                      <option key={report.id} value={report.id} style={{ background: '#140d28', color: 'white' }}>
+                      <option key={report.id} value={report.id}>
                         {report.company_name} → {report.target_market}
                       </option>
                     ))}
                   </Select>
-                  <Text fontSize="xs" color="rgba(255,255,255,0.6)" mt={1}>
+                  <Text fontSize="xs" color="gray.500" mt={1}>
                     {availableReports.length} report{availableReports.length > 1 ? 's' : ''} available
                   </Text>
                 </Box>
               )}
             </Flex>
           </Box>
-          
+
           {(() => {
-            console.log('Rendering arbitrage section with:', {
-              arbitrageData,
-              arbitrageDataType: typeof arbitrageData,
-              isArray: Array.isArray(arbitrageData)
-            });
-            
             if (arbitrageData && typeof arbitrageData === 'string') {
               return (
-                <Card shadow="xl" borderRadius="2xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+                <Card
+                  bg="white"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  shadow="sm"
+                  borderRadius="xl"
+                >
                   <CardBody p={8}>
-                    <Box 
-                      whiteSpace="pre-wrap" 
-                      color="white" 
-                      fontFamily="mono" 
-                      fontSize="sm" 
-                      p={6} 
-                      bg="rgba(255,255,255,0.05)" 
+                    <Box
+                      whiteSpace="pre-wrap"
+                      color="gray.900"
+                      fontFamily="mono"
+                      fontSize="sm"
+                      p={6}
+                      bg="gray.50"
                       borderRadius="lg"
-                      border="1px solid rgba(255,255,255,0.1)"
+                      border="1px solid"
+                      borderColor="gray.200"
                     >
                       {arbitrageData}
                     </Box>
@@ -177,28 +189,38 @@ const SegmentArbitragePage = () => {
             } else if (arbitrageData && Array.isArray(arbitrageData)) {
               return (
                 <VStack spacing={8} align="stretch">
-                  {arbitrageData.map((opportunity: any, index: number) => (
-                    <Card key={index} shadow="xl" borderRadius="2xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)" overflow="hidden">
+                  {arbitrageData.map((opportunity: ArbitrageOpportunity, index: number) => (
+                    <Card
+                      key={index}
+                      bg="white"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      shadow="sm"
+                      borderRadius="xl"
+                      overflow="hidden"
+                    >
                       <CardBody p={0}>
                         {/* Header Section */}
-                        <Box p={8} bg="rgba(102, 126, 234, 0.1)" borderBottom="1px solid" borderColor="rgba(255,255,255,0.1)">
+                        <Box p={8} borderBottom="1px solid" borderColor="gray.100">
                           <VStack spacing={4} align="stretch">
                             {/* Main Title */}
                             <Box>
-                              <Heading size="lg" color="white" fontWeight="bold" mb={2}>
+                              <Heading size="lg" color="gray.900" fontWeight="bold" mb={2}>
                                 {opportunity.segment_name}
                               </Heading>
-                              <Text fontSize="md" color="rgba(255,255,255,0.8)" fontWeight="medium">
+                              <Text fontSize="md" color="gray.500" fontWeight="medium">
                                 Market Opportunity
                               </Text>
                             </Box>
-                            
-                            {/* Market Description */}
-                            <Box 
-                              bg="green.500" 
-                              color="white" 
-                              p={4} 
+
+                            {/* Market Size */}
+                            <Box
+                              bg="green.50"
+                              color="green.800"
+                              p={4}
                               borderRadius="lg"
+                              border="1px solid"
+                              borderColor="green.200"
                               textAlign="center"
                             >
                               <Text fontSize="md" fontWeight="semibold" lineHeight="1.4">
@@ -209,7 +231,7 @@ const SegmentArbitragePage = () => {
                         </Box>
 
                         {/* Content Grid */}
-                        <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={0} bg="rgba(255,255,255,0.05)">
+                        <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={0}>
                           {/* Left Column */}
                           <Box p={8}>
                             <VStack spacing={6} align="stretch">
@@ -217,12 +239,18 @@ const SegmentArbitragePage = () => {
                               <Box>
                                 <HStack mb={3} spacing={3}>
                                   <Icon as={FiTarget} color="blue.500" boxSize={5} />
-                                  <Text fontSize="lg" fontWeight="bold" color="blue.700">
+                                  <Text fontSize="lg" fontWeight="bold" color="gray.900">
                                     Current Market Gap
                                   </Text>
                                 </HStack>
-                                <Box p={4} bg="rgba(59, 130, 246, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(59, 130, 246, 0.2)">
-                                  <Text color="white" lineHeight="1.6">
+                                <Box
+                                  p={4}
+                                  bg="blue.50"
+                                  borderRadius="lg"
+                                  border="1px solid"
+                                  borderColor="blue.100"
+                                >
+                                  <Text color="gray.700" lineHeight="1.6">
                                     {opportunity.current_gap}
                                   </Text>
                                 </Box>
@@ -232,12 +260,18 @@ const SegmentArbitragePage = () => {
                               <Box>
                                 <HStack mb={3} spacing={3}>
                                   <Icon as={FiTrendingUp} color="green.500" boxSize={5} />
-                                  <Text fontSize="lg" fontWeight="bold" color="green.700">
+                                  <Text fontSize="lg" fontWeight="bold" color="gray.900">
                                     Positioning Opportunity
                                   </Text>
                                 </HStack>
-                                <Box p={4} bg="rgba(34, 197, 94, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(34, 197, 94, 0.2)">
-                                  <Text color="white" lineHeight="1.6">
+                                <Box
+                                  p={4}
+                                  bg="green.50"
+                                  borderRadius="lg"
+                                  border="1px solid"
+                                  borderColor="green.100"
+                                >
+                                  <Text color="gray.700" lineHeight="1.6">
                                     {opportunity.positioning_opportunity}
                                   </Text>
                                 </Box>
@@ -252,12 +286,18 @@ const SegmentArbitragePage = () => {
                               <Box>
                                 <HStack mb={3} spacing={3}>
                                   <Icon as={FiZap} color="orange.500" boxSize={5} />
-                                  <Text fontSize="lg" fontWeight="bold" color="orange.700">
+                                  <Text fontSize="lg" fontWeight="bold" color="gray.900">
                                     Competitive Advantage
                                   </Text>
                                 </HStack>
-                                <Box p={4} bg="rgba(249, 115, 22, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(249, 115, 22, 0.2)">
-                                  <Text color="white" lineHeight="1.6">
+                                <Box
+                                  p={4}
+                                  bg="orange.50"
+                                  borderRadius="lg"
+                                  border="1px solid"
+                                  borderColor="orange.100"
+                                >
+                                  <Text color="gray.700" lineHeight="1.6">
                                     {opportunity.competitive_advantage}
                                   </Text>
                                 </Box>
@@ -267,12 +307,18 @@ const SegmentArbitragePage = () => {
                               <Box>
                                 <HStack mb={3} spacing={3}>
                                   <Icon as={FiUsers} color="teal.500" boxSize={5} />
-                                  <Text fontSize="lg" fontWeight="bold" color="teal.700">
+                                  <Text fontSize="lg" fontWeight="bold" color="gray.900">
                                     Implementation Strategy
                                   </Text>
                                 </HStack>
-                                <Box p={4} bg="rgba(20, 184, 166, 0.1)" borderRadius="lg" border="1px solid" borderColor="rgba(20, 184, 166, 0.2)">
-                                  <Text color="white" lineHeight="1.6">
+                                <Box
+                                  p={4}
+                                  bg="teal.50"
+                                  borderRadius="lg"
+                                  border="1px solid"
+                                  borderColor="teal.100"
+                                >
+                                  <Text color="gray.700" lineHeight="1.6">
                                     {opportunity.implementation_strategy}
                                   </Text>
                                 </Box>
@@ -287,14 +333,20 @@ const SegmentArbitragePage = () => {
               );
             } else {
               return (
-                <Card shadow="xl" borderRadius="2xl" bg="rgba(255,255,255,0.05)" border="1px solid rgba(255,255,255,0.1)" backdropFilter="blur(20px)" boxShadow="0 8px 32px rgba(0,0,0,0.3)">
+                <Card
+                  bg="white"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  shadow="sm"
+                  borderRadius="xl"
+                >
                   <CardBody p={8}>
                     <VStack spacing={6} py={12}>
-                      <Icon as={FiTarget} color="rgba(255,255,255,0.6)" boxSize={16} />
-                      <Text fontSize="xl" color="white" textAlign="center" fontWeight="medium">
+                      <Icon as={FiTarget} color="gray.400" boxSize={16} />
+                      <Text fontSize="xl" color="gray.900" textAlign="center" fontWeight="medium">
                         No arbitrage analysis data available
                       </Text>
-                      <Text color="rgba(255,255,255,0.6)" textAlign="center">
+                      <Text color="gray.500" textAlign="center">
                         Please run a market analysis first to generate segment arbitrage insights.
                       </Text>
                     </VStack>
@@ -309,4 +361,4 @@ const SegmentArbitragePage = () => {
   );
 };
 
-export default SegmentArbitragePage; 
+export default SegmentArbitragePage;

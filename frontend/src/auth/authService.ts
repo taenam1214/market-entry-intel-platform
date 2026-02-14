@@ -190,12 +190,7 @@ class AuthService {
 
       // Even if the API call fails, we should clear local storage
       localStorage.removeItem('authToken');
-      
-      if (!response.ok) {
-        console.warn('Logout API call failed, but local storage cleared');
-      }
-    } catch (error) {
-      console.warn('Logout failed:', error);
+    } catch {
       // Still clear local storage even if API call fails
       localStorage.removeItem('authToken');
     }

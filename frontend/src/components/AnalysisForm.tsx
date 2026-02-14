@@ -22,6 +22,13 @@ import {
   RadioGroup,
   Radio,
   HStack,
+  Switch,
+  Checkbox,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -66,6 +73,8 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
     regulatoryRequirements: '',
     partnershipPreferences: '',
   });
+  const [isMultiMarket, setIsMultiMarket] = useState(false);
+  const [selectedMarkets, setSelectedMarkets] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(600); // 10 minutes in seconds (default for 5 cycles)
   const [timerExpired, setTimerExpired] = useState(false);
@@ -193,6 +202,22 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleMarketToggle = (market: string) => {
+    setSelectedMarkets(prev => {
+      if (prev.includes(market)) {
+        return prev.filter(m => m !== market);
+      }
+      if (prev.length >= 5) {
+        return prev;
+      }
+      return [...prev, market];
+    });
+  };
+
+  const handleRemoveMarket = (market: string) => {
+    setSelectedMarkets(prev => prev.filter(m => m !== market));
+  };
+
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (loading && timer > 0) {
@@ -206,125 +231,167 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
   }, [loading, timer]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('🎯 handleSubmit called!');
     e.preventDefault();
-    
+
     // Prevent double submission
     if (loading) {
-      console.log('⚠️ Form already submitting, ignoring duplicate submission');
       return;
     }
-    
-    console.log('✓ Not currently loading, proceeding with submission');
-    
+
+    // Validate multi-market selection
+    if (isMultiMarket && selectedMarkets.length < 2) {
+      toast({
+        title: 'Selection Required',
+        description: 'Please select at least 2 markets for comparison.',
+        status: 'warning',
+        duration: 4000,
+        isClosable: true,
+      });
+      return;
+    }
+
     toast({
-      title: 'Analysis Started!',
-      description: "We're analyzing your market entry opportunities. You'll be redirected to your dashboard shortly.",
+      title: isMultiMarket ? 'Multi-Market Comparison Started!' : 'Analysis Started!',
+      description: isMultiMarket
+        ? `Comparing ${selectedMarkets.length} markets. You'll be redirected to the comparison view shortly.`
+        : "We're analyzing your market entry opportunities. You'll be redirected to your dashboard shortly.",
       status: 'success',
       duration: 5000,
       isClosable: true,
     });
     setLoading(true);
-    setTimer(getTimerDuration(formData.cycles));
+    const baseDuration = getTimerDuration(formData.cycles);
+    setTimer(isMultiMarket ? baseDuration * selectedMarkets.length : baseDuration);
     setTimerExpired(false);
-    
-    console.log('🚀 Starting analysis submission...', {
-      companyName: formData.companyName,
-      industry: formData.industry,
-      targetMarket: formData.targetMarket,
-      cycles: formData.cycles
-    });
-    
+
     try {
-      const payload = {
-        company_name: formData.companyName,
-        industry: formData.industry,
-        target_market: formData.targetMarket,
-        website: formData.website,
-        current_positioning: formData.currentPositioning,
-        brand_description: formData.brandDescription,
-        email: formData.email,
-        customer_segment: formData.customerSegment,
-        expansion_direction: formData.expansionDirection,
-        cycles: formData.cycles,  // Add cycles parameter
-        // Additional detailed fields
-        company_size: formData.companySize,
-        annual_revenue: formData.annualRevenue,
-        funding_stage: formData.fundingStage,
-        current_markets: formData.currentMarkets,
-        key_products: formData.keyProducts,
-        competitive_advantage: formData.competitiveAdvantage,
-        expansion_timeline: formData.expansionTimeline,
-        budget_range: formData.budgetRange,
-        regulatory_requirements: formData.regulatoryRequirements,
-        partnership_preferences: formData.partnershipPreferences,
-      };
-      
-      console.log('📦 Payload created:', JSON.stringify(payload, null, 2).substring(0, 200) + '...');
-      
-      // Get authentication headers
-      const authHeaders = authService.getAuthHeaders();
-      console.log('🔑 Auth headers:', authHeaders);
-      console.log('👤 User authenticated:', !!user);
-      console.log('📧 User email:', user?.email);
-      console.log('🎫 Token in localStorage:', !!localStorage.getItem('authToken'));
-      
-      // Call the comprehensive analysis endpoint (single call, all 3 analyses in parallel)
-      console.log('📊 Calling comprehensive-analysis API (runs all 3 analyses in parallel)...');
-      const response = await fetch(API_ENDPOINTS.ANALYSIS.COMPREHENSIVE, {
-        method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify(payload),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
-      }
-      const data = await response.json();
-      console.log('✅ Comprehensive analysis complete!', {
-        analysis_id: data.analysis_id,
-        hasCompetitors: !!data.competitor_analysis,
-        hasArbitrage: !!data.segment_arbitrage
-      });
-      // Store competitor and arbitrage data
-      if (data.competitor_analysis) {
-        localStorage.setItem('competitorSummary', JSON.stringify(data.competitor_analysis));
-        console.log('💾 Saved competitor data to localStorage');
-      }
-      
-      if (data.segment_arbitrage) {
-        localStorage.setItem('segmentArbitrage', JSON.stringify(data.segment_arbitrage));
-        console.log('💾 Saved arbitrage data to localStorage');
-      }
-      
-      // Store all data globally (for backward compatibility)
-      localStorage.setItem('dashboardData', JSON.stringify(data));
-      
-      // Store analysis data in localStorage for authenticated users (user-specific)
-      if (user) {
-        const analysisData = {
-          formData: formData,
-          dashboardData: data,
-          competitorSummary: data.competitor_analysis || null,
-          arbitrageData: data.segment_arbitrage || null
+      if (isMultiMarket) {
+        // Multi-market comparison flow
+        const multiPayload = {
+          company_name: formData.companyName,
+          industry: formData.industry,
+          target_markets: selectedMarkets,
+          website: formData.website,
+          current_positioning: formData.currentPositioning,
+          brand_description: formData.brandDescription,
+          email: formData.email,
+          customer_segment: formData.customerSegment,
+          expansion_direction: formData.expansionDirection,
+          cycles: formData.cycles,
+          company_size: formData.companySize,
+          annual_revenue: formData.annualRevenue,
+          funding_stage: formData.fundingStage,
+          current_markets: formData.currentMarkets,
+          key_products: formData.keyProducts,
+          competitive_advantage: formData.competitiveAdvantage,
+          expansion_timeline: formData.expansionTimeline,
+          budget_range: formData.budgetRange,
+          regulatory_requirements: formData.regulatoryRequirements,
+          partnership_preferences: formData.partnershipPreferences,
         };
-        localStorage.setItem(`analysis_${user.id}`, JSON.stringify(analysisData));
-        console.log('💾 Saved complete analysis to localStorage');
+
+        const authHeaders = authService.getAuthHeaders();
+        const response = await fetch(API_ENDPOINTS.ADVANCED.MULTI_MARKET, {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify(multiPayload),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
+        }
+        const data = await response.json();
+
+        localStorage.setItem('multiMarketData', JSON.stringify(data));
+
+        if (user) {
+          const analysisData = {
+            formData: formData,
+            selectedMarkets: selectedMarkets,
+            multiMarketData: data,
+          };
+          localStorage.setItem(`multi_analysis_${user.id}`, JSON.stringify(analysisData));
+        }
+
+        setLoading(false);
+
+        setTimeout(() => {
+          refreshAnalysisData();
+        }, 500);
+
+        navigate('/comparison');
+      } else {
+        // Single market flow (existing behavior)
+        const payload = {
+          company_name: formData.companyName,
+          industry: formData.industry,
+          target_market: formData.targetMarket,
+          website: formData.website,
+          current_positioning: formData.currentPositioning,
+          brand_description: formData.brandDescription,
+          email: formData.email,
+          customer_segment: formData.customerSegment,
+          expansion_direction: formData.expansionDirection,
+          cycles: formData.cycles,
+          company_size: formData.companySize,
+          annual_revenue: formData.annualRevenue,
+          funding_stage: formData.fundingStage,
+          current_markets: formData.currentMarkets,
+          key_products: formData.keyProducts,
+          competitive_advantage: formData.competitiveAdvantage,
+          expansion_timeline: formData.expansionTimeline,
+          budget_range: formData.budgetRange,
+          regulatory_requirements: formData.regulatoryRequirements,
+          partnership_preferences: formData.partnershipPreferences,
+        };
+
+        const authHeaders = authService.getAuthHeaders();
+        const response = await fetch(API_ENDPOINTS.ANALYSIS.COMPREHENSIVE, {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.errors ? JSON.stringify(errorData.errors) : 'API error');
+        }
+        const data = await response.json();
+
+        // Store competitor and arbitrage data
+        if (data.competitor_analysis) {
+          localStorage.setItem('competitorSummary', JSON.stringify(data.competitor_analysis));
+        }
+
+        if (data.segment_arbitrage) {
+          localStorage.setItem('segmentArbitrage', JSON.stringify(data.segment_arbitrage));
+        }
+
+        // Store all data globally (for backward compatibility)
+        localStorage.setItem('dashboardData', JSON.stringify(data));
+
+        // Store analysis data in localStorage for authenticated users (user-specific)
+        if (user) {
+          const analysisData = {
+            formData: formData,
+            dashboardData: data,
+            competitorSummary: data.competitor_analysis || null,
+            arbitrageData: data.segment_arbitrage || null
+          };
+          localStorage.setItem(`analysis_${user.id}`, JSON.stringify(analysisData));
+        }
+
+        setLoading(false);
+
+        // Refresh the data context to load from database
+        setTimeout(() => {
+          refreshAnalysisData();
+        }, 500);
+
+        navigate('/dashboard');
       }
-      
-      setLoading(false);
-      
-      // Refresh the data context to load from database
-      setTimeout(() => {
-        refreshAnalysisData();
-      }, 500);
-      
-      navigate('/dashboard');
     } catch (error: any) {
-      console.error('❌ Analysis submission error:', error);
-      console.error('Error stack:', error.stack);
-      
       toast({
         title: 'Analysis Failed',
         description: error.message || 'An error occurred while analyzing the market.',
@@ -501,33 +568,118 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                     </FormControl>
                   </GridItem>
 
-                  <GridItem>
-                    <FormControl isRequired>
-                      <FormLabel fontWeight="semibold" fontSize="sm" color="white">Target Market</FormLabel>
-                      <Select
-                        placeholder="Select target market"
-                        value={formData.targetMarket}
-                        onChange={(e) => handleInputChange('targetMarket', e.target.value)}
-                        size="sm"
-                        borderRadius="md"
-                        border="1px solid"
-                        borderColor="rgba(255,255,255,0.2)"
-                    bg="rgba(255,255,255,0.1)"
-                    color="white"
-                    _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
-                        _focus={{ 
-                          borderColor: 'rgba(255,255,255,0.2)',
-                          bg: 'rgba(255,255,255,0.1)',
-                          boxShadow: 'none'
-                        }}
-                        _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
-                      >
-                        {targetMarkets.map((market) => (
-                          <option key={market.value} value={market.value}>
-                            {market.label}
-                          </option>
-                        ))}
-                      </Select>
+                  <GridItem colSpan={{ base: 1, md: 2 }}>
+                    <FormControl isRequired={!isMultiMarket}>
+                      <Flex align="center" justify="space-between" mb={2}>
+                        <FormLabel fontWeight="semibold" fontSize="sm" color="white" mb={0}>
+                          {isMultiMarket ? 'Target Markets' : 'Target Market'}
+                        </FormLabel>
+                        <HStack spacing={2}>
+                          <Text fontSize="xs" color="rgba(255,255,255,0.7)">
+                            Compare multiple markets
+                          </Text>
+                          <Switch
+                            size="sm"
+                            colorScheme="purple"
+                            isChecked={isMultiMarket}
+                            onChange={(e) => {
+                              setIsMultiMarket(e.target.checked);
+                              if (!e.target.checked) {
+                                setSelectedMarkets([]);
+                              }
+                            }}
+                          />
+                        </HStack>
+                      </Flex>
+
+                      {!isMultiMarket ? (
+                        <Select
+                          placeholder="Select target market"
+                          value={formData.targetMarket}
+                          onChange={(e) => handleInputChange('targetMarket', e.target.value)}
+                          size="sm"
+                          borderRadius="md"
+                          border="1px solid"
+                          borderColor="rgba(255,255,255,0.2)"
+                          bg="rgba(255,255,255,0.1)"
+                          color="white"
+                          _placeholder={{ color: 'rgba(255,255,255,0.6)' }}
+                          _focus={{
+                            borderColor: 'rgba(255,255,255,0.2)',
+                            bg: 'rgba(255,255,255,0.1)',
+                            boxShadow: 'none'
+                          }}
+                          _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
+                        >
+                          {targetMarkets.map((market) => (
+                            <option key={market.value} value={market.value}>
+                              {market.label}
+                            </option>
+                          ))}
+                        </Select>
+                      ) : (
+                        <Box>
+                          {selectedMarkets.length > 0 && (
+                            <Wrap spacing={2} mb={3}>
+                              {selectedMarkets.map((market) => (
+                                <WrapItem key={market}>
+                                  <Tag
+                                    size="md"
+                                    colorScheme="purple"
+                                    borderRadius="full"
+                                    variant="solid"
+                                  >
+                                    <TagLabel>{market}</TagLabel>
+                                    <TagCloseButton onClick={() => handleRemoveMarket(market)} />
+                                  </Tag>
+                                </WrapItem>
+                              ))}
+                            </Wrap>
+                          )}
+                          <Box
+                            p={3}
+                            borderRadius="md"
+                            border="1px solid"
+                            borderColor="rgba(255,255,255,0.2)"
+                            bg="rgba(255,255,255,0.05)"
+                          >
+                            <VStack align="stretch" spacing={2}>
+                              {targetMarkets.map((market) => (
+                                <Checkbox
+                                  key={market.value}
+                                  isChecked={selectedMarkets.includes(market.value)}
+                                  onChange={() => handleMarketToggle(market.value)}
+                                  isDisabled={
+                                    !selectedMarkets.includes(market.value) && selectedMarkets.length >= 5
+                                  }
+                                  colorScheme="purple"
+                                  size="sm"
+                                  spacing={3}
+                                  sx={{
+                                    '.chakra-checkbox__label': {
+                                      color: 'white',
+                                      fontSize: 'sm',
+                                    },
+                                    '.chakra-checkbox__control': {
+                                      borderColor: 'rgba(255,255,255,0.3)',
+                                      bg: 'rgba(255,255,255,0.05)',
+                                      _checked: {
+                                        bg: 'purple.500',
+                                        borderColor: 'purple.500',
+                                      },
+                                    },
+                                  }}
+                                >
+                                  {market.label}
+                                </Checkbox>
+                              ))}
+                            </VStack>
+                          </Box>
+                          <Text fontSize="xs" color="rgba(255,255,255,0.5)" mt={2}>
+                            Select 2-5 markets to compare ({selectedMarkets.length}/5 selected)
+                          </Text>
+                        </Box>
+                      )}
                     </FormControl>
                   </GridItem>
 
@@ -957,8 +1109,9 @@ const AnalysisForm: React.FC<AnalysisFormProps> = ({
                   fontSize="md"
                   fontWeight="bold"
                   borderRadius="lg"
+                  isDisabled={isMultiMarket && selectedMarkets.length < 2}
                 >
-                  {submitButtonText}
+                  {isMultiMarket ? 'Compare Markets' : submitButtonText}
                 </Button>
               </VStack>
             </form>

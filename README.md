@@ -1,407 +1,336 @@
 # KairosAI
 
-> **Agentic AI for Market Entry Intelligence** - Seizing the Perfect Moment for Market Success
+> **Agentic AI for Market Entry Intelligence** — Seizing the Perfect Moment for Market Success
 
-**KairosAI** (from Greek "καιρός" - the right moment, opportune time) is an advanced Agentic AI platform that autonomously analyzes market entry opportunities, competitive landscapes, and strategic positioning to help businesses identify and seize the perfect moment for market expansion.
+**KairosAI** (from Greek "καιρός" — the right moment, opportune time) is an agentic AI platform that autonomously analyzes market entry opportunities, competitive landscapes, and strategic positioning to help businesses identify the right moment for market expansion.
 
-## 🤖 What is Agentic AI?
+---
 
-Unlike traditional AI that simply responds to prompts, **Agentic AI** takes autonomous action to achieve complex goals. KairosAI operates as an intelligent agent that:
+## Table of Contents
 
-- **Autonomously researches** competitors, market trends, and opportunities
-- **Independently analyzes** data from multiple sources to generate insights
-- **Proactively identifies** market gaps and strategic opportunities
-- **Continuously monitors** market conditions and competitor movements
-- **Makes recommendations** based on comprehensive market intelligence
-- **Adapts strategies** based on changing market dynamics
+- [Core Capabilities](#core-capabilities)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [API Reference](#api-reference)
+- [Environment Variables](#environment-variables)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 🚀 Core Capabilities
+---
+
+## Core Capabilities
 
 ### Autonomous Market Intelligence
-- **Self-directed research** across web sources, social media, and market databases
-- **Intelligent data synthesis** from multiple sources into actionable insights
-- **Proactive opportunity detection** without human prompting
-- **Continuous market monitoring** and real-time updates
+- Self-directed research across web sources, social media, and market databases
+- Intelligent data synthesis from multiple sources into actionable insights
+- Proactive opportunity detection and continuous market monitoring
 
-### Agentic Competitive Analysis
-- **Autonomous competitor discovery** and profiling
-- **Independent sentiment analysis** across digital channels
-- **Self-updating competitive landscapes** with minimal human intervention
-- **Intelligent threat assessment** and opportunity identification
+### Competitive Analysis
+- Autonomous competitor discovery and profiling
+- Sentiment analysis across digital channels
+- Threat assessment and positioning gap detection
 
 ### Strategic Decision Support
-- **Autonomous market entry recommendations** based on comprehensive analysis
-- **Self-generating strategic insights** and action plans
-- **Proactive risk assessment** and mitigation strategies
-- **Intelligent resource allocation** suggestions
+- Market entry recommendations based on comprehensive analysis
+- Go/No-Go decision frameworks with confidence levels
+- Investment memo and board presentation generation
+- Willingness To Pay (WTP) analysis by customer segment
 
-## 🎯 Key Features
+### Customer Segment Intelligence
+- **US–Asia Expansion Focus**: Specialized cross-Pacific market entry analysis
+- **Segment-Specific Insights**: SaaS/Tech, Manufacturing, Healthcare, Financial Services, Consumer Goods
+- **C-Level Deliverables**: Executive summaries, investment memos, board presentations
 
-### 1. **Customer Segment Intelligence**
-- **US-Asia Expansion Focus**: Specialized analysis for cross-Pacific market entry
-- **Segment-Specific Insights**: Tailored analysis for SaaS/Tech, Manufacturing, Healthcare, Financial, and Consumer segments
-- **Willingness To Pay (WTP) Analysis**: Comprehensive pricing and value analysis by customer segment
-- **Dynamic Customer Context**: Real-time segment identification and recommendations
+---
 
-### 2. **C-Level Executive Deliverables**
-- **Executive Summary Generator**: 15+ page comprehensive market analysis reports
-- **Go/No-Go Decision Framework**: Intelligent decision recommendations with confidence levels
-- **Investment Memo Generator**: Board-ready investment analysis and financial projections
-- **Board Presentation Export**: 8-slide professional presentation for executive meetings
+## Technology Stack
 
-### 3. **Agentic Competitive Intelligence**
-- **Autonomous competitor identification** and analysis of 3–5 key competitors
-- **Self-directed extraction** of pricing, positioning, and branding data
-- **Independent sentiment analysis** from public digital sources
-- **Proactive market saturation** assessment
+### Frontend
+| Technology | Version | Purpose |
+|---|---|---|
+| React | 19.1 | UI framework |
+| TypeScript | 5.x | Type-safe development |
+| Vite | 7.0 | Build tool and dev server |
+| Chakra UI | 2.10 | Component library |
+| TanStack React Query | 5.x | Server state management |
+| React Router | 6.x | Client-side routing |
+| Recharts | 3.x | Data visualization |
+| Framer Motion | 12.x | Animations |
 
-### 4. **Autonomous Segment Arbitrage Detection**
-- **Self-identifying positioning gaps** between markets
-- **Independent discovery** of underserved market segments
-- **Autonomous recommendation** of positioning strategies
-- **Intelligent brand repositioning** suggestions
+### Backend
+| Technology | Version | Purpose |
+|---|---|---|
+| Django | 4.2.7 | Web framework |
+| Django REST Framework | 3.14 | API layer |
+| Python | 3.10+ | Runtime |
+| SQLite | — | Development database |
+| PostgreSQL | — | Production database |
+| django-allauth | 0.57 | Authentication (email + Google OAuth) |
+| SendGrid | 6.11 | Transactional email |
+| WeasyPrint | 66.0 | PDF report generation |
 
-### 5. **Executive Intelligence Dashboard**
-- **Customer Segment Context Bar**: Dynamic display of selected segment and expansion direction
-- **Enhanced Metrics Cards**: Market opportunity, competitive intensity, entry complexity, and revenue potential
-- **WTP Analysis Section**: Comprehensive willingness to pay analysis with pricing recommendations
-- **Multi-layered Key Insights**: Conditional rendering of executive, market, competitive, risk, and actionable insights
-- **Self-generating executive summaries** and insights
-- **Autonomous market opportunity scoring** and metrics
-- **Independent strategic recommendations** and action items
-- **Self-updating revenue projections** and market share analysis
+### AI Services
+| Service | Purpose |
+|---|---|
+| OpenAI (GPT-4) | Primary AI for analysis and reasoning |
+| OpenAI Agents SDK | Agentic research workflows |
+| Deep Researcher | Autonomous deep research |
+| Serper API | Web search for market research |
+| Anthropic Claude | Secondary strategic analysis (optional) |
 
-## 🛠 Technology Architecture
+---
 
-### Frontend Stack
-- **React 18** with TypeScript for type-safe development
-- **Chakra UI** for consistent, modern interface design
-- **Vite** for fast development and building
-- **Agentic UI Components** that adapt based on AI insights
-- **Real-time Updates** from autonomous AI agents
-- **Authentication System** with React Context and Django backend integration
-- **Protected Routes** with automatic redirects and state management
-
-### Backend Stack
-- **Django** (Python) for robust API development
-- **SQLite** for development database
-- **AI Agents**: Custom-built agentic workflows for market research
-- **RESTful APIs** for frontend-backend communication
-
-### AI Integration
-- **Primary AI**: Qwen AI (Alibaba Cloud) for Asian market intelligence
-- **Secondary AI**: Claude (Anthropic) for global strategic analysis
-- **Fallback AI**: OpenAI GPT-4 for comprehensive reasoning
-- **Autonomous Agents**: Custom-built agentic workflows for market research
-
-### Authentication System
-- **Django REST Framework** authentication with token-based auth
-- **Email-only Authentication** - no username required for convenience
-- **React Context API** for global authentication state management
-- **Protected Routes** with automatic authentication checks
-- **Login/Register Pages** with form validation and error handling
-- **Navigation Integration** with dynamic user menu and logout functionality
-- **Session Persistence** with localStorage token management
-
-### Shared Analysis Form
-- **Unified Analysis Experience** - Both logged-in and non-logged-in users use the same analysis form
-- **Consistent Data Collection** - Same fields and validation across all user types
-- **Scalable Implementation** - Changes to the analysis form automatically apply to all users
-- **Reusable Component** - AnalysisForm component used by LandingPage and StreamlinedAnalysisForm
-
-## 📁 Project Structure
+## Project Structure
 
 ```
-frontend/src/
-├── auth/                          # Authentication system
-│   ├── AuthContext.tsx           # Global auth state management
-│   ├── authService.ts            # API calls to Django backend
-│   ├── LoginPage.tsx             # User login interface
-│   └── RegisterPage.tsx          # User registration interface
-├── components/                    # Reusable UI components
-│   ├── NavigationBar.tsx         # Main navigation with auth integration
-│   ├── Layout.tsx               # App layout wrapper
-│   ├── Card.tsx                 # Reusable card component
-│   ├── DataTable.tsx            # Data display component
-│   ├── SectionHeader.tsx       # Section header component
-│   └── AnalysisForm.tsx        # Shared analysis form component
-├── features/                     # Feature-specific pages
-│   ├── landing/                 # Landing page components
-│   │   ├── LandingPage.tsx     # Main landing page with conditional rendering
-│   │   └── StreamlinedAnalysisForm.tsx # Focused form for new users
-│   ├── dashboard/              # Executive dashboard with empty states
-│   └── arbitrage/              # Segment arbitrage analysis with empty states
-└── routes/                      # Application routing
-    └── AppRoutes.tsx           # Route definitions with auth protection
+market-entry-intel-platform/
+├── frontend/
+│   ├── src/
+│   │   ├── auth/                  # Authentication (login, register, email verification)
+│   │   ├── components/            # Shared UI components
+│   │   │   ├── AnalysisForm.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── DataTable.tsx
+│   │   │   ├── GoogleAuthButton.tsx
+│   │   │   ├── Layout.tsx
+│   │   │   ├── NavigationBar.tsx
+│   │   │   └── SectionHeader.tsx
+│   │   ├── config/                # App configuration
+│   │   ├── contexts/              # React contexts
+│   │   ├── features/              # Feature pages
+│   │   │   ├── arbitrage/         # Segment arbitrage analysis
+│   │   │   ├── chatbot/           # AI chatbot interface
+│   │   │   ├── dashboard/         # Executive intelligence dashboard
+│   │   │   ├── landing/           # Landing page
+│   │   │   ├── settings/          # User settings
+│   │   │   └── support/           # Support pages
+│   │   ├── routes/                # Route definitions
+│   │   ├── services/              # API service layer
+│   │   └── types/                 # TypeScript type definitions
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
+├── backend/
+│   └── kairosai/                  # Django project root
+│       ├── apps/
+│       │   ├── accounts/          # User auth, profiles, email verification
+│       │   ├── analysis/          # Market analysis endpoints & chatbot
+│       │   ├── companies/         # Company data management
+│       │   └── ai_agents/         # Research & scoring agents
+│       │       ├── research_agent.py
+│       │       ├── scoring_agent.py
+│       │       └── chatgpt_service.py
+│       ├── kairosai/              # Django settings & config
+│       │   ├── settings.py
+│       │   ├── settings_production.py
+│       │   ├── urls.py
+│       │   └── wsgi.py
+│       ├── manage.py
+│       ├── requirements.txt
+│       ├── runtime.txt            # Python 3.11.0 (production)
+│       ├── Procfile               # Heroku/Railway process definition
+│       └── railway.toml           # Railway deployment config
+├── package.json
+├── LICENSE                        # MIT
+└── README.md
 ```
 
-## 📦 Installation & Setup
+---
+
+## Getting Started
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- Python 3.8+
-- npm or yarn package manager
-- pip package manager
 
-### Quick Start
+- **Node.js** v16+
+- **Python** 3.10+
+- **npm** (comes with Node.js)
+- **pip** (comes with Python)
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/market-entry-intel-platform-1.git
-   cd market-entry-intel-platform-1
-   ```
+### 1. Clone the repository
 
-2. **Install frontend dependencies**
-   ```bash
-   cd frontend
-   npm install
-   ```
+```bash
+git clone https://github.com/your-username/market-entry-intel-platform.git
+cd market-entry-intel-platform
+```
 
-3. **Start the frontend development server**
-   ```bash
-   npm run dev
-   ```
+### 2. Backend setup
 
-4. **Access KairosAI Frontend**
-   Navigate to `http://localhost:5173`
+```bash
+cd backend/kairosai
+python3 -m venv venv
+source venv/bin/activate        # macOS / Linux
+# venv\Scripts\activate         # Windows
 
-### Backend Setup
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
 
-1. **Set up Python virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+The API will be available at **http://localhost:8000**.
 
-2. **Install backend dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 3. Frontend setup
 
-3. **Environment Variables**
-   
-   Create a `.env` file in the `backend/kairosai/` directory:
-   ```env
-   SECRET_KEY=your-secret-key-here
-   DEBUG=True
-   ALLOWED_HOSTS=localhost,127.0.0.1
-   
-   # API Keys (required)
-   OPENAI_API_KEY=your-openai-api-key
-   SERPER_API_KEY=your-serper-api-key
-   
-   # Optional
-   ANTHROPIC_API_KEY=your-anthropic-api-key
-   ```
+Open a new terminal:
 
-4. **Database Setup**
-   ```bash
-   cd backend/kairosai
-   python manage.py migrate
-   ```
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-5. **Run the Backend Server**
-   ```bash
-   python manage.py runserver
-   ```
-   
-   The backend will be available at `http://localhost:8000`
+The frontend will be available at **http://localhost:5173**.
 
-### API Endpoints
+### 4. Verify
 
-- `POST /api/v1/market-analysis/` - Main market analysis
-- `POST /api/v1/competitor-analysis/` - Competitor analysis
-- `POST /api/v1/segment-arbitrage/` - Segment arbitrage analysis
-- `GET /api/v1/health/` - Health check
+Visit http://localhost:8000/api/v1/health/ — you should see:
 
-### API Request Format
-
-All endpoints accept POST requests with the following JSON structure:
 ```json
 {
-  "company_name": "Your Company",
+  "status": "healthy",
+  "service": "Market Intelligence API",
+  "version": "1.0.0"
+}
+```
+
+---
+
+## API Reference
+
+Base URL: `http://localhost:8000`
+
+### Health
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/health/` | Health check |
+
+### Analysis
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/v1/comprehensive-analysis/` | Full market analysis |
+| POST | `/api/v1/market-analysis/` | Market analysis |
+| POST | `/api/v1/deep-analysis/` | Deep market analysis |
+| POST | `/api/v1/quick-analysis/` | Quick market analysis |
+| POST | `/api/v1/key-insights/` | Key insights generation |
+| POST | `/api/v1/competitor-analysis/` | Competitor analysis |
+| POST | `/api/v1/segment-arbitrage/` | Segment arbitrage detection |
+
+### Reports & Chat
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET/POST | `/api/v1/reports/` | List or create market reports |
+| GET | `/api/v1/reports/<id>/` | Get a specific report |
+| GET | `/api/v1/latest-dashboard/` | Latest dashboard data |
+| GET/POST | `/api/v1/chat/conversations/` | List or create conversations |
+| POST | `/api/v1/chat/messages/` | Send a chat message |
+| GET | `/api/v1/chat/conversations/<id>/` | Conversation history |
+
+### Authentication
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/v1/auth/signup/` | Register |
+| POST | `/api/v1/auth/login/` | Login |
+| POST | `/api/v1/auth/logout/` | Logout |
+| GET | `/api/v1/auth/profile/` | Get user profile |
+| PUT | `/api/v1/auth/profile/update/` | Update profile |
+| POST | `/api/v1/auth/google-auth/` | Google OAuth login |
+| POST | `/api/v1/auth/change-password/` | Change password |
+| POST | `/api/v1/auth/change-email/` | Change email |
+| POST | `/api/v1/auth/send-verification-email/` | Send verification email |
+| POST | `/api/v1/auth/verify-email-code/` | Verify email code |
+
+### Companies
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET/POST | `/api/v1/companies/` | List or create companies |
+
+### Example Analysis Request
+
+```json
+POST /api/v1/comprehensive-analysis/
+
+{
+  "company_name": "Acme Corp",
   "industry": "technology",
-  "target_market": "United States",
-  "website": "https://yourcompany.com",
+  "target_market": "Japan",
+  "website": "https://acme.com",
   "current_positioning": "Premium B2B SaaS",
   "brand_description": "AI-powered analytics platform",
-  "email": "contact@yourcompany.com",
   "customer_segment": "saas-tech",
   "expansion_direction": "us-to-asia",
   "company_size": "51-200",
   "annual_revenue": "10M-50M",
-  "funding_stage": "Series B",
-  "current_markets": "US, China",
-  "key_products": "AI Analytics Platform",
-  "competitive_advantage": "Advanced AI Technology",
   "expansion_timeline": "6-12 months",
-  "budget_range": "$500K-2M",
-  "regulatory_requirements": "Data Privacy Compliance",
-  "partnership_preferences": "Local Partners"
+  "budget_range": "$500K-2M"
 }
 ```
 
-## 🏗 Project Structure
+---
 
-```
-market-entry-intel-platform-1/
-├── frontend/                    # React frontend with Agentic UI
-│   ├── src/
-│   │   ├── components/         # Reusable UI components
-│   │   │   ├── Card.tsx
-│   │   │   ├── DataTable.tsx
-│   │   │   ├── Layout.tsx
-│   │   │   └── SectionHeader.tsx
-│   │   ├── features/           # Feature-specific pages
-│   │   │   ├── arbitrage/
-│   │   │   │   └── SegmentArbitragePage.tsx
-│   │   │   ├── dashboard/
-│   │   │   │   └── ExecutiveDashboardPage.tsx
-│   │   │   └── landing/
-│   │   │       └── LandingPage.tsx
-│   │   ├── routes/
-│   │   │   └── AppRoutes.tsx
-│   │   ├── App.tsx             # Main app component
-│   │   ├── main.tsx           # App entry point
-│   │   └── index.css          # Global styles
-│   ├── public/
-│   │   └── vite.svg
-│   ├── package.json           # Frontend dependencies
-│   ├── vite.config.ts         # Vite configuration
-│   └── tsconfig.json          # TypeScript configuration
-├── backend/                   # Django backend with AI agents
-│   ├── kairosai/             # Django project
-│   │   ├── apps/             # Django apps
-│   │   │   ├── analysis/     # Market analysis API endpoints
-│   │   │   ├── companies/    # Company data management
-│   │   │   └── ai_agents/    # AI research and scoring agents
-│   │   │       ├── research_agent.py
-│   │   │       └── scoring_agent.py
-│   │   ├── kairosai/         # Django project settings
-│   │   │   ├── settings.py
-│   │   │   ├── urls.py
-│   │   │   ├── wsgi.py
-│   │   │   └── asgi.py
-│   │   ├── manage.py         # Django management
-│   │   └── db.sqlite3        # Development database
-│   ├── venv/                 # Python virtual environment
-│   └── requirements.txt      # Python dependencies
-├── docs/                     # Project documentation
-├── LICENSE                   # MIT License
-├── package.json             # Root package configuration
-├── requirements.txt         # Root Python requirements
-└── README.md               # This file
+## Environment Variables
+
+Create a `.env` file in `backend/kairosai/`:
+
+```env
+# Django (defaults exist for all of these — only override as needed)
+SECRET_KEY=your-secret-key
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# AI Services (required for analysis features)
+OPENAI_API_KEY=your-openai-api-key
+SERPER_API_KEY=your-serper-api-key
+
+# Optional
+ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# Email (required for email verification)
+SENDGRID_API_KEY=your-sendgrid-api-key
+SENDGRID_FROM_EMAIL=verification@yourdomain.com
+
+# Google OAuth (required for Google sign-in)
+GOOGLE_OAUTH2_CLIENT_ID=your-client-id
+GOOGLE_OAUTH2_CLIENT_SECRET=your-client-secret
 ```
 
-## 🎨 Design Philosophy
+The server will start without a `.env` file — all values have defaults. AI-powered features (analysis, research agents) require at minimum `OPENAI_API_KEY` and `SERPER_API_KEY`.
 
-### Agentic Design Principles
-- **Autonomous Interaction**: UI elements that respond to AI insights without user prompting
-- **Intelligent Adaptation**: Interface that evolves based on market conditions
-- **Proactive Insights**: Information presented before users realize they need it
-- **Contextual Intelligence**: UI that understands and adapts to user context
+The frontend environment is configured via:
+- `frontend/.env.development` — points API calls to `http://localhost:8000/api/v1`
+- `frontend/.env.production` — points to the production Railway URL
 
-### Visual Identity
-- **Modern & Professional**: Clean, business-focused design
-- **Intelligent Animations**: Subtle movements that reflect AI activity
-- **Data-Driven Visualizations**: Charts and graphs that tell stories
-- **Responsive & Adaptive**: Works seamlessly across all devices
+---
 
-## 🚀 Usage
+## Deployment
 
-### Getting Started with Agentic AI
-1. **Provide Initial Context**: Enter your company and target market information on the landing page
-2. **Select Customer Segment**: Choose from SaaS/Tech, Manufacturing, Healthcare, Financial, or Consumer segments
-3. **Specify Expansion Direction**: Select US to Asia, Asia to US, or Multi-Market expansion
-4. **Let AI Take Over**: KairosAI autonomously begins market research and analysis
-5. **Receive Autonomous Insights**: Get proactive recommendations and comprehensive analysis
-6. **Generate C-Level Deliverables**: Create executive summaries, Go/No-Go decisions, investment memos, and board presentations
-7. **Monitor Continuous Updates**: AI continuously monitors and updates insights
+The backend is configured for deployment on **Railway**:
 
-### Navigation
-- **Landing Page**: Customer segmentation and detailed company information input
-- **Executive Dashboard**: Comprehensive intelligence overview with WTP analysis
-- **Segment Arbitrage**: Autonomous opportunity detection and positioning analysis
-- **C-Level Deliverables**: Executive-ready documents and decision frameworks
+- `railway.toml` — build and start commands
+- `Procfile` — `gunicorn kairosai.wsgi:application --bind 0.0.0.0:$PORT`
+- `build.sh` — pre-deploy script (collectstatic, migrations)
+- `runtime.txt` — Python 3.11.0
+- `settings_production.py` — production settings (PostgreSQL, WhiteNoise, security headers)
 
-## 💰 Willingness To Pay (WTP) Analysis
+See `railway-setup.md` for detailed deployment instructions.
 
-### Customer Segment WTP Data
+---
 
-**SaaS/Tech Companies:**
-- Contract Range: $50K - $500K (Average: $200K)
-- Market Size: $2.5B
-- Growth Rate: 25%
-- Value Drivers: ROI, Scalability, Integration
-
-**Manufacturing/Industrial:**
-- Contract Range: $100K - $2M (Average: $500K)
-- Market Size: $1.8B
-- Growth Rate: 18%
-- Value Drivers: Efficiency, Compliance, Supply Chain
-
-**Healthcare/Pharma:**
-- Contract Range: $200K - $1M (Average: $400K)
-- Market Size: $3.2B
-- Growth Rate: 22%
-- Value Drivers: Compliance, Patient Safety, Efficiency
-
-**Financial Services:**
-- Contract Range: $150K - $3M (Average: $750K)
-- Market Size: $2.8B
-- Growth Rate: 20%
-- Value Drivers: Security, Compliance, Risk Management
-
-**Consumer Goods:**
-- Contract Range: $25K - $500K (Average: $150K)
-- Market Size: $1.2B
-- Growth Rate: 15%
-- Value Drivers: Brand, Customer Experience, Market Reach
-
-## 🔮 Future Roadmap
-
-### Phase 2: Enhanced Agentic Capabilities
-- **Autonomous Market Monitoring**: 24/7 market surveillance
-- **Predictive Analytics**: AI-powered market trend forecasting
-- **Intelligent Alerting**: Proactive notifications for market opportunities
-- **Multi-Market Agents**: Simultaneous analysis across multiple markets
-
-### Phase 3: Advanced AI Integration
-- **Custom AI Model Training**: Specialized models for specific industries
-- **Natural Language Queries**: Conversational AI for market intelligence
-- **Autonomous Report Generation**: Self-creating executive summaries
-- **Intelligent Decision Trees**: AI-guided strategic decision making
-
-## 🤝 Contributing
-
-We welcome contributions to enhance KairosAI's agentic capabilities:
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/agentic-enhancement`)
-3. Commit your changes (`git commit -m 'Add autonomous market analysis feature'`)
-4. Push to the branch (`git push origin feature/agentic-enhancement`)
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes
+4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a Pull Request
 
-### Development Guidelines
-- Follow agentic AI principles in new features
-- Ensure autonomous capabilities are properly implemented
-- Test AI workflows thoroughly
-- Document agentic behaviors and decision-making processes
+---
 
-### Navigation System Implementation (Latest)
-- **NavigationBar Component**: Comprehensive navigation component with authentication states
-- **Public Routes**: Home, About, Pricing, Contact pages with placeholder content
-- **Protected Routes**: Dashboard, Arbitrage, Profile, Settings, Help pages
-- **Authentication UI**: Login/Register buttons for unauthenticated users
-- **User Menu**: Profile dropdown with user info, settings, help, and logout
-- **Mobile Responsive**: Hamburger menu with drawer navigation for mobile devices
-- **Future-Ready**: Easy to extend with new routes and authentication logic
+## License
 
-### Landing Page Enhancement
-- **Added "How KairosAI Works" Section**: New comprehensive section explaining KairosAI's unique value proposition for first-time users
-- **Problem vs Solution Comparison**: Visual comparison between traditional market research and KairosAI's approach
-- **4-Step Workflow Visualization**: Clear process flow from input to executive deliverables
-- **Unique Value Propositions**: Highlighted autonomous AI agents, executive-ready outputs, segment arbitrage detection, and cross-Pacific expertise
-- **Enhanced Call-to-Actions**: Added "Start Your Free Analysis" and "View Sample Results" buttons
-- **Responsive Design**: Optimized for all screen sizes with consistent styling
-**KairosAI** - *Seizing the perfect moment for market success through autonomous intelligence*
+[MIT](LICENSE)

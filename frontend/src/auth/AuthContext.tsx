@@ -10,11 +10,15 @@ interface User {
   created_at?: string;
   provider?: string;
   profile_picture?: string;
+  role?: string;
+  is_admin?: boolean;
+  subscription_tier?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<{
@@ -46,6 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
   const isAuthenticated = !!user;
+  const isAdmin = !!user?.is_admin;
 
   // Check for existing session on mount
   useEffect(() => {
@@ -56,8 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = await authService.getCurrentUser();
           setUser(userData);
         }
-      } catch (error) {
-        console.error('Auth check failed:', error);
+      } catch (err) {
         localStorage.removeItem('authToken');
       } finally {
         setIsLoading(false);
@@ -125,6 +129,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     isAuthenticated,
+    isAdmin,
     isLoading,
     login,
     register,

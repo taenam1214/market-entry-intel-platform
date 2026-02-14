@@ -33,6 +33,10 @@ INSTALLED_APPS = [
     'apps.companies',
     'apps.analysis',
     'apps.accounts',
+    'apps.payments',
+    'apps.monitoring',
+    'apps.teams',
+    'apps.api_keys',
 ]
 
 MIDDLEWARE = [
@@ -104,7 +108,12 @@ REST_FRAMEWORK = {
 }
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://kairosai.world',
+    'https://www.kairosai.world',
+]
 CORS_ALLOW_CREDENTIALS = True
 
 
@@ -180,6 +189,17 @@ SOCIALACCOUNT_PROVIDERS = {
 # Google OAuth credentials (add these to your .env file)
 GOOGLE_OAUTH2_CLIENT_ID = config('GOOGLE_OAUTH2_CLIENT_ID', default='')
 GOOGLE_OAUTH2_CLIENT_SECRET = config('GOOGLE_OAUTH2_CLIENT_SECRET', default='')
+
+# Stripe Configuration
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+STRIPE_STARTER_PRICE_ID = config('STRIPE_STARTER_PRICE_ID', default='')
+STRIPE_PROFESSIONAL_PRICE_ID = config('STRIPE_PROFESSIONAL_PRICE_ID', default='')
+STRIPE_ENTERPRISE_PRICE_ID = config('STRIPE_ENTERPRISE_PRICE_ID', default='')
+
+# Frontend URL (for Stripe redirect URLs)
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 
 # Logging
 LOGGING = {

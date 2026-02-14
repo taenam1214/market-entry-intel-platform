@@ -13,7 +13,6 @@ import {
   Alert,
   AlertIcon,
   AlertDescription,
-  useColorModeValue,
   Code,
   Divider,
 } from '@chakra-ui/react';
@@ -31,23 +30,17 @@ const EmailVerificationPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser } = useAuth();
-  
+
   const state = location.state as LocationState;
   const email = state?.email || user?.email || '';
-  
+
   const [verificationCode, setVerificationCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(15 * 60);
 
-  // Color mode values
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const textColor = useColorModeValue('gray.800', 'white');
-
-  // Countdown timer
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -62,7 +55,7 @@ const EmailVerificationPage: React.FC = () => {
   };
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 6); // Only digits, max 6
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
     setVerificationCode(value);
     if (error) setError(null);
   };
@@ -96,19 +89,15 @@ const EmailVerificationPage: React.FC = () => {
 
       if (response.ok) {
         setSuccess('Email verified successfully! Redirecting to dashboard...');
-        
-        // Save token to localStorage for auto-login
+
         if (data.token) {
           localStorage.setItem('authToken', data.token);
-          console.log('✅ Token saved after email verification');
         }
-        
-        // Update user in context if we have user data
+
         if (data.user) {
           setUser(data.user);
         }
-        
-        // Redirect to dashboard after a short delay
+
         setTimeout(() => {
           navigate('/dashboard');
         }, 2000);
@@ -143,7 +132,7 @@ const EmailVerificationPage: React.FC = () => {
 
       if (response.ok) {
         setSuccess('Verification code sent successfully!');
-        setTimeLeft(15 * 60); // Reset timer
+        setTimeLeft(15 * 60);
       } else {
         setError(data.error || 'Failed to resend verification code');
       }
@@ -159,41 +148,38 @@ const EmailVerificationPage: React.FC = () => {
   };
 
   return (
-    <Box minH="100vh" bg="#140d28" py={12}>
+    <Box minH="100vh" bg="#fafafa" py={12}>
       <Container maxW="md">
         <VStack spacing={8} align="stretch">
-          {/* Header */}
           <VStack spacing={4} textAlign="center">
             <Heading
               as="h1"
               size="xl"
-              bgGradient="linear(to-r, #667eea, #764ba2)"
-              bgClip="text"
+              color="gray.900"
               fontWeight="bold"
             >
               Verify Your Email
             </Heading>
-            <Text color="gray.400" fontSize="lg">
+            <Text color="gray.600" fontSize="lg">
               We've sent a verification code to
             </Text>
-            <Code colorScheme="purple" fontSize="md" px={3} py={1}>
+            <Code fontSize="md" px={3} py={1}>
               {email}
             </Code>
           </VStack>
 
-          {/* Verification Form */}
           <Box
-            bg={bg}
+            bg="white"
             p={8}
             borderRadius="xl"
-            border="1px"
-            borderColor={borderColor}
-            boxShadow="xl"
+            border="1px solid"
+            borderColor="gray.200"
+            shadow="sm"
           >
             <form onSubmit={handleVerifyCode}>
               <VStack spacing={6}>
                 <FormControl isRequired>
-                  <FormLabel color={textColor} fontWeight="semibold">
+                  <FormLabel color="gray.700" fontWeight="semibold">
                     Verification Code
                   </FormLabel>
                   <Input
@@ -207,23 +193,18 @@ const EmailVerificationPage: React.FC = () => {
                     letterSpacing="0.2em"
                     fontWeight="bold"
                     maxLength={6}
-                    _focus={{
-                      borderColor: '#667eea',
-                      boxShadow: '0 0 0 1px #667eea',
-                    }}
                   />
                 </FormControl>
 
-                {/* Timer */}
                 {timeLeft > 0 && (
                   <Text color="gray.500" fontSize="sm">
-                    Code expires in: <Text as="span" fontWeight="bold" color="red.500">
+                    Code expires in:{' '}
+                    <Text as="span" fontWeight="bold" color="red.500">
                       {formatTime(timeLeft)}
                     </Text>
                   </Text>
                 )}
 
-                {/* Error Message */}
                 {error && (
                   <Alert status="error" borderRadius="md">
                     <AlertIcon />
@@ -231,7 +212,6 @@ const EmailVerificationPage: React.FC = () => {
                   </Alert>
                 )}
 
-                {/* Success Message */}
                 {success && (
                   <Alert status="success" borderRadius="md">
                     <AlertIcon />
@@ -239,49 +219,51 @@ const EmailVerificationPage: React.FC = () => {
                   </Alert>
                 )}
 
-                {/* Verify Button */}
                 <Button
                   type="submit"
-                  colorScheme="purple"
+                  bg="gray.900"
+                  color="white"
                   size="lg"
                   width="full"
                   isLoading={isVerifying}
                   loadingText="Verifying..."
                   isDisabled={verificationCode.length !== 6 || timeLeft === 0}
                   leftIcon={<FiCheckCircle />}
+                  _hover={{ bg: 'gray.800' }}
                 >
                   Verify Email
                 </Button>
 
-                <Divider />
+                <Divider borderColor="gray.200" />
 
-                {/* Resend Code */}
                 <VStack spacing={3} width="full">
                   <Text color="gray.500" fontSize="sm" textAlign="center">
                     Didn't receive the code?
                   </Text>
                   <Button
                     variant="outline"
-                    colorScheme="purple"
                     size="md"
                     width="full"
                     onClick={handleResendCode}
                     isLoading={isResending}
                     loadingText="Sending..."
-                    isDisabled={timeLeft > 14 * 60} // Disable for first minute
+                    isDisabled={timeLeft > 14 * 60}
                     leftIcon={<FiRefreshCw />}
+                    borderColor="gray.300"
+                    color="gray.700"
+                    _hover={{ bg: 'gray.50' }}
                   >
                     Resend Code
                   </Button>
                 </VStack>
 
-                {/* Back to Login */}
                 <Button
                   variant="ghost"
-                  colorScheme="purple"
                   size="sm"
                   onClick={handleBackToLogin}
                   leftIcon={<FiArrowLeft />}
+                  color="gray.600"
+                  _hover={{ bg: 'gray.100' }}
                 >
                   Back to Login
                 </Button>
@@ -289,9 +271,8 @@ const EmailVerificationPage: React.FC = () => {
             </form>
           </Box>
 
-          {/* Help Text */}
           <Box textAlign="center">
-            <Text color="gray.400" fontSize="sm">
+            <Text color="gray.500" fontSize="sm">
               Check your spam folder if you don't see the email.
               <br />
               The verification code will expire in 15 minutes.

@@ -40,7 +40,7 @@ const NavigationBar: React.FC = () => {
   const location = useLocation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLogoutModalOpen, onOpen: onLogoutModalOpen, onClose: onLogoutModalClose } = useDisclosure();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
 
   // Transform user data to match NavigationBar interface
   const navigationUser = user ? {
@@ -58,9 +58,30 @@ const NavigationBar: React.FC = () => {
   const authenticatedNavItems = [
     { label: 'Home', path: '/' },
     { label: 'Dashboard', path: '/dashboard' },
+  ];
+
+  const analysisDropdownItems = [
+    { label: 'Compare Markets', path: '/comparison' },
+    { label: 'Scenario Modeling', path: '/scenarios' },
+    { label: 'Deep Dives', path: '/deep-dives' },
+  ];
+
+  const intelligenceDropdownItems = [
     { label: 'Arbitrage', path: '/arbitrage' },
-    { label: 'Chatbot', path: '/chatbot' },
-    { label: 'Support', path: '/help' },
+    { label: 'Monitoring', path: '/monitoring' },
+    { label: 'Competitors', path: '/competitors' },
+    { label: 'News Feed', path: '/news' },
+  ];
+
+  const executionDropdownItems = [
+    { label: 'Playbook', path: '/playbook' },
+    { label: 'Execution Tracker', path: '/execution' },
+  ];
+
+  const flatNavItems = [
+    { label: 'Chat', path: '/chatbot' },
+    { label: 'Team', path: '/team' },
+    ...(isAdmin ? [{ label: 'Admin', path: '/admin' }] : []),
   ];
 
   const isActiveRoute = (path: string) => location.pathname === path;
@@ -123,9 +144,127 @@ const NavigationBar: React.FC = () => {
           </Flex>
 
           {/* Desktop Navigation */}
-          <HStack spacing={8} display={{ base: 'none', md: 'flex' }} border="none">
-            {/* Navigation Items - Different for authenticated vs public */}
-            {(isAuthenticated ? authenticatedNavItems : publicNavItems).map((item) => (
+          <HStack spacing={6} display={{ base: 'none', md: 'flex' }} border="none">
+            {isAuthenticated ? (
+              <>
+                {/* Flat nav items (Home, Dashboard) */}
+                {authenticatedNavItems.map((item) => (
+                  <Button
+                    key={item.path}
+                    variant="ghost"
+                    color={isActiveRoute(item.path) ? 'purple.400' : textColor}
+                    fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
+                    border="none"
+                    outline="none"
+                    bg="transparent"
+                    _hover={{ bg: 'transparent', border: 'none', outline: 'none', color: 'purple.400' }}
+                    _active={{ bg: 'transparent', border: 'none', outline: 'none' }}
+                    _focus={{ bg: 'transparent', border: 'none', outline: 'none', boxShadow: 'none' }}
+                    onClick={() => handleNavigation(item.path)}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+
+                {/* Analysis Dropdown */}
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    variant="ghost"
+                    rightIcon={<FiChevronDown />}
+                    color={analysisDropdownItems.some(i => isActiveRoute(i.path)) ? 'purple.400' : textColor}
+                    fontWeight={analysisDropdownItems.some(i => isActiveRoute(i.path)) ? 'semibold' : 'normal'}
+                    border="none"
+                    outline="none"
+                    bg="transparent"
+                    _hover={{ bg: 'transparent', border: 'none', outline: 'none', color: 'purple.400' }}
+                    _active={{ bg: 'transparent', border: 'none', outline: 'none' }}
+                    _focus={{ bg: 'transparent', border: 'none', outline: 'none', boxShadow: 'none' }}
+                  >
+                    Analysis
+                  </MenuButton>
+                  <MenuList>
+                    {analysisDropdownItems.map((item) => (
+                      <MenuItem key={item.path} onClick={() => handleNavigation(item.path)} _focus={{ boxShadow: 'none', outline: 'none' }} _hover={{ bg: 'gray.100', borderColor: 'transparent' }}>
+                        {item.label}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
+
+                {/* Intelligence Dropdown */}
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    variant="ghost"
+                    rightIcon={<FiChevronDown />}
+                    color={intelligenceDropdownItems.some(i => isActiveRoute(i.path)) ? 'purple.400' : textColor}
+                    fontWeight={intelligenceDropdownItems.some(i => isActiveRoute(i.path)) ? 'semibold' : 'normal'}
+                    border="none"
+                    outline="none"
+                    bg="transparent"
+                    _hover={{ bg: 'transparent', border: 'none', outline: 'none', color: 'purple.400' }}
+                    _active={{ bg: 'transparent', border: 'none', outline: 'none' }}
+                    _focus={{ bg: 'transparent', border: 'none', outline: 'none', boxShadow: 'none' }}
+                  >
+                    Intelligence
+                  </MenuButton>
+                  <MenuList>
+                    {intelligenceDropdownItems.map((item) => (
+                      <MenuItem key={item.path} onClick={() => handleNavigation(item.path)} _focus={{ boxShadow: 'none', outline: 'none' }} _hover={{ bg: 'gray.100', borderColor: 'transparent' }}>
+                        {item.label}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
+
+                {/* Execution Dropdown */}
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    variant="ghost"
+                    rightIcon={<FiChevronDown />}
+                    color={executionDropdownItems.some(i => isActiveRoute(i.path)) ? 'purple.400' : textColor}
+                    fontWeight={executionDropdownItems.some(i => isActiveRoute(i.path)) ? 'semibold' : 'normal'}
+                    border="none"
+                    outline="none"
+                    bg="transparent"
+                    _hover={{ bg: 'transparent', border: 'none', outline: 'none', color: 'purple.400' }}
+                    _active={{ bg: 'transparent', border: 'none', outline: 'none' }}
+                    _focus={{ bg: 'transparent', border: 'none', outline: 'none', boxShadow: 'none' }}
+                  >
+                    Execution
+                  </MenuButton>
+                  <MenuList>
+                    {executionDropdownItems.map((item) => (
+                      <MenuItem key={item.path} onClick={() => handleNavigation(item.path)} _focus={{ boxShadow: 'none', outline: 'none' }} _hover={{ bg: 'gray.100', borderColor: 'transparent' }}>
+                        {item.label}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
+
+                {/* Flat items (Chat, Team, Admin) */}
+                {flatNavItems.map((item) => (
+                  <Button
+                    key={item.path}
+                    variant="ghost"
+                    color={isActiveRoute(item.path) ? 'purple.400' : textColor}
+                    fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
+                    border="none"
+                    outline="none"
+                    bg="transparent"
+                    _hover={{ bg: 'transparent', border: 'none', outline: 'none', color: 'purple.400' }}
+                    _active={{ bg: 'transparent', border: 'none', outline: 'none' }}
+                    _focus={{ bg: 'transparent', border: 'none', outline: 'none', boxShadow: 'none' }}
+                    onClick={() => handleNavigation(item.path)}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+              </>
+            ) : (
+              publicNavItems.map((item) => (
                 <Button
                   key={item.path}
                   variant="ghost"
@@ -134,28 +273,15 @@ const NavigationBar: React.FC = () => {
                   border="none"
                   outline="none"
                   bg="transparent"
-                  _hover={{ 
-                    bg: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                    color: 'purple.400',
-                  }}
-                  _active={{ 
-                    bg: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                  }}
-                  _focus={{
-                    bg: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                    boxShadow: 'none',
-                  }}
+                  _hover={{ bg: 'transparent', border: 'none', outline: 'none', color: 'purple.400' }}
+                  _active={{ bg: 'transparent', border: 'none', outline: 'none' }}
+                  _focus={{ bg: 'transparent', border: 'none', outline: 'none', boxShadow: 'none' }}
                   onClick={() => handleNavigation(item.path)}
                 >
-                {item.label}
-              </Button>
-            ))}
+                  {item.label}
+                </Button>
+              ))
+            )}
           </HStack>
 
           {/* Desktop Auth Section */}
@@ -288,19 +414,25 @@ const NavigationBar: React.FC = () => {
 
           <DrawerBody>
             <VStack spacing={4} align="stretch" border="none">
-              {/* Navigation Items - Different for authenticated vs public */}
-              {(isAuthenticated ? authenticatedNavItems : publicNavItems).map((item) => (
+              {/* Navigation Items */}
+              {(isAuthenticated ? [
+                ...authenticatedNavItems,
+                ...analysisDropdownItems,
+                ...intelligenceDropdownItems,
+                ...executionDropdownItems,
+                ...flatNavItems,
+              ] : publicNavItems).map((item) => (
                 <Button
                   key={item.path}
                   variant="ghost"
                   justifyContent="flex-start"
-                  color={isActiveRoute(item.path) ? 'purple.600' : textColor}
+                  color={isActiveRoute(item.path) ? 'purple.600' : 'gray.800'}
                   fontWeight={isActiveRoute(item.path) ? 'semibold' : 'normal'}
                   border="none"
                   outline="none"
                   bg="transparent"
-                  _hover={{ 
-                    border: 'none', 
+                  _hover={{
+                    border: 'none',
                     outline: 'none',
                     bg: 'transparent',
                     color: 'purple.600',
